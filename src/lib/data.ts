@@ -1,0 +1,55 @@
+import type { Project } from './types';
+
+export const projects: Project[] = [
+  {
+    id: '1',
+    title: 'Modern Downtown Skyscraper',
+    description: 'A 50-story mixed-use skyscraper featuring a sleek glass facade, sustainable energy systems, and luxury amenities. It has redefined the city skyline.',
+    image: 'https://placehold.co/600x400.png',
+    category: 'Commercial',
+    tags: ['modern', 'skyscraper', 'sustainable'],
+    featured: true,
+  },
+  {
+    id: '2',
+    title: 'Lakeside Family Home',
+    description: 'A custom-built residential home with panoramic lake views, an open-concept living space, and natural wood finishes throughout.',
+    image: 'https://placehold.co/600x400.png',
+    category: 'Residential',
+    tags: ['family', 'lakefront', 'modern'],
+    featured: true,
+  },
+  {
+    id: '3',
+    title: 'Advanced Research Facility',
+    description: 'State-of-the-art industrial complex designed for scientific research, featuring controlled environments and heavy-duty infrastructure.',
+    image: 'https://placehold.co/600x400.png',
+    category: 'Industrial',
+    tags: ['tech', 'research', 'industrial'],
+    featured: true,
+  },
+  {
+    id: '4',
+    title: 'Historic Theatre Restoration',
+    description: 'A meticulous restoration of a 1920s theatre, preserving its historic architecture while upgrading it with modern acoustics and seating.',
+    image: 'https://placehold.co/600x400.png',
+    category: 'Commercial',
+    tags: ['restoration', 'historic', 'community'],
+  },
+  {
+    id: '5',
+    title: 'Suburban Housing Development',
+    description: 'A planned community of 50 single-family homes with shared green spaces, playgrounds, and a community center.',
+    image: 'https://placehold.co/600x400.png',
+    category: 'Residential',
+    tags: ['community', 'suburban', 'family'],
+  },
+    {
+    id: '6',
+    title: 'Eco-Friendly Office Park',
+    description: 'A corporate campus designed with sustainability in mind, featuring solar panels, green roofs, and rainwater harvesting systems.',
+    image: 'https://placehold.co/600x400.png',
+    category: 'Commercial',
+    tags: ['sustainable', 'modern', 'corporate'],
+  },
+];
