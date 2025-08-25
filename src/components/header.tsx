@@ -10,6 +10,8 @@ import { cn } from '@/lib/utils';
 
 const navLinks = [
   { href: '/', label: 'Home' },
+  { href: '/about', label: 'About' },
+  { href: '/services', label: 'Services' },
   { href: '/projects', label: 'Projects' },
   { href: '/admin/add-project', label: 'Add Project' },
   { href: '/contact', label: 'Contact' },
@@ -35,7 +37,7 @@ export function Header() {
           {navLinks.map((link) => (
             <Link
               key={link.href}
-              href={link.href}
+              href={link.href === '/services' ? '/#services' : link.href}
               className={cn(
                 'transition-colors hover:text-primary',
                 pathname === link.href ? 'text-primary font-semibold' : 'text-muted-foreground'
@@ -64,7 +66,7 @@ export function Header() {
                     {navLinks.map((link) => (
                       <Link
                         key={link.href}
-                        href={link.href}
+                        href={link.href === '/services' ? '/#services' : link.href}
                         onClick={() => setIsMobileMenuOpen(false)}
                         className={cn(
                           'text-lg font-medium transition-colors hover:text-primary',

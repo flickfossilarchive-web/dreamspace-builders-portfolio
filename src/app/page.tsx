@@ -2,8 +2,56 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ProjectCard } from '@/components/project-card';
 import { projects } from '@/lib/data';
-import { ArrowRight, Building, Palette, Users, Star } from 'lucide-react';
+import { ArrowRight, Building, Palette, Users, Star, PenTool, GanttChartSquare, DraftingCompass, Files, Rss, Layers } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+const services = [
+    {
+        icon: Building,
+        title: "Building Construction",
+        description: "High-quality construction for residential, commercial, and industrial projects, ensuring durability and excellence from foundation to finish."
+    },
+    {
+        icon: GanttChartSquare,
+        title: "Contracting",
+        description: "Comprehensive contracting services, managing all aspects of your project to ensure it's completed on time and within budget."
+    },
+    {
+        icon: Users,
+        title: "Consulting",
+        description: "Expert consulting to guide you through every phase of your project, from initial planning to final handover."
+    },
+    {
+        icon: DraftingCompass,
+        title: "Drafting",
+        description: "Precision drafting services to create detailed and accurate blueprints for your construction projects."
+    },
+    {
+        icon: Rss,
+        title: "Supervision",
+        description: "Dedicated on-site supervision to ensure quality control and adherence to project specifications."
+    },
+    {
+        icon: Palette,
+        title: "Interior Designing",
+        description: "Creative and functional interior design solutions that bring your vision to life and enhance your space."
+    },
+    {
+        icon: PenTool,
+        title: "Architect Engineer",
+        description: "Innovative architectural and engineering services to design functional, safe, and aesthetically pleasing structures."
+    },
+    {
+        icon: Layers,
+        title: "Turn Key Projects",
+        description: "Complete turn-key solutions, taking your project from concept to completion with a single point of contact."
+    },
+    {
+        icon: Files,
+        title: "Estimation",
+        description: "Accurate and detailed project cost estimation to help you plan and budget effectively."
+    }
+];
 
 export default function Home() {
   const featuredProjects = projects.filter((p) => p.featured);
@@ -35,7 +83,7 @@ export default function Home() {
       </section>
 
       {/* Services Section */}
-      <section className="py-20 md:py-28 bg-secondary">
+      <section id="services" className="py-20 md:py-28 bg-secondary">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-headline font-bold tracking-tight text-primary">Our Core Services</h2>
@@ -43,46 +91,22 @@ export default function Home() {
               From initial concept to final execution, we provide comprehensive solutions with a focus on quality and innovation.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="text-center bg-card/50 backdrop-blur-sm border border-border/50 shadow-lg hover:shadow-primary/20 hover:-translate-y-2 transition-all duration-300">
-              <CardHeader>
-                <div className="mx-auto bg-primary/10 rounded-full p-4 w-fit">
-                  <Building className="h-10 w-10 text-primary" />
-                </div>
-                <CardTitle className="font-headline mt-4 text-2xl">Building Construction</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  Our commitment to quality is unwavering. We use the best materials and skilled labor to ensure every project is built to last.
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="text-center bg-card/50 backdrop-blur-sm border border-border/50 shadow-lg hover:shadow-primary/20 hover:-translate-y-2 transition-all duration-300">
-              <CardHeader>
-                <div className="mx-auto bg-primary/10 rounded-full p-4 w-fit">
-                  <Palette className="h-10 w-10 text-primary" />
-                </div>
-                <CardTitle className="font-headline mt-4 text-2xl">Interior Designing</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                  From concept to completion, our team creates beautiful and functional spaces tailored to your lifestyle and vision.
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="text-center bg-card/50 backdrop-blur-sm border border-border/50 shadow-lg hover:shadow-primary/20 hover:-translate-y-2 transition-all duration-300">
-              <CardHeader>
-                <div className="mx-auto bg-primary/10 rounded-full p-4 w-fit">
-                  <Users className="h-10 w-10 text-primary" />
-                </div>
-                <CardTitle className="font-headline mt-4 text-2xl">Expert Consultation</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">
-                 Our team of architects and engineers provide expert guidance and supervision for all your project needs.
-                </p>
-              </CardContent>
-            </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {services.map((service, index) => (
+              <Card key={index} className="text-center bg-card/50 backdrop-blur-sm border border-border/50 shadow-lg hover:shadow-primary/20 hover:-translate-y-2 transition-all duration-300">
+                <CardHeader>
+                  <div className="mx-auto bg-primary/10 rounded-full p-4 w-fit">
+                    <service.icon className="h-10 w-10 text-primary" />
+                  </div>
+                  <CardTitle className="font-headline mt-4 text-2xl">{service.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    {service.description}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
