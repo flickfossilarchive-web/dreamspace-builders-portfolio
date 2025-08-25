@@ -17,15 +17,15 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" disabled={pending} className="w-full bg-accent hover:bg-accent/90">
+    <Button type="submit" disabled={pending} size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
       {pending ? (
         <>
-          <Sparkles className="mr-2 h-4 w-4 animate-spin" />
+          <Sparkles className="mr-2 h-5 w-5 animate-spin" />
           Generating...
         </>
       ) : (
         <>
-          <Sparkles className="mr-2 h-4 w-4" />
+          <Sparkles className="mr-2 h-5 w-5" />
           Generate Description
         </>
       )}
@@ -68,17 +68,16 @@ export function AddProjectForm() {
       toast({
         title: "Success!",
         description: "Project description generated.",
-        variant: "default",
       })
     }
   }, [state, toast])
 
   return (
     <form action={dispatch} className="space-y-8">
-      <div className="space-y-2">
-        <Label htmlFor="image">Project Image</Label>
+      <div className="space-y-3">
+        <Label htmlFor="image" className="text-lg">Project Image</Label>
         <div 
-          className="relative flex justify-center items-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+          className="relative flex justify-center items-center w-full h-64 border-2 border-dashed border-border/80 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
           onClick={() => fileInputRef.current?.click()}
         >
           {imagePreview ? (
@@ -86,8 +85,8 @@ export function AddProjectForm() {
           ) : (
             <div className="text-center text-muted-foreground">
               <UploadCloud className="mx-auto h-12 w-12" />
-              <p className="mt-2">Click to upload or drag and drop</p>
-              <p className="text-xs">PNG, JPG, GIF up to 10MB</p>
+              <p className="mt-2 font-semibold">Click to upload or drag and drop</p>
+              <p className="text-xs mt-1">PNG, JPG, or GIF (Max 10MB)</p>
             </div>
           )}
         </div>
@@ -105,13 +104,13 @@ export function AddProjectForm() {
         )}
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="constructionData">Construction Data</Label>
+      <div className="space-y-3">
+        <Label htmlFor="constructionData" className="text-lg">Construction Data</Label>
         <Textarea
           id="constructionData"
           name="constructionData"
           placeholder="e.g., 50-story mixed-use skyscraper, glass facade, sustainable energy systems, luxury amenities..."
-          className="min-h-[150px]"
+          className="min-h-[150px] text-base"
         />
         {state.errors?.constructionData && (
           <p className="text-sm font-medium text-destructive">{state.errors.constructionData[0]}</p>
@@ -129,16 +128,16 @@ export function AddProjectForm() {
       <SubmitButton />
 
       {state.description && (
-        <div className="space-y-4 pt-4 border-t">
-          <h3 className="text-xl font-headline text-primary">Generated Description</h3>
-           <Card className="bg-secondary">
+        <div className="space-y-4 pt-6 border-t border-border/60">
+          <h3 className="text-2xl font-headline text-primary">Generated Description</h3>
+           <Card className="bg-background/80">
             <CardContent className="p-4 relative">
-              <p className="text-secondary-foreground whitespace-pre-wrap">{state.description}</p>
+              <p className="text-foreground whitespace-pre-wrap">{state.description}</p>
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="absolute top-2 right-2 h-7 w-7"
+                className="absolute top-2 right-2 h-8 w-8 text-muted-foreground hover:text-primary"
                 onClick={handleCopyToClipboard}
               >
                 <ClipboardCopy className="h-4 w-4" />

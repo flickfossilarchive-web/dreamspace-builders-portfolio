@@ -20,26 +20,25 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-lg">
+      <div className="container flex h-20 items-center">
         <div className="mr-4 flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Building2 className="h-6 w-6 text-primary" />
-            <span className="font-bold font-headline sm:inline-block">
+            <Building2 className="h-7 w-7 text-primary" />
+            <span className="text-xl font-bold font-headline sm:inline-block">
               DreamSpace Builders
             </span>
           </Link>
         </div>
         
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+        <nav className="hidden md:flex items-center space-x-8 text-sm font-medium">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
                 'transition-colors hover:text-primary',
-                pathname === link.href ? 'text-primary' : 'text-muted-foreground'
+                pathname === link.href ? 'text-primary font-semibold' : 'text-muted-foreground'
               )}
             >
               {link.label}
@@ -48,7 +47,6 @@ export function Header() {
         </nav>
 
         <div className="flex flex-1 items-center justify-end">
-            {/* Mobile Navigation */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild className="md:hidden">
                 <Button variant="ghost" size="icon">
@@ -56,11 +54,11 @@ export function Header() {
                   <span className="sr-only">Open menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right">
+              <SheetContent side="right" className="bg-background">
                 <div className="p-4">
                   <Link href="/" className="flex items-center space-x-2 mb-8">
-                     <Building2 className="h-6 w-6 text-primary" />
-                    <span className="font-bold font-headline">DreamSpace Builders</span>
+                     <Building2 className="h-7 w-7 text-primary" />
+                    <span className="text-xl font-bold font-headline">DreamSpace Builders</span>
                   </Link>
                   <nav className="flex flex-col space-y-4">
                     {navLinks.map((link) => (

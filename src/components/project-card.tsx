@@ -12,27 +12,28 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project }: ProjectCardProps) {
   return (
-    <Card className="flex flex-col overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+    <Card className="flex flex-col overflow-hidden bg-secondary border-border/60 shadow-lg hover:shadow-primary/20 transition-all duration-300 group hover:-translate-y-1">
       <CardHeader className="p-0">
-        <div className="relative aspect-video w-full">
+        <div className="relative aspect-video w-full overflow-hidden">
           <Image
             src={project.image}
             alt={project.title}
             fill
-            className="object-cover"
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
             data-ai-hint={`${project.category.toLowerCase()} ${project.tags[0]}`}
           />
+           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10"></div>
         </div>
       </CardHeader>
       <div className="flex flex-col flex-grow p-6">
-        <CardTitle className="font-headline text-xl mb-2">{project.title}</CardTitle>
-        <div className="mb-4">
-          <Badge variant="secondary">{project.category}</Badge>
+        <div className="mb-3">
+          <Badge variant="default" className="bg-primary/10 text-primary border-primary/20">{project.category}</Badge>
         </div>
+        <CardTitle className="font-headline text-xl mb-2">{project.title}</CardTitle>
         <CardDescription className="flex-grow text-muted-foreground">{project.description}</CardDescription>
       </div>
-      <CardFooter>
-        <Button asChild variant="outline" className="w-full">
+      <CardFooter className="p-6 bg-secondary/50">
+        <Button asChild variant="outline" className="w-full font-semibold">
           <Link href="/contact">
             Contact for Plans <ArrowRight className="ml-2 h-4 w-4" />
           </Link>

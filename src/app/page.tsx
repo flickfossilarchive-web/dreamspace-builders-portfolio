@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ProjectCard } from '@/components/project-card';
 import { projects } from '@/lib/data';
-import { ArrowRight, Building, Palette, Users } from 'lucide-react';
+import { ArrowRight, Building, Palette, Users, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function Home() {
@@ -11,43 +11,45 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative py-24 md:py-32 bg-primary/10">
-        <div className="container mx-auto text-center px-4">
-          <h1 className="font-headline text-4xl md:text-6xl font-bold tracking-tight text-primary-foreground drop-shadow-md bg-primary p-4 rounded-lg inline-block">
+      <section className="relative min-h-[60vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent"></div>
+        <div className="container mx-auto text-center px-4 z-20">
+          <h1 className="font-headline text-5xl md:text-7xl font-extrabold tracking-tight text-foreground drop-shadow-lg">
             DreamSpace Builders
           </h1>
-          <p className="mt-6 text-lg md:text-xl max-w-3xl mx-auto text-foreground/80">
-            Building the future, together. We deliver excellence in construction and design.
+          <p className="mt-6 text-lg md:text-xl max-w-3xl mx-auto text-muted-foreground">
+            BUILT By YOU..... We deliver excellence in construction and design, creating spaces that inspire.
           </p>
-          <div className="mt-8 flex justify-center gap-4">
-            <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+          <div className="mt-10 flex justify-center gap-4">
+            <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg">
               <Link href="/projects">
-                View Our Work <ArrowRight className="ml-2 h-5 w-5" />
+                Explore Our Work <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link href="/contact">Get a Quote</Link>
+            <Button asChild size="lg" variant="outline" className="font-semibold shadow-lg">
+              <Link href="/contact">Request a Quote</Link>
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Why Choose Us Section */}
-      <section className="py-16 md:py-24 bg-background">
+      {/* Services Section */}
+      <section className="py-20 md:py-28 bg-secondary">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-headline font-bold tracking-tight text-primary">Our Services</h2>
-            <p className="mt-2 text-lg text-muted-foreground">
-              Experience, innovation, and commitment.
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-headline font-bold tracking-tight text-primary">Our Core Services</h2>
+            <p className="mt-3 text-lg text-muted-foreground max-w-2xl mx-auto">
+              From initial concept to final execution, we provide comprehensive solutions with a focus on quality and innovation.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="text-center shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <Card className="text-center bg-card/50 backdrop-blur-sm border border-border/50 shadow-lg hover:shadow-primary/20 hover:-translate-y-2 transition-all duration-300">
               <CardHeader>
                 <div className="mx-auto bg-primary/10 rounded-full p-4 w-fit">
-                  <Building className="h-8 w-8 text-primary" />
+                  <Building className="h-10 w-10 text-primary" />
                 </div>
-                <CardTitle className="font-headline mt-4">Building Construction</CardTitle>
+                <CardTitle className="font-headline mt-4 text-2xl">Building Construction</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
@@ -55,12 +57,12 @@ export default function Home() {
                 </p>
               </CardContent>
             </Card>
-            <Card className="text-center shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <Card className="text-center bg-card/50 backdrop-blur-sm border border-border/50 shadow-lg hover:shadow-primary/20 hover:-translate-y-2 transition-all duration-300">
               <CardHeader>
                 <div className="mx-auto bg-primary/10 rounded-full p-4 w-fit">
-                  <Palette className="h-8 w-8 text-primary" />
+                  <Palette className="h-10 w-10 text-primary" />
                 </div>
-                <CardTitle className="font-headline mt-4">Interior Designing</CardTitle>
+                <CardTitle className="font-headline mt-4 text-2xl">Interior Designing</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
@@ -68,12 +70,12 @@ export default function Home() {
                 </p>
               </CardContent>
             </Card>
-            <Card className="text-center shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <Card className="text-center bg-card/50 backdrop-blur-sm border border-border/50 shadow-lg hover:shadow-primary/20 hover:-translate-y-2 transition-all duration-300">
               <CardHeader>
                 <div className="mx-auto bg-primary/10 rounded-full p-4 w-fit">
-                  <Users className="h-8 w-8 text-primary" />
+                  <Users className="h-10 w-10 text-primary" />
                 </div>
-                <CardTitle className="font-headline mt-4">Expert Consultation</CardTitle>
+                <CardTitle className="font-headline mt-4 text-2xl">Expert Consultation</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">
@@ -86,12 +88,12 @@ export default function Home() {
       </section>
 
       {/* Featured Projects Section */}
-      <section className="py-16 md:py-24 bg-secondary">
+      <section className="py-20 md:py-28 bg-background">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-headline font-bold tracking-tight text-primary">Featured Projects</h2>
-            <p className="mt-2 text-lg text-muted-foreground">
-              A glimpse into our finest work.
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-headline font-bold tracking-tight text-primary">Featured Projects</h2>
+            <p className="mt-3 text-lg text-muted-foreground max-w-2xl mx-auto">
+              A glimpse into our finest work and commitment to excellence.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -99,10 +101,10 @@ export default function Home() {
               <ProjectCard key={project.id} project={project} />
             ))}
           </div>
-           <div className="text-center mt-12">
+           <div className="text-center mt-16">
             <Button asChild size="lg" variant="outline">
               <Link href="/projects">
-                See All Projects <ArrowRight className="ml-2 h-5 w-5" />
+                View All Projects <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
           </div>
