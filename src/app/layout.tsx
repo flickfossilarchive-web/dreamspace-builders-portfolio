@@ -6,7 +6,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
-  title: 'ConstructConnect',
+  title: 'DreamSpace Builders',
   description: 'Your partner in building the future.',
 };
 

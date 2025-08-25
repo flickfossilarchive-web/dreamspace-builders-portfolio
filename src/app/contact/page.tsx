@@ -23,7 +23,7 @@ export default function ContactPage() {
                 </div>
                 <div className="ml-4">
                     <h3 className="text-lg font-semibold font-headline">Our Office</h3>
-                    <p className="text-muted-foreground">123 Construction Ave, Buildtown, ST 12345</p>
+                    <p className="text-muted-foreground">#70/7, 15th Cross Road, Nijalingappa Layout, Davanagere - 577004</p>
                 </div>
             </div>
             <div className="flex items-start">
@@ -32,7 +32,7 @@ export default function ContactPage() {
                 </div>
                 <div className="ml-4">
                     <h3 className="text-lg font-semibold font-headline">Email Us</h3>
-                    <a href="mailto:contact@constructconnect.com" className="text-muted-foreground hover:text-primary transition-colors">contact@constructconnect.com</a>
+                    <a href="mailto:Dreamspacebuilders12@gmail.com" className="text-muted-foreground hover:text-primary transition-colors">Dreamspacebuilders12@gmail.com</a>
                 </div>
             </div>
              <div className="flex items-start">
@@ -41,7 +41,7 @@ export default function ContactPage() {
                 </div>
                 <div className="ml-4">
                     <h3 className="text-lg font-semibold font-headline">Call Us</h3>
-                    <a href="tel:+1234567890" className="text-muted-foreground hover:text-primary transition-colors">(123) 456-7890</a>
+                    <a href="tel:9008592532" className="text-muted-foreground hover:text-primary transition-colors">9008592532</a>
                 </div>
             </div>
         </div>
