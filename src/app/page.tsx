@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ProjectCard } from '@/components/project-card';
 import { projects } from '@/lib/data';
-import { ArrowRight, Building, Palette, Users, Star, PenTool, GanttChartSquare, DraftingCompass, Files, Rss, Layers } from 'lucide-react';
+import { ArrowRight, Building, Palette, Users, Star, PenTool, GanttChartSquare, DraftingCompass, Files, Rss, Layers, Mail } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const services = [
@@ -69,14 +69,18 @@ export default function Home() {
           <p className="mt-6 text-lg md:text-xl max-w-3xl mx-auto text-muted-foreground">
             BUILT By YOU..... We deliver excellence in construction and design, creating spaces that inspire.
           </p>
-          <div className="mt-10 flex justify-center gap-4">
-            <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg">
+          <div className="mt-10 flex flex-col sm:flex-row justify-center items-center gap-4">
+            <Button asChild size="lg" className="font-semibold shadow-lg group bg-gradient-to-r from-primary to-primary/80 text-primary-foreground hover:from-primary/90 hover:to-primary/70 transition-all duration-300 transform hover:scale-105">
               <Link href="/projects">
-                Explore Our Work <ArrowRight className="ml-2 h-5 w-5" />
+                Explore Our Work
+                <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="font-semibold shadow-lg">
-              <Link href="/contact">Request a Quote</Link>
+            <Button asChild size="lg" variant="outline" className="font-semibold shadow-lg bg-background/50 backdrop-blur-sm hover:bg-accent/80 hover:text-accent-foreground transition-all duration-300 transform hover:scale-105">
+              <Link href="/contact">
+                Request a Quote
+                <Mail className="ml-2 h-4 w-4" />
+              </Link>
             </Button>
           </div>
         </div>
