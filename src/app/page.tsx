@@ -81,7 +81,7 @@ export default function Home() {
         <div className="container mx-auto px-4 z-30 mt-auto mb-20 md:mb-32">
           <div className="max-w-4xl">
             <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-white drop-shadow-2xl">
-              ConstructConnect
+              Dreamspace Builders
             </h1>
             <p className="mt-6 text-lg md:text-xl max-w-2xl text-neutral-200">
               Connecting vision with craftsmanship. We deliver excellence in construction and design, creating spaces that inspire.

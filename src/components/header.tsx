@@ -28,7 +28,7 @@ export function Header() {
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Building2 className="h-7 w-7 text-primary" />
             <span className="text-xl font-bold font-headline sm:inline-block">
-              ConstructConnect
+              Dreamspace Builders
             </span>
           </Link>
         </div>
@@ -61,7 +61,7 @@ export function Header() {
                 <div className="p-4">
                   <Link href="/" className="flex items-center space-x-2 mb-8">
                      <Building2 className="h-7 w-7 text-primary" />
-                    <span className="text-xl font-bold font-headline">ConstructConnect</span>
+                    <span className="text-xl font-bold font-headline">Dreamspace Builders</span>
                   </Link>
                   <nav className="flex flex-col space-y-4">
                     {navLinks.map((link) => (

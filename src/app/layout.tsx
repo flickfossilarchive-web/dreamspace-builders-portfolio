@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 export const metadata: Metadata = {
-  title: 'ConstructConnect',
+  title: 'Dreamspace Builders',
   description: 'Your partner in building the future.',
 };
 

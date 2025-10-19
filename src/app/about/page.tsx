@@ -8,7 +8,7 @@ export default function AboutPage() {
   return (
     <div className="container mx-auto px-4 py-16 md:py-24">
       <div className="text-center mb-16">
-        <h1 className="text-5xl md:text-6xl font-bold font-headline text-foreground">About ConstructConnect</h1>
+        <h1 className="text-5xl md:text-6xl font-bold font-headline text-foreground">About Dreamspace Builders</h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
           Pioneering the future of construction with integrity, innovation, and unparalleled quality.
         </p>
@@ -29,7 +29,7 @@ export default function AboutPage() {
           <div>
             <h2 className="text-3xl font-headline font-bold text-foreground mb-4">Who We Are</h2>
             <p className="text-muted-foreground text-lg leading-relaxed">
-              ConstructConnect is a premier construction and design firm dedicated to turning visions into reality. With years of experience in residential, commercial, and industrial projects, we have built a reputation for excellence, reliability, and innovation. Our team is our greatest asset—a collective of skilled architects, engineers, designers, and builders passionate about crafting spaces that are not only aesthetically pleasing but also functional and enduring. We believe in a collaborative approach, working closely with our clients from the initial concept to the final nail, ensuring every detail reflects their dreams.
+              Dreamspace Builders is a premier construction and design firm dedicated to turning visions into reality. With years of experience in residential, commercial, and industrial projects, we have built a reputation for excellence, reliability, and innovation. Our team is our greatest asset—a collective of skilled architects, engineers, designers, and builders passionate about crafting spaces that are not only aesthetically pleasing but also functional and enduring. We believe in a collaborative approach, working closely with our clients from the initial concept to the final nail, ensuring every detail reflects their dreams.
             </p>
           </div>
            <div>
