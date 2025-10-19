@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ProjectCard } from '@/components/project-card';
-import { ArrowRight, Building, Palette, Users, PenTool, GanttChartSquare, DraftingCompass, Rss, Layers, Mail } from 'lucide-react';
+import { ArrowRight, Building, Palette, Users, PenTool, GanttChartSquare, DraftingCompass, Rss, Layers, Mail, Calculator } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import placeholderImages from '@/lib/placeholder-images.json';
 import Image from 'next/image';
@@ -29,7 +29,7 @@ const services = [
     },
     {
         icon: DraftingCompass,
-        title: "Drafting & Estimation",
+        title: "Drafting",
         description: "Precision drafting and accurate cost estimation for effective planning."
     },
     {
@@ -52,6 +52,11 @@ const services = [
         title: "Turn Key Projects",
         description: "Complete turn-key solutions, from concept to completion."
     },
+    {
+        icon: Calculator,
+        title: "Estimation",
+        description: "Accurate cost estimation to help you budget for your project effectively."
+    }
 ];
 
 export default function Home() {
@@ -113,7 +118,7 @@ export default function Home() {
               We offer a comprehensive suite of services to bring your vision to life with quality, integrity, and innovation at every step.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {services.map((service, index) => (
               <Card key={index} className="text-center bg-card shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group">
                 <CardHeader className="items-center">
