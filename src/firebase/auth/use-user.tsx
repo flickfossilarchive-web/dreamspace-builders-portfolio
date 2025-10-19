@@ -7,18 +7,26 @@ export function useUser() {
   const auth = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (!auth) {
       setLoading(false);
       return;
     }
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const tokenResult = await user.getIdTokenResult();
+        setIsAdmin(!!tokenResult.claims.admin);
+        setUser(user);
+      } else {
+        setUser(null);
+        setIsAdmin(false);
+      }
       setLoading(false);
     });
     return () => unsubscribe();
   }, [auth]);
 
-  return { user, loading };
+  return { user, isAdmin, loading };
 }

@@ -7,19 +7,26 @@ import { Building2, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
+import { useUser } from '@/firebase';
 
 const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/about', label: 'About' },
   { href: '/services', label: 'Services' },
   { href: '/projects', label: 'Projects' },
-  { href: '/admin/add-project', label: 'Add Project' },
   { href: '/contact', label: 'Contact' },
 ];
+
+const adminNavLinks = [
+    { href: '/admin/add-project', label: 'Add Project' }
+]
 
 export function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, isAdmin } = useUser();
+
+  const allNavLinks = isAdmin ? [...navLinks, ...adminNavLinks] : navLinks;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-lg">
@@ -34,7 +41,7 @@ export function Header() {
         </div>
         
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-          {navLinks.map((link) => (
+          {allNavLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href === '/services' ? '/#services' : link.href}
@@ -67,7 +74,7 @@ export function Header() {
                     <span className="text-xl font-bold font-headline">DreamSpace Builders</span>
                   </Link>
                   <nav className="flex flex-col space-y-4">
-                    {navLinks.map((link) => (
+                    {allNavLinks.map((link) => (
                       <Link
                         key={link.href}
                         href={link.href === '/services' ? '/#services' : link.href}

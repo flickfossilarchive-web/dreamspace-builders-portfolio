@@ -4,9 +4,10 @@ import { useUser, useAuth } from '@/firebase';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { Button } from '@/components/ui/button';
 import { FcGoogle } from 'react-icons/fc';
+import { ShieldAlert } from 'lucide-react';
 
 export default function AddProjectPage() {
-  const { user, loading } = useUser();
+  const { user, isAdmin, loading } = useUser();
   const auth = useAuth();
 
   const handleSignIn = async () => {
@@ -32,17 +33,25 @@ export default function AddProjectPage() {
     <div className="container mx-auto px-4 py-16 md:py-24">
       <div className="max-w-3xl mx-auto">
         {user ? (
-          <>
-            <div className="text-center mb-12">
-              <h1 className="text-5xl md:text-6xl font-bold font-headline text-primary">Add New Project</h1>
-              <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-                Fill out the form below to add a new project to your portfolio.
-              </p>
-            </div>
-            <div className="bg-secondary p-8 rounded-lg shadow-lg border border-border/60">
-              <AddProjectForm />
-            </div>
-          </>
+          isAdmin ? (
+            <>
+              <div className="text-center mb-12">
+                <h1 className="text-5xl md:text-6xl font-bold font-headline text-primary">Add New Project</h1>
+                <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+                  Fill out the form below to add a new project to your portfolio.
+                </p>
+              </div>
+              <div className="bg-secondary p-8 rounded-lg shadow-lg border border-border/60">
+                <AddProjectForm />
+              </div>
+            </>
+          ) : (
+             <div className="text-center bg-secondary p-12 rounded-lg shadow-lg border border-destructive/30">
+                <ShieldAlert className="mx-auto h-16 w-16 text-destructive mb-6" />
+                <h1 className="text-4xl font-bold font-headline text-primary mb-4">Access Denied</h1>
+                <p className="text-lg text-muted-foreground mb-8">You do not have permission to access this page. Please contact the site administrator if you believe this is an error.</p>
+             </div>
+          )
         ) : (
           <div className="text-center">
             <h1 className="text-4xl font-bold font-headline text-primary mb-4">Admin Access Required</h1>
