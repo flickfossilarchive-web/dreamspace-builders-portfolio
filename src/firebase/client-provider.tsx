@@ -12,11 +12,7 @@ export function FirebaseClientProvider({ children }: { children: React.ReactNode
       !firebaseConfig.authDomain ||
       !firebaseConfig.projectId
     ) {
-      // In a real-world application, you would want to handle this error more gracefully.
-      // For this project, we'll throw an error to make it clear that the configuration is missing.
-       console.error(
-        'Firebase environment variables are not set. Please add them to your .env file.'
-      );
+      // Don't initialize firebase if the config is not present
       return { firebaseApp: null, firestore: null, auth: null };
     }
     return initializeFirebase();
