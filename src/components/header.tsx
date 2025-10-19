@@ -5,28 +5,22 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Building2, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
-import { useUser } from '@/firebase';
+import { DialogTitle } from '@radix-ui/react-dialog';
 
 const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/about', label: 'About' },
-  { href: '/services', label: 'Services' },
   { href: '/projects', label: 'Projects' },
   { href: '/contact', label: 'Contact' },
+  { href: '/admin/add-project', label: 'Add Project' }
 ];
 
-const adminNavLinks = [
-    { href: '/admin/add-project', label: 'Add Project' }
-]
 
 export function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { user, isAdmin } = useUser();
-
-  const allNavLinks = isAdmin ? [...navLinks, ...adminNavLinks] : navLinks;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-lg">
@@ -41,7 +35,7 @@ export function Header() {
         </div>
         
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-          {allNavLinks.map((link) => (
+          {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href === '/services' ? '/#services' : link.href}
@@ -64,17 +58,14 @@ export function Header() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[80vw] bg-background/95 backdrop-blur-lg">
-                <SheetHeader>
-                  <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
-                  <SheetDescription className="sr-only">Main navigation links for mobile.</SheetDescription>
-                </SheetHeader>
+                <DialogTitle className="sr-only">Mobile Menu</DialogTitle>
                 <div className="p-4">
                   <Link href="/" className="flex items-center space-x-2 mb-8">
                      <Building2 className="h-7 w-7 text-primary" />
                     <span className="text-xl font-bold font-headline">DreamSpace Builders</span>
                   </Link>
                   <nav className="flex flex-col space-y-4">
-                    {allNavLinks.map((link) => (
+                    {navLinks.map((link) => (
                       <Link
                         key={link.href}
                         href={link.href === '/services' ? '/#services' : link.href}
