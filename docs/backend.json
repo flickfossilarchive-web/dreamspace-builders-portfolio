@@ -1,0 +1,93 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Represents a user's profile in the application.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The user's unique ID."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The user's email address."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The user's display name."
+        },
+        "photoURL": {
+          "type": "string",
+          "format": "uri",
+          "description": "The URL of the user's profile picture."
+        }
+      },
+      "required": ["uid", "email"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Represents a construction project in the portfolio.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "The title of the project."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the project."
+        },
+        "imageUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "The URL of the main project image."
+        },
+        "category": {
+          "type": "string",
+          "enum": ["Residential", "Commercial", "Industrial"],
+          "description": "The category of the project."
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of tags associated with the project."
+        },
+        "featured": {
+            "type": "boolean",
+            "description": "Whether the project is featured on the homepage."
+        },
+        "authorUid": {
+            "type": "string",
+            "description": "The UID of the user who created the project."
+        },
+        "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp when the project was created."
+        }
+      },
+      "required": ["title", "description", "imageUrl", "category", "authorUid", "createdAt"]
+    }
+  },
+  "auth": {
+    "providers": ["google.com"]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserProfile"
+      },
+      "description": "Stores public profiles for users."
+    },
+    "/projects": {
+        "schema": {
+            "$ref": "#/entities/Project"
+        },
+        "description": "Stores all the construction projects for the portfolio."
+    }
+  }
+}

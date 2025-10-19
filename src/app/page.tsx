@@ -1,11 +1,15 @@
+'use client';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ProjectCard } from '@/components/project-card';
-import { projects as projectData } from '@/lib/data';
-import { ArrowRight, Building, Palette, Users, PenTool, GanttChartSquare, DraftingCompass, Rss, Layers, Mail, CheckCircle } from 'lucide-react';
+import { ArrowRight, Building, Palette, Users, PenTool, GanttChartSquare, DraftingCompass, Rss, Layers, Mail } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import placeholderImages from '@/lib/placeholder-images.json';
 import Image from 'next/image';
+import { useCollection } from '@/firebase';
+import type { Project } from '@/lib/types';
+import { collection, query, where, getFirestore } from 'firebase/firestore';
+import { useMemo } from 'react';
 
 const services = [
     {
@@ -51,8 +55,14 @@ const services = [
 ];
 
 export default function Home() {
-  const featuredProjects = projectData.filter((p) => p.featured);
   const { hero } = placeholderImages;
+  const firestore = useMemo(() => getFirestore(), []);
+  const projectsQuery = useMemo(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'projects'), where('featured', '==', true));
+  }, [firestore]);
+
+  const { data: featuredProjects, loading } = useCollection<Project>(projectsQuery);
 
   return (
     <div className="flex flex-col">
@@ -82,7 +92,7 @@ export default function Home() {
                   <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="ghost" className="font-semibold text-lg px-8 py-6 text-white hover:bg-white/10 transition-all duration-300 transform hover:scale-105">
+              <Button asChild size="lg" variant="outline" className="font-semibold text-lg px-8 py-6 text-white hover:bg-white/10 transition-all duration-300 transform hover:scale-105 border-white/50">
                 <Link href="/contact">
                   Request a Quote
                   <Mail className="ml-2 h-4 w-4" />
@@ -104,7 +114,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {services.map((service, index) => (
-              <Card key={index} className="text-center bg-card border-border/60 shadow-lg hover:shadow-primary/20 hover:-translate-y-2 transition-all duration-300 group">
+              <Card key={index} className="text-center bg-card/50 backdrop-blur-sm border border-border/50 shadow-lg hover:shadow-primary/20 hover:-translate-y-2 transition-all duration-300 group">
                 <CardHeader className="items-center">
                   <div className="p-4 bg-primary/10 rounded-full w-fit group-hover:bg-primary transition-colors duration-300">
                     <service.icon className="h-10 w-10 text-primary group-hover:text-primary-foreground transition-colors duration-300" />
@@ -131,11 +141,19 @@ export default function Home() {
               A glimpse into our finest work and commitment to excellence.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredProjects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
-            ))}
-          </div>
+          {loading ? (
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <Card><CardHeader><div className="relative aspect-video w-full overflow-hidden bg-muted animate-pulse"></div></CardHeader><CardContent className="space-y-2 mt-6"><div className="h-6 w-3/4 bg-muted animate-pulse rounded-md"></div><div className="h-4 w-full bg-muted animate-pulse rounded-md"></div></CardContent><CardFooter><div className="h-10 w-full bg-muted animate-pulse rounded-md"></div></CardFooter></Card>
+                <Card><CardHeader><div className="relative aspect-video w-full overflow-hidden bg-muted animate-pulse"></div></CardHeader><CardContent className="space-y-2 mt-6"><div className="h-6 w-3/4 bg-muted animate-pulse rounded-md"></div><div className="h-4 w-full bg-muted animate-pulse rounded-md"></div></CardContent><CardFooter><div className="h-10 w-full bg-muted animate-pulse rounded-md"></div></CardFooter></Card>
+                <Card><CardHeader><div className="relative aspect-video w-full overflow-hidden bg-muted animate-pulse"></div></CardHeader><CardContent className="space-y-2 mt-6"><div className="h-6 w-3/4 bg-muted animate-pulse rounded-md"></div><div className="h-4 w-full bg-muted animate-pulse rounded-md"></div></CardContent><CardFooter><div className="h-10 w-full bg-muted animate-pulse rounded-md"></div></CardFooter></Card>
+             </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {featuredProjects?.map((project) => (
+                <ProjectCard key={project.id} project={project} />
+                ))}
+            </div>
+          )}
            <div className="text-center mt-16">
             <Button asChild size="lg" variant="outline">
               <Link href="/projects">

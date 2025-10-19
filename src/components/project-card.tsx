@@ -16,11 +16,11 @@ export function ProjectCard({ project }: ProjectCardProps) {
       <CardHeader className="p-0">
         <div className="relative aspect-video w-full overflow-hidden">
           <Image
-            src={project.image}
+            src={project.imageUrl}
             alt={project.title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
-            data-ai-hint={project.imageMeta?.hint || `${project.category.toLowerCase()} ${project.tags[0]}`}
+            data-ai-hint={`${project.category.toLowerCase()} ${project.tags[0]}`}
           />
            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
         </div>

@@ -1,45 +1,70 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
-import { useEffect, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { useState, useRef, useTransition } from 'react';
 import Image from 'next/image';
-import { createProjectDescription, type State } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Sparkles, UploadCloud, ClipboardCopy, Check, AlertCircle } from 'lucide-react';
+import { UploadCloud, AlertCircle, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent } from '@/components/ui/card';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { collection, addDoc, getFirestore } from 'firebase/firestore';
+import { useUser, useFirebaseApp } from '@/firebase';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Checkbox } from '@/components/ui/checkbox';
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
 
-  return (
-    <Button type="submit" disabled={pending} size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
-      {pending ? (
-        <>
-          <Sparkles className="mr-2 h-5 w-5 animate-spin" />
-          Generating...
-        </>
-      ) : (
-        <>
-          <Sparkles className="mr-2 h-5 w-5" />
-          Generate Description
-        </>
-      )}
-    </Button>
-  );
-}
+const formSchema = z.object({
+  title: z.string().min(5, 'Title must be at least 5 characters.'),
+  description: z.string().min(10, 'Description must be at least 10 characters.'),
+  category: z.enum(['Residential', 'Commercial', 'Industrial']),
+  tags: z.string().min(3, 'Please provide at least one tag.'),
+  featured: z.boolean().default(false),
+  image: z.any()
+    .refine(files => files?.length == 1, 'Image is required.')
+    .refine(files => files?.[0]?.size <= 5_000_000, `Max file size is 5MB.`)
+    .refine(
+      files => ['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(files?.[0]?.type),
+      '.jpg, .jpeg, .png, .webp and .gif files are accepted.'
+    ),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export function AddProjectForm() {
-  const initialState: State = { message: null, errors: {} };
-  const [state, dispatch] = useFormState(createProjectDescription, initialState);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-  
+  const { user } = useUser();
+  const app = useFirebaseApp();
+  const firestore = useMemo(() => getFirestore(app!), [app]);
+  const storage = useMemo(() => getStorage(app!), [app]);
+
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      category: 'Residential',
+      tags: '',
+      featured: false,
+    },
+  });
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -52,100 +77,209 @@ export function AddProjectForm() {
       setImagePreview(null);
     }
   };
-  
-  const handleCopyToClipboard = () => {
-    if (state.description) {
-        navigator.clipboard.writeText(state.description);
-        toast({
-            title: "Copied to Clipboard",
-            description: "The project description has been copied.",
-        });
+
+  const onSubmit = (values: FormValues) => {
+    if (!user || !firestore || !storage) {
+      setError('You must be logged in to add a project.');
+      return;
     }
+
+    startTransition(async () => {
+      setError(null);
+      try {
+        // 1. Upload image to Firebase Storage
+        const imageFile = values.image[0];
+        const storageRef = ref(storage, `projects/${user.uid}/${Date.now()}_${imageFile.name}`);
+        const uploadResult = await uploadBytes(storageRef, imageFile);
+        const imageUrl = await getDownloadURL(uploadResult.ref);
+
+        // 2. Add project data to Firestore
+        await addDoc(collection(firestore, 'projects'), {
+          title: values.title,
+          description: values.description,
+          category: values.category,
+          tags: values.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+          featured: values.featured,
+          imageUrl,
+          authorUid: user.uid,
+          createdAt: new Date(),
+        });
+        
+        toast({
+          title: 'Project Added!',
+          description: `${values.title} has been successfully added to your portfolio.`,
+        });
+        form.reset();
+        setImagePreview(null);
+
+      } catch (e: any) {
+        console.error('Error adding project:', e);
+        setError(e.message || 'An error occurred while adding the project.');
+        toast({
+          variant: 'destructive',
+          title: 'Uh oh! Something went wrong.',
+          description: e.message || 'Could not save the project.',
+        });
+      }
+    });
   };
 
-  useEffect(() => {
-    if (state.message === 'success' && state.description) {
-      toast({
-        title: "Success!",
-        description: "Project description generated.",
-      })
-    }
-  }, [state, toast])
-
   return (
-    <form action={dispatch} className="space-y-8">
-      <div className="space-y-3">
-        <Label htmlFor="image" className="text-lg">Project Image</Label>
-        <div 
-          className="relative flex justify-center items-center w-full h-64 border-2 border-dashed border-border/80 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          {imagePreview ? (
-            <Image src={imagePreview} alt="Image preview" layout="fill" objectFit="contain" className="rounded-lg p-2" />
-          ) : (
-            <div className="text-center text-muted-foreground">
-              <UploadCloud className="mx-auto h-12 w-12" />
-              <p className="mt-2 font-semibold">Click to upload or drag and drop</p>
-              <p className="text-xs mt-1">PNG, JPG, or GIF (Max 10MB)</p>
-            </div>
-          )}
-        </div>
-        <Input
-          id="image"
+    <Form {...form}>
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <FormField
+          control={form.control}
           name="image"
-          type="file"
-          accept="image/*"
-          ref={fileInputRef}
-          className="hidden"
-          onChange={handleImageChange}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-lg">Project Image</FormLabel>
+              <FormControl>
+                <div 
+                  className="relative flex justify-center items-center w-full h-64 border-2 border-dashed border-border/80 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => document.getElementById('image-input')?.click()}
+                >
+                  {imagePreview ? (
+                    <Image src={imagePreview} alt="Image preview" layout="fill" objectFit="contain" className="rounded-lg p-2" />
+                  ) : (
+                    <div className="text-center text-muted-foreground">
+                      <UploadCloud className="mx-auto h-12 w-12" />
+                      <p className="mt-2 font-semibold">Click to upload or drag and drop</p>
+                      <p className="text-xs mt-1">PNG, JPG, or GIF (Max 5MB)</p>
+                    </div>
+                  )}
+                   <Input
+                      id="image-input"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onBlur={field.onBlur}
+                      name={field.name}
+                      onChange={(e) => {
+                        field.onChange(e.target.files);
+                        handleImageChange(e);
+                      }}
+                      ref={field.ref}
+                    />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-        {state.errors?.image && (
-          <p className="text-sm font-medium text-destructive">{state.errors.image[0]}</p>
-        )}
-      </div>
 
-      <div className="space-y-3">
-        <Label htmlFor="constructionData" className="text-lg">Construction Data</Label>
-        <Textarea
-          id="constructionData"
-          name="constructionData"
-          placeholder="e.g., 50-story mixed-use skyscraper, glass facade, sustainable energy systems, luxury amenities..."
-          className="min-h-[150px] text-base"
+      <FormField
+          control={form.control}
+          name="title"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-lg">Project Title</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g., Modern Downtown Skyscraper" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-        {state.errors?.constructionData && (
-          <p className="text-sm font-medium text-destructive">{state.errors.constructionData[0]}</p>
+
+      <FormField
+        control={form.control}
+        name="description"
+        render={({ field }) => (
+            <FormItem>
+            <FormLabel className="text-lg">Project Description</FormLabel>
+            <FormControl>
+                <Textarea
+                placeholder="A 50-story mixed-use skyscraper featuring a sleek glass facade..."
+                className="min-h-[150px] text-base"
+                {...field}
+                />
+            </FormControl>
+            <FormMessage />
+            </FormItem>
         )}
+      />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel className="text-lg">Category</FormLabel>
+                 <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Residential">Residential</SelectItem>
+                      <SelectItem value="Commercial">Commercial</SelectItem>
+                      <SelectItem value="Industrial">Industrial</SelectItem>
+                    </SelectContent>
+                  </Select>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
+        <FormField
+            control={form.control}
+            name="tags"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel className="text-lg">Tags</FormLabel>
+                <FormControl>
+                    <Input placeholder="e.g., modern, skyscraper, sustainable" {...field} />
+                </FormControl>
+                 <p className="text-xs text-muted-foreground">Separate tags with commas.</p>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
       </div>
       
-      {state.message && state.message !== 'success' && (
+       <FormField
+        control={form.control}
+        name="featured"
+        render={({ field }) => (
+          <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
+            <FormControl>
+              <Checkbox
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            </FormControl>
+            <div className="space-y-1 leading-none">
+              <FormLabel>
+                Feature this project?
+              </FormLabel>
+              <p className="text-sm text-muted-foreground">
+                Featured projects will be displayed prominently on the homepage.
+              </p>
+            </div>
+          </FormItem>
+        )}
+      />
+      
+      {error && (
         <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{state.message}</AlertDescription>
+            <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
-      <SubmitButton />
-
-      {state.description && (
-        <div className="space-y-4 pt-6 border-t border-border/60">
-          <h3 className="text-2xl font-headline text-primary">Generated Description</h3>
-           <Card className="bg-background/80">
-            <CardContent className="p-4 relative">
-              <p className="text-foreground whitespace-pre-wrap">{state.description}</p>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="absolute top-2 right-2 h-8 w-8 text-muted-foreground hover:text-primary"
-                onClick={handleCopyToClipboard}
-              >
-                <ClipboardCopy className="h-4 w-4" />
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+      <Button type="submit" disabled={isPending} size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
+        {isPending ? (
+          <>
+            <Sparkles className="mr-2 h-5 w-5 animate-spin" />
+            Adding Project...
+          </>
+        ) : (
+          'Add Project'
+        )}
+      </Button>
     </form>
+    </Form>
   );
 }

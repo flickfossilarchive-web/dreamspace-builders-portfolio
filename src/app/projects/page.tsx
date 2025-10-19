@@ -4,26 +4,37 @@ import { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ProjectCard } from '@/components/project-card';
-import { projects } from '@/lib/data';
 import type { Project } from '@/lib/types';
 import { Search } from 'lucide-react';
+import { useCollection } from '@/firebase';
+import { collection, getFirestore } from 'firebase/firestore';
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 
 const categories = ['All', 'Commercial', 'Residential', 'Industrial'];
 
 export default function ProjectsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
+  
+  const firestore = useMemo(() => getFirestore(), []);
+  const projectsCollection = useMemo(() => {
+    if (!firestore) return null;
+    return collection(firestore, 'projects');
+  }, [firestore]);
+
+  const { data: projects, loading } = useCollection<Project>(projectsCollection);
 
   const filteredProjects = useMemo(() => {
+    if (!projects) return [];
     return projects.filter((project: Project) => {
       const matchesCategory = activeCategory === 'All' || project.category === activeCategory;
       const matchesSearch =
         project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+        (project.tags && project.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())));
       return matchesCategory && matchesSearch;
     });
-  }, [searchTerm, activeCategory]);
+  }, [projects, searchTerm, activeCategory]);
 
   return (
     <div className="container mx-auto px-4 py-16 md:py-24">
@@ -54,17 +65,27 @@ export default function ProjectsPage() {
         </Tabs>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredProjects.map((project) => (
-          <ProjectCard key={project.id} project={project} />
-        ))}
-      </div>
-
-      {filteredProjects.length === 0 && (
-        <div className="text-center py-24">
-            <p className="text-2xl font-semibold text-muted-foreground">No Projects Found</p>
-            <p className="mt-3 text-muted-foreground">Try adjusting your search or filter to find what you're looking for.</p>
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {[...Array(3)].map((_, i) => (
+             <Card key={i}><CardHeader><div className="relative aspect-video w-full overflow-hidden bg-muted animate-pulse"></div></CardHeader><CardContent className="space-y-2 mt-6"><div className="h-6 w-3/4 bg-muted animate-pulse rounded-md"></div><div className="h-4 w-full bg-muted animate-pulse rounded-md"></div></CardContent><CardFooter><div className="h-10 w-full bg-muted animate-pulse rounded-md"></div></CardFooter></Card>
+          ))}
         </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredProjects.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+
+          {filteredProjects.length === 0 && (
+            <div className="text-center py-24">
+                <p className="text-2xl font-semibold text-muted-foreground">No Projects Found</p>
+                <p className="mt-3 text-muted-foreground">Try adjusting your search or filter to find what you're looking for.</p>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
