@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useState, useRef, useTransition } from 'react';
+import { useState, useMemo, useTransition } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -50,8 +50,8 @@ export function AddProjectForm() {
   const { toast } = useToast();
   const { user } = useUser();
   const app = useFirebaseApp();
-  const firestore = useMemo(() => getFirestore(app!), [app]);
-  const storage = useMemo(() => getStorage(app!), [app]);
+  const firestore = useMemo(() => app ? getFirestore(app) : null, [app]);
+  const storage = useMemo(() => app ? getStorage(app) : null, [app]);
 
 
   const form = useForm<FormValues>({
@@ -139,7 +139,7 @@ export function AddProjectForm() {
                   onClick={() => document.getElementById('image-input')?.click()}
                 >
                   {imagePreview ? (
-                    <Image src={imagePreview} alt="Image preview" layout="fill" objectFit="contain" className="rounded-lg p-2" />
+                    <Image src={imagePreview} alt="Image preview" fill objectFit="contain" className="rounded-lg p-2" />
                   ) : (
                     <div className="text-center text-muted-foreground">
                       <UploadCloud className="mx-auto h-12 w-12" />

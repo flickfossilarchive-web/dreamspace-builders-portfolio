@@ -6,8 +6,8 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ProjectCard } from '@/components/project-card';
 import type { Project } from '@/lib/types';
 import { Search } from 'lucide-react';
-import { useCollection } from '@/firebase';
-import { collection, getFirestore } from 'firebase/firestore';
+import { useCollection, useFirestore } from '@/firebase';
+import { collection } from 'firebase/firestore';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 
 const categories = ['All', 'Commercial', 'Residential', 'Industrial'];
@@ -16,7 +16,7 @@ export default function ProjectsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   
-  const firestore = useMemo(() => getFirestore(), []);
+  const firestore = useFirestore();
   const projectsCollection = useMemo(() => {
     if (!firestore) return null;
     return collection(firestore, 'projects');
@@ -68,7 +68,7 @@ export default function ProjectsPage() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[...Array(3)].map((_, i) => (
-             <Card key={i}><CardHeader><div className="relative aspect-video w-full overflow-hidden bg-muted animate-pulse"></div></CardHeader><CardContent className="space-y-2 mt-6"><div className="h-6 w-3/4 bg-muted animate-pulse rounded-md"></div><div className="h-4 w-full bg-muted animate-pulse rounded-md"></div></CardContent><CardFooter><div className="h-10 w-full bg-muted animate-pulse rounded-md"></div></CardFooter></Card>
+             <Card key={i}><CardHeader className="p-0"><div className="relative aspect-video w-full overflow-hidden bg-muted animate-pulse"></div></CardHeader><CardContent className="space-y-2 mt-6 p-6"><div className="h-6 w-3/4 bg-muted animate-pulse rounded-md"></div><div className="h-4 w-full bg-muted animate-pulse rounded-md"></div></CardContent><CardFooter className="p-6"><div className="h-10 w-full bg-muted animate-pulse rounded-md"></div></CardFooter></Card>
           ))}
         </div>
       ) : (

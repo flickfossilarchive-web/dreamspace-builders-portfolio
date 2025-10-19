@@ -3,12 +3,12 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ProjectCard } from '@/components/project-card';
 import { ArrowRight, Building, Palette, Users, PenTool, GanttChartSquare, DraftingCompass, Rss, Layers, Mail } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import placeholderImages from '@/lib/placeholder-images.json';
 import Image from 'next/image';
-import { useCollection } from '@/firebase';
+import { useCollection, useFirestore } from '@/firebase';
 import type { Project } from '@/lib/types';
-import { collection, query, where, getFirestore } from 'firebase/firestore';
+import { collection, query, where } from 'firebase/firestore';
 import { useMemo } from 'react';
 
 const services = [
@@ -56,7 +56,7 @@ const services = [
 
 export default function Home() {
   const { hero } = placeholderImages;
-  const firestore = useMemo(() => getFirestore(), []);
+  const firestore = useFirestore();
   const projectsQuery = useMemo(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'projects'), where('featured', '==', true));
@@ -143,9 +143,9 @@ export default function Home() {
           </div>
           {loading ? (
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <Card><CardHeader><div className="relative aspect-video w-full overflow-hidden bg-muted animate-pulse"></div></CardHeader><CardContent className="space-y-2 mt-6"><div className="h-6 w-3/4 bg-muted animate-pulse rounded-md"></div><div className="h-4 w-full bg-muted animate-pulse rounded-md"></div></CardContent><CardFooter><div className="h-10 w-full bg-muted animate-pulse rounded-md"></div></CardFooter></Card>
-                <Card><CardHeader><div className="relative aspect-video w-full overflow-hidden bg-muted animate-pulse"></div></CardHeader><CardContent className="space-y-2 mt-6"><div className="h-6 w-3/4 bg-muted animate-pulse rounded-md"></div><div className="h-4 w-full bg-muted animate-pulse rounded-md"></div></CardContent><CardFooter><div className="h-10 w-full bg-muted animate-pulse rounded-md"></div></CardFooter></Card>
-                <Card><CardHeader><div className="relative aspect-video w-full overflow-hidden bg-muted animate-pulse"></div></CardHeader><CardContent className="space-y-2 mt-6"><div className="h-6 w-3/4 bg-muted animate-pulse rounded-md"></div><div className="h-4 w-full bg-muted animate-pulse rounded-md"></div></CardContent><CardFooter><div className="h-10 w-full bg-muted animate-pulse rounded-md"></div></CardFooter></Card>
+                <Card><CardHeader className="p-0"><div className="relative aspect-video w-full overflow-hidden bg-muted animate-pulse"></div></CardHeader><CardContent className="space-y-2 mt-6 p-6"><div className="h-6 w-3/4 bg-muted animate-pulse rounded-md"></div><div className="h-4 w-full bg-muted animate-pulse rounded-md"></div></CardContent><CardFooter className="p-6"><div className="h-10 w-full bg-muted animate-pulse rounded-md"></div></CardFooter></Card>
+                <Card><CardHeader className="p-0"><div className="relative aspect-video w-full overflow-hidden bg-muted animate-pulse"></div></CardHeader><CardContent className="space-y-2 mt-6 p-6"><div className="h-6 w-3/4 bg-muted animate-pulse rounded-md"></div><div className="h-4 w-full bg-muted animate-pulse rounded-md"></div></CardContent><CardFooter className="p-6"><div className="h-10 w-full bg-muted animate-pulse rounded-md"></div></CardFooter></Card>
+                <Card><CardHeader className="p-0"><div className="relative aspect-video w-full overflow-hidden bg-muted animate-pulse"></div></CardHeader><CardContent className="space-y-2 mt-6 p-6"><div className="h-6 w-3/4 bg-muted animate-pulse rounded-md"></div><div className="h-4 w-full bg-muted animate-pulse rounded-md"></div></CardContent><CardFooter className="p-6"><div className="h-10 w-full bg-muted animate-pulse rounded-md"></div></CardFooter></Card>
              </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
