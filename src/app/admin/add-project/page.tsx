@@ -35,19 +35,19 @@ export default function AddProjectPage() {
         {isAuthenticated || (user && process.env.NODE_ENV === 'development') ? (
           <>
             <div className="text-center mb-12">
-              <h1 className="text-5xl md:text-6xl font-bold font-headline text-primary">Add New Project</h1>
+              <h1 className="text-5xl md:text-6xl font-bold font-headline text-foreground">Add New Project</h1>
               <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
                 Fill out the form below to add a new project to your portfolio.
               </p>
             </div>
-            <div className="bg-secondary p-8 rounded-lg shadow-lg border border-border/60">
+            <div className="bg-card p-8 rounded-lg shadow-lg border">
               <AddProjectForm />
             </div>
           </>
         ) : (
-          <Card className="max-w-md mx-auto">
+          <Card className="max-w-md mx-auto border shadow-lg">
             <CardHeader className="text-center">
-              <CardTitle className="text-3xl font-headline text-primary">Admin Access</CardTitle>
+              <CardTitle className="text-3xl font-headline text-foreground">Admin Access</CardTitle>
               <CardDescription>Please enter your credentials to add a project.</CardDescription>
             </CardHeader>
             <CardContent>

@@ -5,15 +5,15 @@ export default function ContactPage() {
   return (
     <div className="container mx-auto px-4 py-16 md:py-24">
       <div className="text-center mb-16">
-        <h1 className="text-5xl md:text-6xl font-bold font-headline text-primary">Get in Touch</h1>
+        <h1 className="text-5xl md:text-6xl font-bold font-headline text-foreground">Get in Touch</h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
           Have a project in mind, a question, or just want to say hello? We'd love to hear from you.
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-6xl mx-auto">
-        <div className="bg-secondary p-8 rounded-lg shadow-lg border border-border/60">
-          <h2 className="text-3xl font-headline text-primary mb-6">Send Us a Message</h2>
+        <div className="bg-card p-8 rounded-lg shadow-lg border">
+          <h2 className="text-3xl font-headline text-foreground mb-6">Send Us a Message</h2>
           <ContactForm />
         </div>
         <div className="space-y-8 flex flex-col justify-center">

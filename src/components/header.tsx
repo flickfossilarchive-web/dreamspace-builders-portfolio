@@ -5,9 +5,8 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Building2, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
-import { DialogTitle } from '@radix-ui/react-dialog';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -23,13 +22,13 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-lg">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur-sm">
       <div className="container flex h-20 items-center">
         <div className="mr-4 flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Building2 className="h-7 w-7 text-primary" />
             <span className="text-xl font-bold font-headline sm:inline-block">
-              DreamSpace Builders
+              ConstructConnect
             </span>
           </Link>
         </div>
@@ -38,7 +37,7 @@ export function Header() {
           {navLinks.map((link) => (
             <Link
               key={link.href}
-              href={link.href === '/services' ? '/#services' : link.href}
+              href={link.href}
               className={cn(
                 'transition-colors hover:text-primary',
                 pathname === link.href ? 'text-primary font-semibold' : 'text-muted-foreground'
@@ -58,17 +57,17 @@ export function Header() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[80vw] bg-background/95 backdrop-blur-lg">
-                <DialogTitle className="sr-only">Mobile Menu</DialogTitle>
+                <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
                 <div className="p-4">
                   <Link href="/" className="flex items-center space-x-2 mb-8">
                      <Building2 className="h-7 w-7 text-primary" />
-                    <span className="text-xl font-bold font-headline">DreamSpace Builders</span>
+                    <span className="text-xl font-bold font-headline">ConstructConnect</span>
                   </Link>
                   <nav className="flex flex-col space-y-4">
                     {navLinks.map((link) => (
                       <Link
                         key={link.href}
-                        href={link.href === '/services' ? '/#services' : link.href}
+                        href={link.href}
                         onClick={() => setIsMobileMenuOpen(false)}
                         className={cn(
                           'text-lg font-medium transition-colors hover:text-primary',

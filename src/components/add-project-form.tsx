@@ -135,7 +135,7 @@ export function AddProjectForm() {
               <FormLabel className="text-lg">Project Image</FormLabel>
               <FormControl>
                 <div 
-                  className="relative flex justify-center items-center w-full h-64 border-2 border-dashed border-border/80 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                  className="relative flex justify-center items-center w-full h-64 border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
                   onClick={() => document.getElementById('image-input')?.click()}
                 >
                   {imagePreview ? (
@@ -269,7 +269,7 @@ export function AddProjectForm() {
         </Alert>
       )}
 
-      <Button type="submit" disabled={isPending} size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
+      <Button type="submit" disabled={isPending} size="lg" className="w-full font-semibold">
         {isPending ? (
           <>
             <Sparkles className="mr-2 h-5 w-5 animate-spin" />

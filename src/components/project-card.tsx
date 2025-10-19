@@ -12,7 +12,7 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project }: ProjectCardProps) {
   return (
-    <Card className="flex flex-col overflow-hidden bg-card border-border/60 shadow-lg hover:shadow-primary/20 transition-all duration-300 group hover:-translate-y-1">
+    <Card className="flex flex-col overflow-hidden bg-card border shadow-lg hover:shadow-xl transition-all duration-300 group hover:-translate-y-1">
       <CardHeader className="p-0">
         <div className="relative aspect-video w-full overflow-hidden">
           <Image
@@ -27,7 +27,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
       </CardHeader>
       <div className="flex flex-col flex-grow p-6">
         <div className="mb-3">
-          <Badge variant="outline" className="border-primary/50 text-primary">{project.category}</Badge>
+          <Badge variant="secondary">{project.category}</Badge>
         </div>
         <CardTitle className="font-headline text-xl mb-2">{project.title}</CardTitle>
         <CardDescription className="flex-grow text-muted-foreground">{project.description}</CardDescription>

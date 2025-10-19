@@ -39,13 +39,13 @@ export default function ProjectsPage() {
   return (
     <div className="container mx-auto px-4 py-16 md:py-24">
       <div className="text-center mb-16">
-        <h1 className="text-5xl md:text-6xl font-bold font-headline text-primary">Our Portfolio</h1>
+        <h1 className="text-5xl md:text-6xl font-bold font-headline text-foreground">Our Portfolio</h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
           Explore our diverse range of successfully completed projects, showcasing our commitment to quality and innovation.
         </p>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-6 mb-12 justify-center items-center p-4 bg-secondary rounded-lg border border-border/60">
+      <div className="flex flex-col md:flex-row gap-6 mb-12 justify-center items-center p-4 bg-secondary rounded-lg border">
         <div className="relative w-full md:w-1/2 lg:w-1/3">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
@@ -53,7 +53,7 @@ export default function ProjectsPage() {
             placeholder="Search by keyword..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10"
+            className="w-full pl-10 bg-background"
           />
         </div>
         <Tabs value={activeCategory} onValueChange={setActiveCategory} className="w-full md:w-auto">

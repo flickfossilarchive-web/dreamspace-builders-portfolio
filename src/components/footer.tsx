@@ -9,16 +9,16 @@ export function Footer() {
           <div className="flex items-center">
             <Building2 className="h-7 w-7 mr-3 text-primary" />
             <div >
-                <p className="font-bold text-lg font-headline">DreamSpace Builders</p>
-                <p className="text-xs text-muted-foreground">GSTIN: 29DFEPP1670H1Z7</p>
+                <p className="font-bold text-lg font-headline">ConstructConnect</p>
+                <p className="text-xs text-muted-foreground">Connecting Vision with Craftsmanship</p>
             </div>
           </div>
           <div className="text-sm text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} DreamSpace Builders. All rights reserved.</p>
-            <p className="mt-1">BUILT By YOU.....</p>
+            <p>&copy; {new Date().getFullYear()} ConstructConnect. All rights reserved.</p>
           </div>
           <div className="flex space-x-4">
             <Link href="/projects" className="text-sm text-muted-foreground hover:text-primary transition-colors">Projects</Link>
+            <Link href="/about" className="text-sm text-muted-foreground hover:text-primary transition-colors">About</Link>
             <Link href="/contact" className="text-sm text-muted-foreground hover:text-primary transition-colors">Contact</Link>
           </div>
         </div>

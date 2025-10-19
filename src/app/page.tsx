@@ -68,6 +68,7 @@ export default function Home() {
     <div className="flex flex-col">
       {/* Hero Section */}
       <section className="relative h-[90vh] min-h-[600px] flex items-center text-white overflow-hidden">
+        <div className="absolute inset-0 bg-black/50 z-10" />
         <Image
           src={hero.src}
           alt={hero.alt}
@@ -76,23 +77,23 @@ export default function Home() {
           priority
           data-ai-hint={hero.hint}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent z-10"></div>
-        <div className="container mx-auto px-4 z-20 mt-auto mb-20 md:mb-32">
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-20"></div>
+        <div className="container mx-auto px-4 z-30 mt-auto mb-20 md:mb-32">
           <div className="max-w-4xl">
-            <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight text-white">
-              DreamSpace Builders
+            <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-white drop-shadow-2xl">
+              ConstructConnect
             </h1>
-            <p className="mt-6 text-lg md:text-xl max-w-2xl text-neutral-300">
-              BUILT By YOU..... We deliver excellence in construction and design, creating spaces that inspire.
+            <p className="mt-6 text-lg md:text-xl max-w-2xl text-neutral-200">
+              Connecting vision with craftsmanship. We deliver excellence in construction and design, creating spaces that inspire.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-start gap-4">
-              <Button asChild size="lg" className="font-semibold shadow-lg group text-lg px-8 py-6 bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 transform hover:scale-105">
+               <Button asChild size="lg" className="font-semibold shadow-lg group text-lg px-8 py-6 bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 transform hover:scale-105">
                 <Link href="/projects">
                   Explore Our Work
                   <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="font-semibold text-lg px-8 py-6 text-white hover:bg-white/10 transition-all duration-300 transform hover:scale-105 border-white/50">
+              <Button asChild size="lg" variant="outline" className="font-semibold text-lg px-8 py-6 bg-transparent text-white border-white/80 hover:bg-white hover:text-primary transition-all duration-300 transform hover:scale-105">
                 <Link href="/contact">
                   Request a Quote
                   <Mail className="ml-2 h-4 w-4" />
@@ -107,14 +108,14 @@ export default function Home() {
       <section id="services" className="py-20 md:py-28 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16 max-w-3xl mx-auto">
-            <h2 className="text-4xl md:text-5xl font-headline font-bold tracking-tight text-primary">Our Expertise</h2>
+            <h2 className="text-4xl md:text-5xl font-headline font-bold tracking-tight text-foreground">Our Expertise</h2>
             <p className="mt-4 text-lg text-muted-foreground">
               We offer a comprehensive suite of services to bring your vision to life with quality, integrity, and innovation at every step.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {services.map((service, index) => (
-              <Card key={index} className="text-center bg-card/50 backdrop-blur-sm border border-border/50 shadow-lg hover:shadow-primary/20 hover:-translate-y-2 transition-all duration-300 group">
+              <Card key={index} className="text-center bg-card shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group">
                 <CardHeader className="items-center">
                   <div className="p-4 bg-primary/10 rounded-full w-fit group-hover:bg-primary transition-colors duration-300">
                     <service.icon className="h-10 w-10 text-primary group-hover:text-primary-foreground transition-colors duration-300" />
@@ -136,7 +137,7 @@ export default function Home() {
       <section className="py-20 md:py-28 bg-secondary">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-headline font-bold tracking-tight text-primary">Featured Projects</h2>
+            <h2 className="text-4xl md:text-5xl font-headline font-bold tracking-tight text-foreground">Featured Projects</h2>
             <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
               A glimpse into our finest work and commitment to excellence.
             </p>
