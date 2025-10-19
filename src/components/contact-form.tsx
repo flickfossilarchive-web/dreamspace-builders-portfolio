@@ -8,7 +8,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Send } from 'lucide-react';
+import { Send, Sparkles } from 'lucide-react';
+import { useFirestore } from '@/firebase';
+import { collection, addDoc } from 'firebase/firestore';
+import { useState, useTransition } from 'react';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -19,6 +22,9 @@ const formSchema = z.object({
 
 export function ContactForm() {
   const { toast } = useToast();
+  const firestore = useFirestore();
+  const [isPending, startTransition] = useTransition();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -30,12 +36,36 @@ export function ContactForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    toast({
-      title: 'Message Sent!',
-      description: 'Thank you for contacting us. We will get back to you shortly.',
+    if (!firestore) {
+        toast({
+            variant: 'destructive',
+            title: 'Uh oh! Something went wrong.',
+            description: 'Could not connect to the database. Please try again later.',
+        });
+        return;
+    }
+    
+    startTransition(async () => {
+        try {
+            await addDoc(collection(firestore, 'contact-messages'), {
+                ...values,
+                createdAt: new Date(),
+            });
+
+            toast({
+                title: 'Message Sent!',
+                description: 'Thank you for contacting us. We will get back to you shortly.',
+            });
+            form.reset();
+        } catch (error) {
+            console.error('Error saving message:', error);
+             toast({
+                variant: 'destructive',
+                title: 'Uh oh! Something went wrong.',
+                description: 'There was a problem sending your message. Please try again.',
+            });
+        }
     });
-    form.reset();
   }
 
   return (
@@ -48,7 +78,7 @@ export function ContactForm() {
             <FormItem>
               <FormLabel>Full Name</FormLabel>
               <FormControl>
-                <Input placeholder="John Doe" {...field} />
+                <Input placeholder="John Doe" {...field} disabled={isPending} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -61,7 +91,7 @@ export function ContactForm() {
             <FormItem>
               <FormLabel>Email Address</FormLabel>
               <FormControl>
-                <Input placeholder="you@example.com" {...field} />
+                <Input placeholder="you@example.com" {...field} disabled={isPending} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -74,7 +104,7 @@ export function ContactForm() {
             <FormItem>
               <FormLabel>Subject</FormLabel>
               <FormControl>
-                <Input placeholder="Project Inquiry" {...field} />
+                <Input placeholder="Project Inquiry" {...field} disabled={isPending} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -87,14 +117,23 @@ export function ContactForm() {
             <FormItem>
               <FormLabel>Message</FormLabel>
               <FormControl>
-                <Textarea placeholder="Tell us about your project..." className="min-h-[120px]" {...field} />
+                <Textarea placeholder="Tell us about your project..." className="min-h-[120px]" {...field} disabled={isPending} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
-          Send Message <Send className="ml-2 h-4 w-4" />
+        <Button type="submit" size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold" disabled={isPending}>
+          {isPending ? (
+            <>
+              <Sparkles className="mr-2 h-4 w-4 animate-spin" />
+              Sending...
+            </>
+          ) : (
+             <>
+              Send Message <Send className="ml-2 h-4 w-4" />
+            </>
+          )}
         </Button>
       </form>
     </Form>

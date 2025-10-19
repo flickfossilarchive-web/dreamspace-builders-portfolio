@@ -71,6 +71,36 @@
         }
       },
       "required": ["title", "description", "imageUrl", "category", "authorUid", "createdAt"]
+    },
+    "ContactMessage": {
+      "title": "Contact Message",
+      "description": "Represents a message submitted through the contact form.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the person who submitted the message."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The email of the person who submitted the message."
+        },
+        "subject": {
+          "type": "string",
+          "description": "The subject of the message."
+        },
+        "message": {
+          "type": "string",
+          "description": "The content of the message."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the message was submitted."
+        }
+      },
+      "required": ["name", "email", "subject", "message", "createdAt"]
     }
   },
   "auth": {
@@ -88,6 +118,12 @@
             "$ref": "#/entities/Project"
         },
         "description": "Stores all the construction projects for the portfolio."
+    },
+    "/contact-messages": {
+        "schema": {
+            "$ref": "#/entities/ContactMessage"
+        },
+        "description": "Stores messages submitted through the contact form."
     }
   }
 }
