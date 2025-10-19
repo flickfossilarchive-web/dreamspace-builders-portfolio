@@ -14,10 +14,10 @@ export default function AddProjectPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const { user } = useUser();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    // This is a basic form of authentication and should be improved for production apps.
     if (
       username === process.env.NEXT_PUBLIC_ADMIN_USERNAME &&
       password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD
@@ -32,7 +32,7 @@ export default function AddProjectPage() {
   return (
     <div className="container mx-auto px-4 py-16 md:py-24">
       <div className="max-w-3xl mx-auto">
-        {isAuthenticated || (user && process.env.NODE_ENV === 'development') ? (
+        {isAuthenticated ? (
           <>
             <div className="text-center mb-12">
               <h1 className="text-5xl md:text-6xl font-bold font-headline text-foreground">Add New Project</h1>

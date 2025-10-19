@@ -13,7 +13,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { UploadCloud, AlertCircle, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { collection, addDoc, getFirestore } from 'firebase/firestore';
+import { collection, addDoc, getFirestore, Firestore } from 'firebase/firestore';
 import { useUser, useFirebaseApp } from '@/firebase';
 import {
   Select,
