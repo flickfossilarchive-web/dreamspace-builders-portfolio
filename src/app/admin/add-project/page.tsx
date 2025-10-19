@@ -17,11 +17,16 @@ export default function AddProjectPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // This is a basic form of authentication and should be improved for production apps.
-    if (
-      username === process.env.NEXT_PUBLIC_ADMIN_USERNAME &&
-      password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD
-    ) {
+    
+    const adminUser = process.env.NEXT_PUBLIC_ADMIN_USERNAME;
+    const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
+
+    if (!adminUser || !adminPass) {
+        setError('Admin credentials are not configured on the server. Please set environment variables.');
+        return;
+    }
+
+    if (username === adminUser && password === adminPass) {
       setIsAuthenticated(true);
       setError(null);
     } else {
