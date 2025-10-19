@@ -1,8 +1,10 @@
 import Image from 'next/image';
 import { Building, Users, Target, BarChart2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import placeholderImages from '@/lib/placeholder-images.json';
 
 export default function AboutPage() {
+  const { about } = placeholderImages;
   return (
     <div className="container mx-auto px-4 py-16 md:py-24">
       <div className="text-center mb-16">
@@ -15,12 +17,12 @@ export default function AboutPage() {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
         <div className="lg:col-span-2">
           <Image 
-            src="https://placehold.co/600x800.png"
-            alt="About Us" 
-            width={600}
-            height={800}
+            src={about.src}
+            alt={about.alt}
+            width={about.width}
+            height={about.height}
             className="rounded-lg shadow-lg object-cover"
-            data-ai-hint="architecture building"
+            data-ai-hint={about.hint}
           />
         </div>
         <div className="lg:col-span-3 space-y-8">

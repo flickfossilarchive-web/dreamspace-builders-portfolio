@@ -1,0 +1,58 @@
+{
+  "hero": {
+    "src": "https://picsum.photos/seed/hero/1920/1080",
+    "width": 1920,
+    "height": 1080,
+    "alt": "Modern architectural building",
+    "hint": "architecture design"
+  },
+  "project1": {
+    "src": "https://picsum.photos/seed/project1/600/400",
+    "width": 600,
+    "height": 400,
+    "alt": "Modern Downtown Skyscraper",
+    "hint": "modern skyscraper"
+  },
+  "project2": {
+    "src": "https://picsum.photos/seed/project2/600/400",
+    "width": 600,
+    "height": 400,
+    "alt": "Lakeside Family Home",
+    "hint": "house lake"
+  },
+  "project3": {
+    "src": "https://picsum.photos/seed/project3/600/400",
+    "width": 600,
+    "height": 400,
+    "alt": "Advanced Research Facility",
+    "hint": "industrial building"
+  },
+  "project4": {
+    "src": "https://picsum.photos/seed/project4/600/400",
+    "width": 600,
+    "height": 400,
+    "alt": "Historic Theatre Restoration",
+    "hint": "historic theatre"
+  },
+  "project5": {
+    "src": "https://picsum.photos/seed/project5/600/400",
+    "width": 600,
+    "height": 400,
+    "alt": "Suburban Housing Development",
+    "hint": "suburban house"
+  },
+  "project6": {
+    "src": "https://picsum.photos/seed/project6/600/400",
+    "width": 600,
+    "height": 400,
+    "alt": "Eco-Friendly Office Park",
+    "hint": "modern office"
+  },
+  "about": {
+    "src": "https://picsum.photos/seed/about/600/800",
+    "width": 600,
+    "height": 800,
+    "alt": "Team of architects reviewing blueprints",
+    "hint": "architecture blueprint"
+  }
+}

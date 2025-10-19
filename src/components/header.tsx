@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { Building2, Menu, X } from 'lucide-react';
+import { Building2, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
@@ -33,7 +33,7 @@ export function Header() {
           </Link>
         </div>
         
-        <nav className="hidden md:flex items-center space-x-8 text-sm font-medium">
+        <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -56,10 +56,10 @@ export function Header() {
                   <span className="sr-only">Open menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="bg-background">
-                <SheetHeader className="sr-only">
-                  <SheetTitle>Mobile Menu</SheetTitle>
-                  <SheetDescription>Main navigation links for mobile.</SheetDescription>
+              <SheetContent side="right" className="w-[80vw] bg-background/95 backdrop-blur-lg">
+                <SheetHeader>
+                  <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+                  <SheetDescription className="sr-only">Main navigation links for mobile.</SheetDescription>
                 </SheetHeader>
                 <div className="p-4">
                   <Link href="/" className="flex items-center space-x-2 mb-8">

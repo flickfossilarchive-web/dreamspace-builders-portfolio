@@ -12,7 +12,7 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project }: ProjectCardProps) {
   return (
-    <Card className="flex flex-col overflow-hidden bg-secondary border-border/60 shadow-lg hover:shadow-primary/20 transition-all duration-300 group hover:-translate-y-1">
+    <Card className="flex flex-col overflow-hidden bg-card border-border/60 shadow-lg hover:shadow-primary/20 transition-all duration-300 group hover:-translate-y-1">
       <CardHeader className="p-0">
         <div className="relative aspect-video w-full overflow-hidden">
           <Image
@@ -20,19 +20,19 @@ export function ProjectCard({ project }: ProjectCardProps) {
             alt={project.title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
-            data-ai-hint={`${project.category.toLowerCase()} ${project.tags[0]}`}
+            data-ai-hint={project.imageMeta?.hint || `${project.category.toLowerCase()} ${project.tags[0]}`}
           />
-           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10"></div>
+           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
         </div>
       </CardHeader>
       <div className="flex flex-col flex-grow p-6">
         <div className="mb-3">
-          <Badge variant="default" className="bg-primary/10 text-primary border-primary/20">{project.category}</Badge>
+          <Badge variant="outline" className="border-primary/50 text-primary">{project.category}</Badge>
         </div>
         <CardTitle className="font-headline text-xl mb-2">{project.title}</CardTitle>
         <CardDescription className="flex-grow text-muted-foreground">{project.description}</CardDescription>
       </div>
-      <CardFooter className="p-6 bg-secondary/50">
+      <CardFooter className="p-6 bg-card/50">
         <Button asChild variant="outline" className="w-full font-semibold">
           <Link href="/contact">
             Contact for Plans <ArrowRight className="ml-2 h-4 w-4" />
