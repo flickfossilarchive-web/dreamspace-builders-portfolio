@@ -16,6 +16,7 @@ import { useState, useTransition } from 'react';
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
   email: z.string().email('Invalid email address.'),
+  phone: z.string().optional(),
   subject: z.string().min(5, 'Subject must be at least 5 characters.'),
   message: z.string().min(10, 'Message must be at least 10 characters.'),
 });
@@ -30,6 +31,7 @@ export function ContactForm() {
     defaultValues: {
       name: '',
       email: '',
+      phone: '',
       subject: '',
       message: '',
     },
@@ -72,32 +74,47 @@ export function ContactForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Full Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="John Doe" {...field} disabled={isPending} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email Address</FormLabel>
+                <FormControl>
+                  <Input placeholder="you@example.com" {...field} disabled={isPending} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Full Name</FormLabel>
-              <FormControl>
-                <Input placeholder="John Doe" {...field} disabled={isPending} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email Address</FormLabel>
-              <FormControl>
-                <Input placeholder="you@example.com" {...field} disabled={isPending} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Phone Number (Optional)</FormLabel>
+                <FormControl>
+                  <Input placeholder="+1 (555) 123-4567" {...field} disabled={isPending} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         <FormField
           control={form.control}
           name="subject"

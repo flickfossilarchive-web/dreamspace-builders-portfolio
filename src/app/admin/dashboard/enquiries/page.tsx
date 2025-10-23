@@ -101,17 +101,19 @@ export default function EnquiriesPage() {
         return dateFiltered.filter(enquiry => 
             enquiry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             enquiry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (enquiry.phone && enquiry.phone.toLowerCase().includes(searchTerm.toLowerCase())) ||
             enquiry.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
             enquiry.message.toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [enquiries, searchTerm, date]);
 
     const handleExportCSV = () => {
-        const headers = ['Date', 'Name', 'Email', 'Subject', 'Message'];
+        const headers = ['Date', 'Name', 'Email', 'Phone', 'Subject', 'Message'];
         const rows = filteredEnquiries.map(e => [
             e.createdAt ? format(new Date(e.createdAt.seconds * 1000), 'yyyy-MM-dd HH:mm:ss') : 'N/A',
             `"${e.name.replace(/"/g, '""')}"`,
             `"${e.email.replace(/"/g, '""')}"`,
+            `"${e.phone ? e.phone.replace(/"/g, '""') : ''}"`,
             `"${e.subject.replace(/"/g, '""')}"`,
             `"${e.message.replace(/"/g, '""')}"`,
         ]);
@@ -132,11 +134,12 @@ export default function EnquiriesPage() {
         const doc = new jsPDF();
         
         autoTable(doc, {
-            head: [['Date', 'Name', 'Email', 'Subject', 'Message']],
+            head: [['Date', 'Name', 'Email', 'Phone', 'Subject', 'Message']],
             body: filteredEnquiries.map(e => [
                 e.createdAt ? format(new Date(e.createdAt.seconds * 1000), 'PPp') : 'N/A',
                 e.name,
                 e.email,
+                e.phone || '',
                 e.subject,
                 e.message
             ]),
@@ -147,7 +150,7 @@ export default function EnquiriesPage() {
                 fillColor: [22, 163, 74]
             },
             columnStyles: {
-                4: { cellWidth: 80 }
+                5: { cellWidth: 70 }
             }
         });
 
@@ -235,14 +238,16 @@ export default function EnquiriesPage() {
                         <TableHead className="w-[150px]">Date</TableHead>
                         <TableHead>Name</TableHead>
                         <TableHead>Email</TableHead>
+                        <TableHead>Phone</TableHead>
                         <TableHead>Subject</TableHead>
-                        <TableHead className="w-[40%]">Message</TableHead>
+                        <TableHead className="w-[30%]">Message</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {loading ? (
                              [...Array(5)].map((_, i) => (
                                 <TableRow key={i}>
+                                    <TableCell><Skeleton className="h-5 w-full" /></TableCell>
                                     <TableCell><Skeleton className="h-5 w-full" /></TableCell>
                                     <TableCell><Skeleton className="h-5 w-full" /></TableCell>
                                     <TableCell><Skeleton className="h-5 w-full" /></TableCell>
@@ -258,13 +263,14 @@ export default function EnquiriesPage() {
                                     </TableCell>
                                     <TableCell>{enquiry.name}</TableCell>
                                     <TableCell>{enquiry.email}</TableCell>
+                                    <TableCell>{enquiry.phone || 'N/A'}</TableCell>
                                     <TableCell>{enquiry.subject}</TableCell>
                                     <TableCell className="text-muted-foreground truncate max-w-xs">{enquiry.message}</TableCell>
                                 </TableRow>
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={5} className="h-24 text-center">
+                                <TableCell colSpan={6} className="h-24 text-center">
                                     No enquiries found for the selected criteria.
                                 </TableCell>
                             </TableRow>

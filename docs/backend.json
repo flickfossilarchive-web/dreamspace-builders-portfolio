@@ -86,6 +86,10 @@
           "format": "email",
           "description": "The email of the person who submitted the message."
         },
+        "phone": {
+          "type": "string",
+          "description": "The phone number of the person who submitted the message."
+        },
         "subject": {
           "type": "string",
           "description": "The subject of the message."
