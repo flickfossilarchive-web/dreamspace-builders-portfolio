@@ -20,13 +20,17 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from '@/components/ui/input';
-import { Search, Calendar as CalendarIcon } from 'lucide-react';
+import { Search, Calendar as CalendarIcon, FileDown } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { DateRange } from 'react-day-picker';
 import { cn } from '@/lib/utils';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+
 
 type DateFilter = 'all' | 'week' | 'month' | 'year' | 'custom';
 
@@ -102,6 +106,54 @@ export default function EnquiriesPage() {
         );
     }, [enquiries, searchTerm, date]);
 
+    const handleExportCSV = () => {
+        const headers = ['Date', 'Name', 'Email', 'Subject', 'Message'];
+        const rows = filteredEnquiries.map(e => [
+            e.createdAt ? format(new Date(e.createdAt.seconds * 1000), 'yyyy-MM-dd HH:mm:ss') : 'N/A',
+            `"${e.name.replace(/"/g, '""')}"`,
+            `"${e.email.replace(/"/g, '""')}"`,
+            `"${e.subject.replace(/"/g, '""')}"`,
+            `"${e.message.replace(/"/g, '""')}"`,
+        ]);
+
+        const csvContent = "data:text/csv;charset=utf-8," 
+            + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+        
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "enquiries.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const handleExportPDF = () => {
+        const doc = new jsPDF();
+        
+        autoTable(doc, {
+            head: [['Date', 'Name', 'Email', 'Subject', 'Message']],
+            body: filteredEnquiries.map(e => [
+                e.createdAt ? format(new Date(e.createdAt.seconds * 1000), 'PPp') : 'N/A',
+                e.name,
+                e.email,
+                e.subject,
+                e.message
+            ]),
+            styles: {
+                fontSize: 8,
+            },
+            headStyles: {
+                fillColor: [22, 163, 74]
+            },
+            columnStyles: {
+                4: { cellWidth: 80 }
+            }
+        });
+
+        doc.save('enquiries.pdf');
+    };
+
     return (
         <Card>
             <CardHeader>
@@ -115,19 +167,20 @@ export default function EnquiriesPage() {
                             placeholder="Search enquiries..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full max-w-sm pl-10 bg-background"
+                            className="w-full max-w-xs pl-10 bg-background"
                         />
                     </div>
-                    <div className="flex gap-2 items-center flex-wrap">
-                        <Button variant={activeFilter === 'all' ? 'default' : 'outline'} onClick={() => setDateFilter('all')}>All</Button>
-                        <Button variant={activeFilter === 'week' ? 'default' : 'outline'} onClick={() => setDateFilter('week')}>This Week</Button>
-                        <Button variant={activeFilter === 'month' ? 'default' : 'outline'} onClick={() => setDateFilter('month')}>This Month</Button>
-                        <Button variant={activeFilter === 'year' ? 'default' : 'outline'} onClick={() => setDateFilter('year')}>This Year</Button>
+                    <div className="flex gap-2 items-center flex-wrap flex-1 justify-end">
+                        <Button variant={activeFilter === 'all' ? 'default' : 'outline'} size="sm" onClick={() => setDateFilter('all')}>All</Button>
+                        <Button variant={activeFilter === 'week' ? 'default' : 'outline'} size="sm" onClick={() => setDateFilter('week')}>Week</Button>
+                        <Button variant={activeFilter === 'month' ? 'default' : 'outline'} size="sm" onClick={() => setDateFilter('month')}>Month</Button>
+                        <Button variant={activeFilter === 'year' ? 'default' : 'outline'} size="sm" onClick={() => setDateFilter('year')}>Year</Button>
                          <Popover>
                             <PopoverTrigger asChild>
                             <Button
                                 id="date"
                                 variant={"outline"}
+                                size="sm"
                                 className={cn(
                                     "w-[240px] justify-start text-left font-normal",
                                     !date && "text-muted-foreground",
@@ -160,6 +213,18 @@ export default function EnquiriesPage() {
                             />
                             </PopoverContent>
                         </Popover>
+                         <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm">
+                                    <FileDown className="mr-2 h-4 w-4" />
+                                    Export
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                <DropdownMenuItem onClick={handleExportCSV}>Export to CSV</DropdownMenuItem>
+                                <DropdownMenuItem onClick={handleExportPDF}>Export to PDF</DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </div>
             </CardHeader>
