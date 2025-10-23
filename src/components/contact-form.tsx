@@ -16,7 +16,7 @@ import { useState, useTransition } from 'react';
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
   email: z.string().email('Invalid email address.'),
-  phone: z.string().optional(),
+  phone: z.string().length(10, 'Phone number must be 10 digits.'),
   subject: z.string().min(5, 'Subject must be at least 5 characters.'),
   message: z.string().min(10, 'Message must be at least 10 characters.'),
 });
@@ -107,9 +107,9 @@ export function ContactForm() {
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone Number (Optional)</FormLabel>
+                <FormLabel>Phone Number</FormLabel>
                 <FormControl>
-                  <Input placeholder="+91 98765 43210" {...field} disabled={isPending} />
+                  <Input placeholder="9876543210" {...field} disabled={isPending} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

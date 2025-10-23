@@ -41,7 +41,7 @@ export default function ContactPage() {
                 </div>
                 <div className="ml-4">
                     <h3 className="text-xl font-semibold font-headline">Call Us</h3>
-                    <a href="tel:9008592532" className="text-muted-foreground hover:text-primary transition-colors">9008592532</a>
+                    <a href="tel:+919008592532" className="text-muted-foreground hover:text-primary transition-colors">+91 9008592532</a>
                 </div>
             </div>
         </div>

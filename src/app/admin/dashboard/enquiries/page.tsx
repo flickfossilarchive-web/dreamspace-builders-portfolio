@@ -115,7 +115,7 @@ export default function EnquiriesPage() {
         return dateFiltered.filter(enquiry => 
             enquiry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             enquiry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (enquiry.phone && enquiry.phone.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            enquiry.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
             enquiry.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
             enquiry.message.toLowerCase().includes(searchTerm.toLowerCase())
         );
@@ -127,7 +127,7 @@ export default function EnquiriesPage() {
             e.createdAt ? format(new Date(e.createdAt.seconds * 1000), 'yyyy-MM-dd HH:mm:ss') : 'N/A',
             `"${e.name.replace(/"/g, '""')}"`,
             `"${e.email.replace(/"/g, '""')}"`,
-            `"${e.phone ? e.phone.replace(/"/g, '""') : ''}"`,
+            `"${e.phone.replace(/"/g, '""')}"`,
             `"${e.subject.replace(/"/g, '""')}"`,
             `"${e.message.replace(/"/g, '""')}"`,
         ]);
@@ -153,7 +153,7 @@ export default function EnquiriesPage() {
                 e.createdAt ? format(new Date(e.createdAt.seconds * 1000), 'PPp') : 'N/A',
                 e.name,
                 e.email,
-                e.phone || '',
+                e.phone,
                 e.subject,
                 e.message
             ]),
@@ -303,7 +303,7 @@ export default function EnquiriesPage() {
                                     </TableCell>
                                     <TableCell>{enquiry.name}</TableCell>
                                     <TableCell>{enquiry.email}</TableCell>
-                                    <TableCell>{enquiry.phone || 'N/A'}</TableCell>
+                                    <TableCell>{enquiry.phone}</TableCell>
                                     <TableCell>{enquiry.subject}</TableCell>
                                     <TableCell className="text-muted-foreground truncate max-w-xs">{enquiry.message}</TableCell>
                                     <TableCell>
