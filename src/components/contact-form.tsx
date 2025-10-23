@@ -109,7 +109,7 @@ export function ContactForm() {
               <FormItem>
                 <FormLabel>Phone Number (Optional)</FormLabel>
                 <FormControl>
-                  <Input placeholder="+1 (555) 123-4567" {...field} disabled={isPending} />
+                  <Input placeholder="+91 98765 43210" {...field} disabled={isPending} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
