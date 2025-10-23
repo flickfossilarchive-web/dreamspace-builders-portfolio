@@ -39,10 +39,13 @@
           "type": "string",
           "description": "A detailed description of the project."
         },
-        "imageUrl": {
-            "type": "string",
-            "format": "uri",
-            "description": "The URL of the main project image."
+        "imageUrls": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "format": "uri"
+            },
+            "description": "A list of URLs for the project images."
         },
         "category": {
           "type": "string",
@@ -70,7 +73,7 @@
             "description": "The timestamp when the project was created."
         }
       },
-      "required": ["title", "description", "imageUrl", "category", "authorUid", "createdAt"]
+      "required": ["title", "description", "imageUrls", "category", "authorUid", "createdAt"]
     },
     "ContactMessage": {
       "title": "Contact Message",
@@ -108,7 +111,7 @@
           "description": "Whether the admin has read the message."
         }
       },
-      "required": ["name", "email", "subject", "message", "createdAt", "read"]
+      "required": ["name", "email", "phone", "subject", "message", "createdAt", "read"]
     }
   },
   "auth": {

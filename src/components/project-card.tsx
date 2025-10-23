@@ -11,12 +11,16 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ project }: ProjectCardProps) {
+  const primaryImage = project.imageUrls && project.imageUrls.length > 0 
+    ? project.imageUrls[0] 
+    : '/placeholder.svg';
+
   return (
     <Card className="flex flex-col overflow-hidden bg-card border shadow-lg hover:shadow-xl transition-all duration-300 group hover:-translate-y-1">
       <CardHeader className="p-0">
         <div className="relative aspect-video w-full overflow-hidden">
           <Image
-            src={project.imageUrl}
+            src={primaryImage}
             alt={project.title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
