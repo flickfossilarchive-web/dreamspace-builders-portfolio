@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Send, Sparkles } from 'lucide-react';
 import { useFirestore } from '@/firebase';
 import { collection, addDoc } from 'firebase/firestore';
+import { useTransition } from 'react';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
@@ -23,6 +24,7 @@ const formSchema = z.object({
 export function ContactForm() {
   const { toast } = useToast();
   const firestore = useFirestore();
+  const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -35,7 +37,7 @@ export function ContactForm() {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: z.infer<typeof formSchema>) {
     if (!firestore) {
         toast({
             variant: 'destructive',
@@ -45,25 +47,29 @@ export function ContactForm() {
         return;
     }
     
-    // Optimistic UI update
-    toast({
-        title: 'Thank You for Reaching Out!',
-        description: 'We have received your details and our team will get in touch with you shortly.',
-    });
-    form.reset();
+    startTransition(async () => {
+        try {
+            await addDoc(collection(firestore, 'contact-messages'), {
+                ...values,
+                createdAt: new Date(),
+                read: false,
+            });
+            
+            toast({
+                title: 'Thank You for Reaching Out!',
+                description: 'We have received your details and our team will get in touch with you shortly.',
+            });
+            form.reset();
 
-    // Send to Firestore in the background
-    try {
-        await addDoc(collection(firestore, 'contact-messages'), {
-            ...values,
-            createdAt: new Date(),
-            read: false,
-        });
-    } catch (error) {
-        // Silently log the error on the server/console.
-        // The user has already received a success message.
-        console.error('Error saving message:', error);
-    }
+        } catch (error) {
+            console.error('Error saving message:', error);
+            toast({
+                variant: 'destructive',
+                title: 'Submission Failed',
+                description: 'There was a problem sending your message. Please try again.',
+            });
+        }
+    });
   }
 
   return (
@@ -77,7 +83,7 @@ export function ContactForm() {
               <FormItem>
                 <FormLabel>Full Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="John Doe" {...field} disabled={form.formState.isSubmitting} />
+                  <Input placeholder="John Doe" {...field} disabled={isPending} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -90,7 +96,7 @@ export function ContactForm() {
               <FormItem>
                 <FormLabel>Email Address</FormLabel>
                 <FormControl>
-                  <Input placeholder="you@example.com" {...field} disabled={form.formState.isSubmitting} />
+                  <Input placeholder="you@example.com" {...field} disabled={isPending} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -104,7 +110,7 @@ export function ContactForm() {
               <FormItem>
                 <FormLabel>Phone Number</FormLabel>
                 <FormControl>
-                  <Input placeholder="+91" {...field} disabled={form.formState.isSubmitting} />
+                  <Input placeholder="+91" {...field} disabled={isPending} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -117,7 +123,7 @@ export function ContactForm() {
             <FormItem>
               <FormLabel>Subject</FormLabel>
               <FormControl>
-                <Input placeholder="Project Inquiry" {...field} disabled={form.formState.isSubmitting} />
+                <Input placeholder="Project Inquiry" {...field} disabled={isPending} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -130,14 +136,14 @@ export function ContactForm() {
             <FormItem>
               <FormLabel>Message</FormLabel>
               <FormControl>
-                <Textarea placeholder="Tell us about your project..." className="min-h-[120px]" {...field} disabled={form.formState.isSubmitting} />
+                <Textarea placeholder="Tell us about your project..." className="min-h-[120px]" {...field} disabled={isPending} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? (
+        <Button type="submit" size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold" disabled={isPending}>
+          {isPending ? (
             <>
               <Sparkles className="mr-2 h-4 w-4 animate-spin" />
               Sending...
