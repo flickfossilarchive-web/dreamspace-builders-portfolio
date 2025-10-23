@@ -1,7 +1,7 @@
 'use client'
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useFirestore, useCollection } from '@/firebase';
-import { collection, orderBy, query } from 'firebase/firestore';
+import { collection, orderBy, query, writeBatch, doc, where } from 'firebase/firestore';
 import type { ContactMessage } from '@/lib/types';
 import { format } from 'date-fns';
 import {
@@ -33,6 +33,22 @@ export default function EnquiriesPage() {
     }, [firestore]);
 
     const { data: enquiries, loading } = useCollection<ContactMessage>(enquiriesQuery);
+    
+    // Mark messages as read when the component mounts
+    useEffect(() => {
+        if (firestore && enquiries) {
+            const unread = enquiries.filter(e => !e.read && e.id);
+            if (unread.length > 0) {
+                const batch = writeBatch(firestore);
+                unread.forEach(msg => {
+                    const docRef = doc(firestore, 'contact-messages', msg.id!);
+                    batch.update(docRef, { read: true });
+                });
+                batch.commit().catch(console.error);
+            }
+        }
+    }, [firestore, enquiries]);
+
 
     const filteredEnquiries = useMemo(() => {
         if (!enquiries) return [];
@@ -84,7 +100,7 @@ export default function EnquiriesPage() {
                             ))
                         ) : filteredEnquiries.length > 0 ? (
                             filteredEnquiries.map((enquiry) => (
-                                <TableRow key={enquiry.id}>
+                                <TableRow key={enquiry.id} className={!enquiry.read ? 'bg-primary/5' : ''}>
                                     <TableCell className="font-medium text-xs">
                                         {enquiry.createdAt ? format(new Date(enquiry.createdAt.seconds * 1000), 'PPp') : 'N/A'}
                                     </TableCell>

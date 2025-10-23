@@ -50,6 +50,7 @@ export function ContactForm() {
             await addDoc(collection(firestore, 'contact-messages'), {
                 ...values,
                 createdAt: new Date(),
+                read: false,
             });
 
             toast({

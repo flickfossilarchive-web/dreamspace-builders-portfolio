@@ -98,9 +98,13 @@
           "type": "string",
           "format": "date-time",
           "description": "The timestamp when the message was submitted."
+        },
+        "read": {
+          "type": "boolean",
+          "description": "Whether the admin has read the message."
         }
       },
-      "required": ["name", "email", "subject", "message", "createdAt"]
+      "required": ["name", "email", "subject", "message", "createdAt", "read"]
     }
   },
   "auth": {

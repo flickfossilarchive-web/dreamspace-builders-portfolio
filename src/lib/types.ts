@@ -17,4 +17,5 @@ export type ContactMessage = {
   subject: string;
   message: string;
   createdAt: Timestamp;
+  read: boolean;
 };
