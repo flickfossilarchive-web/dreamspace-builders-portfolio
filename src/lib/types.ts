@@ -1,3 +1,5 @@
+import type { Timestamp } from "firebase/firestore";
+
 export type Project = {
   id: string;
   title: string;
@@ -14,5 +16,5 @@ export type ContactMessage = {
   email: string;
   subject: string;
   message: string;
-  createdAt: Date;
+  createdAt: Timestamp;
 };
