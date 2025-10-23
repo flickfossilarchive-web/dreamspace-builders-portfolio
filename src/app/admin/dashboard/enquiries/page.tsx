@@ -1,7 +1,7 @@
 'use client'
 import { useState, useMemo, useEffect } from 'react';
 import { useFirestore, useCollection } from '@/firebase';
-import { collection, orderBy, query, writeBatch, doc, where } from 'firebase/firestore';
+import { collection, orderBy, query, writeBatch, doc, where, deleteDoc } from 'firebase/firestore';
 import type { ContactMessage } from '@/lib/types';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
 import {
@@ -19,8 +19,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+
 import { Input } from '@/components/ui/input';
-import { Search, Calendar as CalendarIcon, FileDown } from 'lucide-react';
+import { Search, Calendar as CalendarIcon, FileDown, Trash2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
@@ -30,15 +41,18 @@ import { cn } from '@/lib/utils';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useToast } from '@/hooks/use-toast';
 
 
 type DateFilter = 'all' | 'week' | 'month' | 'year' | 'custom';
 
 export default function EnquiriesPage() {
     const firestore = useFirestore();
+    const { toast } = useToast();
     const [searchTerm, setSearchTerm] = useState('');
     const [date, setDate] = useState<DateRange | undefined>();
     const [activeFilter, setActiveFilter] = useState<DateFilter>('all');
+    const [enquiryToDelete, setEnquiryToDelete] = useState<string | null>(null);
 
 
     const enquiriesQuery = useMemo(() => {
@@ -156,8 +170,32 @@ export default function EnquiriesPage() {
 
         doc.save('enquiries.pdf');
     };
+    
+    const handleDelete = async () => {
+        if (!firestore || !enquiryToDelete) return;
+        
+        const docRef = doc(firestore, 'contact-messages', enquiryToDelete);
+        try {
+            await deleteDoc(docRef);
+            toast({
+                title: 'Enquiry Deleted',
+                description: 'The message has been permanently removed.',
+            });
+        } catch (error) {
+            console.error('Error deleting enquiry:', error);
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: 'Could not delete the enquiry. Please try again.',
+            });
+        } finally {
+            setEnquiryToDelete(null);
+        }
+    };
+
 
     return (
+        <>
         <Card>
             <CardHeader>
                 <CardTitle>Contact Enquiries</CardTitle>
@@ -241,6 +279,7 @@ export default function EnquiriesPage() {
                         <TableHead>Phone</TableHead>
                         <TableHead>Subject</TableHead>
                         <TableHead className="w-[30%]">Message</TableHead>
+                        <TableHead>Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -253,6 +292,7 @@ export default function EnquiriesPage() {
                                     <TableCell><Skeleton className="h-5 w-full" /></TableCell>
                                     <TableCell><Skeleton className="h-5 w-full" /></TableCell>
                                     <TableCell><Skeleton className="h-5 w-full" /></TableCell>
+                                    <TableCell><Skeleton className="h-8 w-8" /></TableCell>
                                 </TableRow>
                             ))
                         ) : filteredEnquiries.length > 0 ? (
@@ -266,11 +306,20 @@ export default function EnquiriesPage() {
                                     <TableCell>{enquiry.phone || 'N/A'}</TableCell>
                                     <TableCell>{enquiry.subject}</TableCell>
                                     <TableCell className="text-muted-foreground truncate max-w-xs">{enquiry.message}</TableCell>
+                                    <TableCell>
+                                        <Button 
+                                            variant="ghost" 
+                                            size="icon"
+                                            onClick={() => setEnquiryToDelete(enquiry.id!)}
+                                        >
+                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                        </Button>
+                                    </TableCell>
                                 </TableRow>
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={6} className="h-24 text-center">
+                                <TableCell colSpan={7} className="h-24 text-center">
                                     No enquiries found for the selected criteria.
                                 </TableCell>
                             </TableRow>
@@ -279,5 +328,21 @@ export default function EnquiriesPage() {
                 </Table>
             </CardContent>
         </Card>
+        <AlertDialog open={!!enquiryToDelete} onOpenChange={(open) => !open && setEnquiryToDelete(null)}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete the enquiry
+                        and remove the data from our servers.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+        </>
     )
 }
