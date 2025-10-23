@@ -11,12 +11,11 @@ import { useToast } from '@/hooks/use-toast';
 import { Send, Sparkles } from 'lucide-react';
 import { useFirestore } from '@/firebase';
 import { collection, addDoc } from 'firebase/firestore';
-import { useState, useTransition } from 'react';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
   email: z.string().email('Invalid email address.'),
-  phone: z.string().length(10, 'Phone number must be 10 digits.'),
+  phone: z.string().min(10, 'Phone number must be at least 10 digits.'),
   subject: z.string().min(5, 'Subject must be at least 5 characters.'),
   message: z.string().min(10, 'Message must be at least 10 characters.'),
 });
@@ -24,7 +23,6 @@ const formSchema = z.object({
 export function ContactForm() {
   const { toast } = useToast();
   const firestore = useFirestore();
-  const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -37,7 +35,7 @@ export function ContactForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!firestore) {
         toast({
             variant: 'destructive',
@@ -55,19 +53,17 @@ export function ContactForm() {
     form.reset();
 
     // Send to Firestore in the background
-    startTransition(async () => {
-        try {
-            await addDoc(collection(firestore, 'contact-messages'), {
-                ...values,
-                createdAt: new Date(),
-                read: false,
-            });
-        } catch (error) {
-            // Silently log the error on the server/console.
-            // The user has already received a success message.
-            console.error('Error saving message:', error);
-        }
-    });
+    try {
+        await addDoc(collection(firestore, 'contact-messages'), {
+            ...values,
+            createdAt: new Date(),
+            read: false,
+        });
+    } catch (error) {
+        // Silently log the error on the server/console.
+        // The user has already received a success message.
+        console.error('Error saving message:', error);
+    }
   }
 
   return (
@@ -81,7 +77,7 @@ export function ContactForm() {
               <FormItem>
                 <FormLabel>Full Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="John Doe" {...field} disabled={isPending} />
+                  <Input placeholder="John Doe" {...field} disabled={form.formState.isSubmitting} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -94,7 +90,7 @@ export function ContactForm() {
               <FormItem>
                 <FormLabel>Email Address</FormLabel>
                 <FormControl>
-                  <Input placeholder="you@example.com" {...field} disabled={isPending} />
+                  <Input placeholder="you@example.com" {...field} disabled={form.formState.isSubmitting} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -108,7 +104,7 @@ export function ContactForm() {
               <FormItem>
                 <FormLabel>Phone Number</FormLabel>
                 <FormControl>
-                  <Input placeholder="+91" {...field} disabled={isPending} />
+                  <Input placeholder="+91" {...field} disabled={form.formState.isSubmitting} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -121,7 +117,7 @@ export function ContactForm() {
             <FormItem>
               <FormLabel>Subject</FormLabel>
               <FormControl>
-                <Input placeholder="Project Inquiry" {...field} disabled={isPending} />
+                <Input placeholder="Project Inquiry" {...field} disabled={form.formState.isSubmitting} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -134,7 +130,7 @@ export function ContactForm() {
             <FormItem>
               <FormLabel>Message</FormLabel>
               <FormControl>
-                <Textarea placeholder="Tell us about your project..." className="min-h-[120px]" {...field} disabled={isPending} />
+                <Textarea placeholder="Tell us about your project..." className="min-h-[120px]" {...field} disabled={form.formState.isSubmitting} />
               </FormControl>
               <FormMessage />
             </FormItem>
