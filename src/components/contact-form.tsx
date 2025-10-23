@@ -49,8 +49,8 @@ export function ContactForm() {
     
     // Optimistic UI update
     toast({
-        title: 'Message Sent!',
-        description: 'Thank you for contacting us. We will get back to you shortly.',
+        title: 'Thank you for reaching Dreamspace Builders!',
+        description: 'Details received. Our team will get in touch with you shortly.',
     });
     form.reset();
 
@@ -108,7 +108,7 @@ export function ContactForm() {
               <FormItem>
                 <FormLabel>Phone Number</FormLabel>
                 <FormControl>
-                  <Input placeholder="9876543210" {...field} disabled={isPending} />
+                  <Input placeholder="+91" {...field} disabled={isPending} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
