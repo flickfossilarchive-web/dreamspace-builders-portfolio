@@ -47,6 +47,14 @@ export function ContactForm() {
         return;
     }
     
+    // Optimistic UI update
+    toast({
+        title: 'Message Sent!',
+        description: 'Thank you for contacting us. We will get back to you shortly.',
+    });
+    form.reset();
+
+    // Send to Firestore in the background
     startTransition(async () => {
         try {
             await addDoc(collection(firestore, 'contact-messages'), {
@@ -54,19 +62,10 @@ export function ContactForm() {
                 createdAt: new Date(),
                 read: false,
             });
-
-            toast({
-                title: 'Message Sent!',
-                description: 'Thank you for contacting us. We will get back to you shortly.',
-            });
-            form.reset();
         } catch (error) {
+            // Silently log the error on the server/console.
+            // The user has already received a success message.
             console.error('Error saving message:', error);
-             toast({
-                variant: 'destructive',
-                title: 'Uh oh! Something went wrong.',
-                description: 'There was a problem sending your message. Please try again.',
-            });
         }
     });
   }
@@ -141,8 +140,8 @@ export function ContactForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold" disabled={isPending}>
-          {isPending ? (
+        <Button type="submit" size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting ? (
             <>
               <Sparkles className="mr-2 h-4 w-4 animate-spin" />
               Sending...
