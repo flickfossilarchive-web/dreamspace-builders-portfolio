@@ -49,8 +49,8 @@ export function ContactForm() {
     
     // Optimistic UI update
     toast({
-        title: 'Thank you for reaching Dreamspace Builders!',
-        description: 'Details received. Our team will get in touch with you shortly.',
+        title: 'Thank You for Reaching Out!',
+        description: 'We have received your details and our team will get in touch with you shortly.',
     });
     form.reset();
 
