@@ -16,7 +16,7 @@ import { useTransition } from 'react';
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
   email: z.string().email('Invalid email address.'),
-  phone: z.string().min(10, 'Phone number must be at least 10 digits.'),
+  phone: z.string().min(10, 'Please enter a valid 10-digit phone number.').max(10, 'Please enter a valid 10-digit phone number.'),
   subject: z.string().min(5, 'Subject must be at least 5 characters.'),
   message: z.string().min(10, 'Message must be at least 10 characters.'),
 });
@@ -56,8 +56,8 @@ export function ContactForm() {
             });
             
             toast({
-                title: 'Thank You for Reaching Out!',
-                description: 'We have received your details and our team will get in touch with you shortly.',
+                title: 'Message Sent!',
+                description: 'Thank you for reaching out to Dreamspace Builders. Our team will get in touch with you shortly.',
             });
             form.reset();
 
