@@ -3,7 +3,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useFirestore, useCollection } from '@/firebase';
 import { collection, orderBy, query, writeBatch, doc, where } from 'firebase/firestore';
 import type { ContactMessage } from '@/lib/types';
-import { format } from 'date-fns';
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear } from 'date-fns';
 import {
   Table,
   TableBody,
@@ -20,12 +20,22 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { Search, Calendar as CalendarIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { DateRange } from 'react-day-picker';
+import { cn } from '@/lib/utils';
+
+type DateFilter = 'all' | 'week' | 'month' | 'year' | 'custom';
 
 export default function EnquiriesPage() {
     const firestore = useFirestore();
     const [searchTerm, setSearchTerm] = useState('');
+    const [date, setDate] = useState<DateRange | undefined>();
+    const [activeFilter, setActiveFilter] = useState<DateFilter>('all');
+
 
     const enquiriesQuery = useMemo(() => {
         if (!firestore) return null;
@@ -49,31 +59,108 @@ export default function EnquiriesPage() {
         }
     }, [firestore, enquiries]);
 
+    const setDateFilter = (filter: DateFilter) => {
+        const now = new Date();
+        setActiveFilter(filter);
+        if (filter === 'week') {
+            setDate({ from: startOfWeek(now), to: endOfWeek(now) });
+        } else if (filter === 'month') {
+            setDate({ from: startOfMonth(now), to: endOfMonth(now) });
+        } else if (filter === 'year') {
+            setDate({ from: startOfYear(now), to: endOfYear(now) });
+        } else {
+            setDate(undefined);
+        }
+    }
 
     const filteredEnquiries = useMemo(() => {
         if (!enquiries) return [];
-        return enquiries.filter(enquiry => 
+        
+        let dateFiltered = enquiries;
+
+        if (date?.from) {
+             const from = date.from.getTime();
+             const to = date.to ? date.to.getTime() : new Date().getTime();
+
+             dateFiltered = enquiries.filter(enquiry => {
+                 if (!enquiry.createdAt) return false;
+                 const enquiryDate = enquiry.createdAt.seconds * 1000;
+                 return enquiryDate >= from && enquiryDate <= to;
+             });
+        }
+
+
+        if (!searchTerm) {
+            return dateFiltered;
+        }
+
+        return dateFiltered.filter(enquiry => 
             enquiry.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             enquiry.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
             enquiry.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
             enquiry.message.toLowerCase().includes(searchTerm.toLowerCase())
         );
-    }, [enquiries, searchTerm]);
+    }, [enquiries, searchTerm, date]);
 
     return (
         <Card>
             <CardHeader>
                 <CardTitle>Contact Enquiries</CardTitle>
                 <CardDescription>Messages submitted through the contact form.</CardDescription>
-                <div className="relative pt-4">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                    <Input
-                        type="text"
-                        placeholder="Search enquiries..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full max-w-sm pl-10 bg-background"
-                    />
+                <div className="flex flex-col md:flex-row gap-4 items-center pt-4">
+                    <div className="relative flex-1 w-full md:w-auto">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                        <Input
+                            type="text"
+                            placeholder="Search enquiries..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full max-w-sm pl-10 bg-background"
+                        />
+                    </div>
+                    <div className="flex gap-2 items-center flex-wrap">
+                        <Button variant={activeFilter === 'all' ? 'default' : 'outline'} onClick={() => setDateFilter('all')}>All</Button>
+                        <Button variant={activeFilter === 'week' ? 'default' : 'outline'} onClick={() => setDateFilter('week')}>This Week</Button>
+                        <Button variant={activeFilter === 'month' ? 'default' : 'outline'} onClick={() => setDateFilter('month')}>This Month</Button>
+                        <Button variant={activeFilter === 'year' ? 'default' : 'outline'} onClick={() => setDateFilter('year')}>This Year</Button>
+                         <Popover>
+                            <PopoverTrigger asChild>
+                            <Button
+                                id="date"
+                                variant={"outline"}
+                                className={cn(
+                                    "w-[240px] justify-start text-left font-normal",
+                                    !date && "text-muted-foreground",
+                                    activeFilter === 'custom' && "border-primary"
+                                )}
+                            >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {date?.from ? (
+                                date.to ? (
+                                    <>
+                                    {format(date.from, "LLL dd, y")} -{" "}
+                                    {format(date.to, "LLL dd, y")}
+                                    </>
+                                ) : (
+                                    format(date.from, "LLL dd, y")
+                                )
+                                ) : (
+                                <span>Custom date</span>
+                                )}
+                            </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="end">
+                            <Calendar
+                                initialFocus
+                                mode="range"
+                                defaultMonth={date?.from}
+                                selected={date}
+                                onSelect={(range) => { setDate(range); setActiveFilter('custom'); }}
+                                numberOfMonths={2}
+                            />
+                            </PopoverContent>
+                        </Popover>
+                    </div>
                 </div>
             </CardHeader>
             <CardContent>
@@ -113,7 +200,7 @@ export default function EnquiriesPage() {
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={5} className="h-24 text-center">
-                                    No enquiries found.
+                                    No enquiries found for the selected criteria.
                                 </TableCell>
                             </TableRow>
                         )}
