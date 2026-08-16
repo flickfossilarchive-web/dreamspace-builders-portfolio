@@ -1,4 +1,4 @@
-name: NIFTY V1 Validation
+name: NIFTY V7 Adaptive Exposure Validation
 on:
   push:
     branches: [nifty-system-v1]
@@ -13,10 +13,10 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install pandas numpy yfinance
-      - run: python trading/test_nifty_v1.py
+      - run: python trading/test_nifty_v7_professional.py
       - uses: actions/upload-artifact@v4
         with:
-          name: nifty-v1-results
+          name: nifty-v7-professional-results
           path: |
-            nifty_v1_results.json
-            nifty_v1_equity.csv
+            nifty_v7_results.json
+            nifty_v7_equity.csv
