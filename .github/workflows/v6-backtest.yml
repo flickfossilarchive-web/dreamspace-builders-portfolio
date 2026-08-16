@@ -1,4 +1,4 @@
-name: v6 Backtest
+name: v6 Single Stock Test
 on:
   push:
     branches: [backtest-v6-run]
@@ -12,11 +12,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: python trading/backtest_v6.py
+      - run: pip install pandas numpy
+      - run: python trading/test_single_v6.py
       - uses: actions/upload-artifact@v4
         with:
-          name: v6-backtest-results
+          name: single-tcs-v6-results
           path: |
-            backtest_results.json
-            trade_ledger.csv
-            BACKTEST_REPORT.md
+            single_tcs_results.json
+            single_tcs_trade_ledger.csv
