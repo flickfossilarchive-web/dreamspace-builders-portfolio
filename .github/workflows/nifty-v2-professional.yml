@@ -19,3 +19,4 @@ jobs:
           path: |
             nifty_v7_results.json
             nifty_v7_equity.csv
+# Trigger V7 validation
