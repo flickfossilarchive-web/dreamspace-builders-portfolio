@@ -1,7 +1,7 @@
 import io, json, urllib.request
 import numpy as np
 import pandas as pd
-STOCK='infy'
+STOCK='reliance'
 BASE='https://raw.githubusercontent.com/BennyThadikaran/eod2_data/main/daily/'
 P={'sma':200,'breakout':20,'rs':63,'vol':20,'vol_mult':1.5,'atr':14,'stop_atr':2.0,'slip':.0015,'cost':.001}
 
@@ -37,6 +37,6 @@ def run():
     annual=tr.groupby('year')['return'].apply(lambda x: np.prod(1+x)-1).to_dict()
     monthly=tr.groupby('month')['return'].apply(lambda x: np.prod(1+x)-1).to_dict()
     out={'stock':STOCK,'start':str(d.index[0].date()),'end':str(d.index[-1].date()),'trades':len(tr),'cagr':cagr,'total_return':total-1,'max_drawdown':dd,'win_rate':float((tr['return']>0).mean()) if len(tr) else 0,'profit_factor':float(tr.loc[tr['return']>0,'return'].sum() / -tr.loc[tr['return']<0,'return'].sum()) if (tr['return']<0).any() else float('inf'),'annual_returns':annual,'monthly_returns':monthly}
-    json.dump(out,open('single_infy_results.json','w'),indent=2); tr.to_csv('single_infy_trade_ledger.csv',index=False)
+    json.dump(out,open('single_stock_results.json','w'),indent=2); tr.to_csv('single_stock_trade_ledger.csv',index=False)
     print(json.dumps(out,indent=2))
 run()
