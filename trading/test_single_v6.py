@@ -2,7 +2,7 @@ import io, json, urllib.request
 import numpy as np
 import pandas as pd
 
-STOCKS=['hdfcbank','icicibank']
+STOCKS=['sbin','itc']
 BASE='https://raw.githubusercontent.com/BennyThadikaran/eod2_data/main/daily/'
 P={'sma':200,'breakout':20,'rs':63,'vol':20,'vol_mult':1.5,'atr':14,'stop_atr':2.0,'slip':.0015,'cost':.001}
 
