@@ -1,0 +1,25 @@
+name: Portfolio V6 Backtest Push
+
+on:
+  push:
+    branches:
+      - portfolio-v6-backtest
+
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pandas numpy
+      - run: python trading/test_portfolio_v6.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: portfolio-v6-results
+          path: |
+            portfolio_v6_results.json
+            portfolio_v6_equity.csv
+            portfolio_v6_trade_ledger.csv
+          if-no-files-found: error
