@@ -2,7 +2,8 @@ import io, json, urllib.request
 import numpy as np
 import pandas as pd
 
-STOCKS=['sbin','itc']
+# 15-stock batch: each stock is still tested independently with identical rules.
+STOCKS=['lt','bhartiartl','hcltech','maruti','axisbank','kotakmahindra','sunpharma','titan','m&m','tatamotors','tatasteel','bajajfinance','hindalco','cipla','drreddys']
 BASE='https://raw.githubusercontent.com/BennyThadikaran/eod2_data/main/daily/'
 P={'sma':200,'breakout':20,'rs':63,'vol':20,'vol_mult':1.5,'atr':14,'stop_atr':2.0,'slip':.0015,'cost':.001}
 
@@ -37,6 +38,10 @@ def run_stock(stock):
 
 results={}
 for s in STOCKS:
-    results[s]=run_stock(s)
-    print(json.dumps(results[s],indent=2))
-json.dump(results,open('two_stock_results.json','w'),indent=2)
+    try:
+        results[s]=run_stock(s)
+        print(json.dumps(results[s],indent=2))
+    except Exception as e:
+        results[s]={'stock':s,'error':repr(e)}
+        print(json.dumps(results[s],indent=2))
+json.dump(results,open('multi_stock_results.json','w'),indent=2)
