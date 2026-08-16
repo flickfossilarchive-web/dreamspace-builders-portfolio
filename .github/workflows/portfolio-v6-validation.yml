@@ -1,6 +1,9 @@
 name: Portfolio V6 Validation
 
 on:
+  push:
+    branches:
+      - portfolio-v6-backtest
   pull_request:
     branches:
       - main
