@@ -16,7 +16,7 @@ jobs:
       - run: python trading/test_single_v6.py
       - uses: actions/upload-artifact@v4
         with:
-          name: single-tcs-v6-results
+          name: single-stock-v6-results
           path: |
-            single_tcs_results.json
-            single_tcs_trade_ledger.csv
+            single_stock_results.json
+            single_stock_trade_ledger.csv
