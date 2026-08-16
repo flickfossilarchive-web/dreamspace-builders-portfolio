@@ -1,3 +1,4 @@
+# Rerun corrected walk-forward validation from the verified no-look-ahead engine.
 import io,json,urllib.request
 import numpy as np,pandas as pd
 STOCKS=['lt','bhartiartl','hcltech','maruti','axisbank','sunpharma','titan','m&m','tatasteel','hindalco','cipla']
