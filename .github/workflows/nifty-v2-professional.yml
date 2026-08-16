@@ -21,3 +21,5 @@ jobs:
           path: |
             nifty_v6_results.json
             nifty_v6_equity.csv
+
+# Trigger fresh V6 validation
