@@ -1,0 +1,23 @@
+name: v6 Backtest
+on:
+  push:
+    branches: [backtest-v6-run]
+  workflow_dispatch:
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pandas numpy tabulate
+      - run: python trading/backtest_v6.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v6-backtest-results
+          path: |
+            backtest_results.json
+            trade_ledger.csv
+            BACKTEST_REPORT.md
