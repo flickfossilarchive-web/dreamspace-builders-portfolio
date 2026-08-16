@@ -1,0 +1,17 @@
+name: Portfolio V6 Walk Forward
+on:
+  push:
+    branches: [portfolio-v6-backtest]
+jobs:
+  walk-forward:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install pandas numpy
+      - run: python trading/walk_forward_v6.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: portfolio-v6-walk-forward
+          path: portfolio_v6_walk_forward.json
