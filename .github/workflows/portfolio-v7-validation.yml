@@ -1,0 +1,17 @@
+name: Portfolio V7 Validation
+on:
+  push:
+    branches: [portfolio-v6-backtest]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install pandas numpy
+      - run: python trading/test_portfolio_v7.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: portfolio-v7-validation
+          path: portfolio_v7_results.json
