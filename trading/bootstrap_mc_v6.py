@@ -8,7 +8,8 @@ P={'sma':200,'breakout':20,'rs':63,'vol':20,'vol_mult':1.5,'atr':14,'stop_atr':2
 
 def load(s):
     d=pd.read_csv(io.BytesIO(urllib.request.urlopen(BASE+s+'.csv',timeout=60).read()))
-    d['Date']=pd.to_datetime(d.Date); return d.sort_values('Date').drop_duplicates('Date').set_index('Date')
+    d['Date']=pd.to_datetime(d.Date)
+    return d.sort_values('Date').drop_duplicates('Date').set_index('Date')
 
 def indicators(d,p):
     c=d.Close.astype(float); h=d.High.astype(float); l=d.Low.astype(float); v=d.Volume.astype(float)
@@ -29,7 +30,7 @@ def run(data,start,end,p):
                 total += shares[s]*float(d.Close.loc[:dt].iloc[-1]) if shares[s] else cash[s]; continue
             j=d.index.get_loc(dt); o=float(d.Open.iloc[j]); l=float(d.Low.iloc[j]); c=float(d.Close.iloc[j]); sma,atr,sig=prep[s]
             if shares[s]>0:
-                a=float(atr.iloc[j]);
+                a=float(atr.iloc[j])
                 if np.isfinite(a): stop[s]=max(stop[s],c-p['stop_atr']*a)
                 reason='stop' if l<=stop[s] else ('sma' if np.isfinite(float(sma.iloc[j])) and c<float(sma.iloc[j]) else None)
                 if reason:
@@ -40,21 +41,26 @@ def run(data,start,end,p):
             total += cash[s] if shares[s]==0 else shares[s]*c
         eq.append((dt,total))
     e=pd.Series(dict(eq)).sort_index(); years=(e.index[-1]-e.index[0]).days/365.25
-    return {'trades':trades,'years':years,'base_final':float(e.iloc[-1])}
+    return {'trades':trades,'years':years,'base_final':float(e.iloc[-1]),'daily_returns':e.pct_change().fillna(0).to_numpy()}
 
-def bootstrap(trades,years,n=10000,block=10,seed=20260816):
-    x=np.asarray(trades,float); m=len(x); rng=np.random.default_rng(seed); finals=np.empty(n); dds=np.empty(n)
-    starts=np.arange(m)
+def bootstrap_portfolio_returns(daily_returns,years,n=10000,block=20,seed=20260816):
+    x=np.asarray(daily_returns,float); m=len(x); rng=np.random.default_rng(seed)
+    finals=np.empty(n); dds=np.empty(n); cagrs=np.empty(n); starts=np.arange(m)
     for k in range(n):
         seq=[]
         while len(seq)<m:
             st=int(rng.choice(starts)); seq.extend(x[np.arange(st,st+block)%m])
-        seq=np.asarray(seq[:m]); w=np.cumprod(np.r_[1.,1.+seq]); finals[k]=w[-1]; dds[k]=np.min(w/np.maximum.accumulate(w)-1)
-    cagr=finals**(1/years)-1
-    return {'simulations':n,'block_size':block,'median_final':float(np.median(finals)),'p05_final':float(np.quantile(finals,.05)),'p95_final':float(np.quantile(finals,.95)),'median_cagr':float(np.median(cagr)),'p05_cagr':float(np.quantile(cagr,.05)),'p95_cagr':float(np.quantile(cagr,.95)),'median_drawdown':float(np.median(dds)),'p05_drawdown':float(np.quantile(dds,.05)),'p95_drawdown':float(np.quantile(dds,.95)),'prob_final_below_1':float(np.mean(finals<1)),'prob_cagr_below_0':float(np.mean(cagr<0)),'prob_drawdown_worse_than_20pct':float(np.mean(dds<-.20)),'prob_drawdown_worse_than_30pct':float(np.mean(dds<-.30)),'prob_drawdown_worse_than_40pct':float(np.mean(dds<-.40))}
+        seq=np.asarray(seq[:m]); wealth=np.cumprod(1.0+seq)
+        finals[k]=wealth[-1]; dds[k]=np.min(wealth/np.maximum.accumulate(wealth)-1.0); cagrs[k]=finals[k]**(1/years)-1.0
+    return {'simulations':n,'block_size_trading_days':block,'sample_days':m,
+            'median_final':float(np.median(finals)),'p05_final':float(np.quantile(finals,.05)),'p95_final':float(np.quantile(finals,.95)),
+            'median_cagr':float(np.median(cagrs)),'p05_cagr':float(np.quantile(cagrs,.05)),'p95_cagr':float(np.quantile(cagrs,.95)),
+            'median_drawdown':float(np.median(dds)),'p05_drawdown':float(np.quantile(dds,.05)),'p95_drawdown':float(np.quantile(dds,.95)),
+            'prob_final_below_1':float(np.mean(finals<1.0)),'prob_cagr_below_0':float(np.mean(cagrs<0.0)),
+            'prob_drawdown_worse_than_20pct':float(np.mean(dds<-.20)),'prob_drawdown_worse_than_30pct':float(np.mean(dds<-.30)),'prob_drawdown_worse_than_40pct':float(np.mean(dds<-.40))}
 
 def main():
     data={s:load(s) for s in STOCKS}; start=max(d.index[0] for d in data.values()); end=min(d.index[-1] for d in data.values()); r=run(data,start,end,P)
-    out={'period':{'start':str(start.date()),'end':str(end.date())},'observed':{'trades':len(r['trades']),'final':r['base_final'],'years':r['years']},'block_bootstrap':bootstrap(r['trades'],r['years'])}
+    out={'period':{'start':str(start.date()),'end':str(end.date())},'observed':{'trades':len(r['trades']),'final':r['base_final'],'years':r['years'],'daily_return_count':len(r['daily_returns'])},'method':'20-trading-day circular block bootstrap of observed portfolio daily returns','block_bootstrap':bootstrap_portfolio_returns(r['daily_returns'],r['years'])}
     json.dump(out,open('portfolio_v6_bootstrap_mc.json','w'),indent=2); print(json.dumps(out,indent=2))
 if __name__=='__main__': main()
