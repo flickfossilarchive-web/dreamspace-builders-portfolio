@@ -4,6 +4,9 @@ on:
   pull_request:
     branches:
       - main
+  push:
+    branches:
+      - portfolio-v6-backtest
 
 jobs:
   backtest:
