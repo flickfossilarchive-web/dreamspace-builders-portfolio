@@ -62,3 +62,5 @@ def main():
     result={'strategy':'NIFTY V2 professional monthly dual-momentum trend + volatility targeting','ticker':TICKER,'data_start':str(d.index[0].date()),'data_end':str(d.index[-1].date()),'execution':'previous completed daily bar; monthly next-open rebalance','cost':COST,'slippage':SLIPPAGE,'target_vol':TARGET_VOL,'full':{k:r[k] for k in ['cagr','total_return','max_drawdown','sharpe','trades']},'buy_and_hold_price_index':bh,'out_of_sample_windows':oos}
     json.dump(result,open('nifty_v2_results.json','w'),indent=2); pd.DataFrame({'date':r['equity'].index.astype(str),'equity':r['equity'].values}).to_csv('nifty_v2_equity.csv',index=False); print(json.dumps(result,indent=2))
 if __name__=='__main__': main()
+
+# Validation trigger: rerun V2 after the monthly-index fix.
