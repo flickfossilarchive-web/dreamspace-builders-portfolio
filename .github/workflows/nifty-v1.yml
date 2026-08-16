@@ -1,4 +1,4 @@
-name: NIFTY V7 Adaptive Exposure Validation
+name: NIFTY V8 Core Plus Defensive Overlay Research
 on:
   push:
     branches: [nifty-system-v1]
@@ -13,10 +13,8 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install pandas numpy yfinance
-      - run: python trading/test_nifty_v7_professional.py
+      - run: python trading/test_nifty_v8_overlay.py
       - uses: actions/upload-artifact@v4
         with:
-          name: nifty-v7-professional-results
-          path: |
-            nifty_v7_results.json
-            nifty_v7_equity.csv
+          name: nifty-v8-professional-results
+          path: nifty_v8_results.json
