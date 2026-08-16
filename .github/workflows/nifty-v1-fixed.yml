@@ -1,0 +1,22 @@
+name: NIFTY V1 Fixed Validation
+on:
+  push:
+    branches: [nifty-system-v1]
+  workflow_dispatch:
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pandas numpy yfinance
+      - run: python trading/test_nifty_v1_fixed.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nifty-v1-fixed-results
+          path: |
+            nifty_v1_fixed_results.json
+            nifty_v1_fixed_equity.csv
