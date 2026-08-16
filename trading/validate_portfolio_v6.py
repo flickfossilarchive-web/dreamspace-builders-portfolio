@@ -21,7 +21,7 @@ def indicators(d,p):
 
 def run(data,start,end,p):
     data={s:d.loc[:end] for s,d in data.items()}; idx=pd.date_range(start,end,freq='B'); n=len(STOCKS); sleeve=1/n
-    cash={s:sleeve for s in STOCKS}; shares={s:0. for s in STOCKS}; entry={s:None for s in STOCKS}; invested={s:0. for s in STOCKS}; stop={s:None for s in STOCKS}
+    cash={s:sleeve for s in STOCKS}; shares={s:0. for s in STOCKS}; entry={s:None for s in STOCKS}; entry_px={s:None for s in STOCKS}; invested={s:0. for s in STOCKS}; stop={s:None for s in STOCKS}
     eq=[]; trades=[]; prep={s:indicators(d,p) for s,d in data.items()}
     for dt in idx:
         total=0.
@@ -36,9 +36,9 @@ def run(data,start,end,p):
                 if reason:
                     ex=o*(1-p['slip']) if o<stop[s] else stop[s]; proceeds=shares[s]*ex*(1-p['cost']); tr=proceeds/invested[s]-1 if invested[s] else 0
                     cash[s]=proceeds; trades.append({'stock':s,'entry':str(entry[s].date()),'exit':str(dt.date()),'return':tr,'reason':reason,'invested':invested[s],'proceeds':proceeds})
-                    shares[s]=0.; entry[s]=None; invested[s]=0.; stop[s]=None
+                    shares[s]=0.; entry[s]=None; entry_px[s]=None; invested[s]=0.; stop[s]=None
             if shares[s]==0 and bool(sig.iloc[j]) and np.isfinite(float(atr.iloc[j])):
-                invested[s]=cash[s]; entry_px=o*(1+p['slip']); shares[s]=cash[s]/entry_px; cash[s]=0.; entry[s]=dt; stop[s]=entry_px-p['stop_atr']*float(atr.iloc[j])
+                invested[s]=cash[s]; entry_px[s]=o*(1+p['slip']); shares[s]=cash[s]/entry_px[s]; cash[s]=0.; entry[s]=dt; stop[s]=entry_px[s]-p['stop_atr']*float(atr.iloc[j])
             total += cash[s] if shares[s]==0 else shares[s]*c
         eq.append((dt,total))
     e=pd.Series(dict(eq)).sort_index(); dr=e.pct_change().fillna(0); years=(e.index[-1]-e.index[0]).days/365.25
