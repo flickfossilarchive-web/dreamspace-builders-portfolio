@@ -1,4 +1,4 @@
-name: NIFTY V4 Professional Validation
+name: NIFTY V5 Professional Validation
 
 on:
   push:
@@ -14,10 +14,10 @@ jobs:
         with:
           python-version: '3.12'
       - run: pip install pandas numpy yfinance
-      - run: python trading/test_nifty_v2_professional.py
+      - run: python trading/test_nifty_v5_professional.py
       - uses: actions/upload-artifact@v4
         with:
-          name: nifty-v4-professional-results
+          name: nifty-v5-professional-results
           path: |
-            nifty_v4_results.json
-            nifty_v4_equity.csv
+            nifty_v5_results.json
+            nifty_v5_equity.csv
