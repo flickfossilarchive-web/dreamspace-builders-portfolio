@@ -12,7 +12,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install pandas numpy tabulate
       - run: python trading/backtest_v6.py
       - uses: actions/upload-artifact@v4
         with:
