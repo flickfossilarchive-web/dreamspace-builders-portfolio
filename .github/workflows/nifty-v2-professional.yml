@@ -1,4 +1,4 @@
-name: NIFTY V3 Professional Validation
+name: NIFTY V4 Professional Validation
 
 on:
   push:
@@ -17,7 +17,7 @@ jobs:
       - run: python trading/test_nifty_v2_professional.py
       - uses: actions/upload-artifact@v4
         with:
-          name: nifty-v3-professional-results
+          name: nifty-v4-professional-results
           path: |
-            nifty_v3_results.json
-            nifty_v3_equity.csv
+            nifty_v4_results.json
+            nifty_v4_equity.csv
