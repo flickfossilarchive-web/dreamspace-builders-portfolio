@@ -1,0 +1,27 @@
+name: NIFTY V14 Diversified Portfolio Backtest
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'trading/test_nifty_v14_diversified.py'
+      - 'trading/test_nifty_v10_regime.py'
+      - '.github/workflows/nifty-v14-diversified.yml'
+  workflow_dispatch:
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pandas numpy requests yfinance
+      - name: Run V14
+        run: python trading/test_nifty_v14_diversified.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nifty-v14-diversified-results
+          path: nifty_v14_diversified_results.json
+          if-no-files-found: ignore
