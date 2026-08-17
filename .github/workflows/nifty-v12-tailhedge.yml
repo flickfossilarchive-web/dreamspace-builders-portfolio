@@ -4,20 +4,23 @@ on:
     branches: [main]
     paths:
       - 'trading/test_nifty_v12_tailhedge.py'
-      - 'trading/data/nifty_option_history.csv'
+      - 'trading/fetch_nifty_v12_option_data.py'
       - '.github/workflows/nifty-v12-tailhedge.yml'
   workflow_dispatch:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install pandas numpy
-      - run: python trading/test_nifty_v12_tailhedge.py
+      - run: pip install pandas numpy requests
+      - name: Fetch real NSE NIFTY option closes
+        run: python trading/fetch_nifty_v12_option_data.py
+      - name: Run V12
+        run: python trading/test_nifty_v12_tailhedge.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
