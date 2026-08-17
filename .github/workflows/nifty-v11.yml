@@ -7,6 +7,8 @@ on:
       - 'trading/test_nifty_v10_regime.py'
       - '.github/workflows/nifty-v11.yml'
   workflow_dispatch:
+permissions:
+  contents: read
 jobs:
   backtest:
     runs-on: ubuntu-latest
