@@ -1,0 +1,20 @@
+name: NIFTY V9 TRI Core Plus Defensive Overlay
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pandas numpy yfinance requests
+      - run: python trading/test_nifty_v9_tri_overlay.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nifty-v9-tri-results
+          path: nifty_v9_results.json
