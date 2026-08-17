@@ -1,0 +1,25 @@
+name: NIFTY V11-B Robustness Audit
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'trading/test_nifty_v11_robustness.py'
+      - 'trading/test_nifty_v11_voltarget.py'
+      - 'trading/test_nifty_v10_regime.py'
+      - '.github/workflows/nifty-v11-robustness.yml'
+  workflow_dispatch:
+jobs:
+  robustness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pandas numpy yfinance requests
+      - run: python trading/test_nifty_v11_robustness.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nifty-v11-robustness-results
+          path: nifty_v11_robustness_results.json
