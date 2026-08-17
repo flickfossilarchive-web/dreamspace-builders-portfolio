@@ -8,9 +8,9 @@ SLIPPAGE=0.0005
 
 # V11-A: transparent adaptive exposure. All rules are fixed before evaluation.
 def score(row):
-    trend = 1.0 if row.c > row.ma200 else 0.0
+    trend = 1.0 if row.Close > row.ma200 else 0.0
     momentum = 1.0 if row.m63 > 0 and row.m252 > 0 else (0.5 if row.m63 > 0 else 0.0)
-    vol = 1.0 if row.vix < row.vix_q50 else (0.5 if row.vix < row.vix_q80 else 0.0)
+    vol = 1.0 if row.VIX < row.vix_q50 else (0.5 if row.VIX < row.vix_q80 else 0.0)
     breadth = row.breadth
     crash = 0.0 if (row.ret5 < -0.06 and row.rv20 > row.rv20_q80) else (0.5 if row.ret10 < -0.08 else 1.0)
     raw = 0.30*trend + 0.20*momentum + 0.20*vol + 0.20*breadth + 0.10*crash
