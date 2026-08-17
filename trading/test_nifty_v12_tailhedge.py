@@ -21,31 +21,27 @@ def load():
     if len(x)<1000: raise ValueError('Insufficient real option observations')
     return x
 
-def run(opt, t):
-    t=t.sort_values('date').copy(); opt=opt.merge(t,on='date',how='inner').sort_values('date'); dates=list(t.date)
-    by={d:g for d,g in opt.groupby('date')}; eq=1.; peak=1.; held=None; entry=0.; vals=[(dates[0],eq)]; rolls=0; hedge_missing=0
-    last_month=None
+def run(opt,t):
+    t=t.sort_values('date').copy(); opt=opt.merge(t,on='date',how='inner').sort_values('date'); dates=list(t.date); by={d:g for d,g in opt.groupby('date')}
+    eq=1.; peak=1.; held=None; prev_opt=None; vals=[(dates[0],eq)]; rolls=0; missing=0; last_month=None
     for i in range(1,len(dates)):
-        d=dates[i]; prev=dates[i-1]; g=by.get(d,pd.DataFrame()); pg=by.get(prev,pd.DataFrame())
-        month=(d.year,d.month)
+        d=dates[i]; prev=dates[i-1]; g=by.get(d,pd.DataFrame()); month=(d.year,d.month); rolled=False
         if month!=last_month:
             cand=g.copy(); cand['dte']=(cand.expiry-d).dt.days; cand=cand[cand.dte.between(MIN_DTE,MAX_DTE)]
             if not cand.empty:
                 cand['distance']=(cand.strike/cand.underlying-MONEY).abs(); p=cand.sort_values(['distance','dte']).iloc[0]
-                held=(pd.Timestamp(p.expiry),float(p.strike)); entry=float(p.close); rolls+=1
-            else: hedge_missing+=1
+                held=(pd.Timestamp(p.expiry),float(p.strike)); prev_opt=float(p.close); rolls+=1; rolled=True
+            else: missing+=1; held=None; prev_opt=None
             last_month=month
-        core_ret=float(t.loc[t.date==d,'tri'].iloc[0]/t.loc[t.date==prev,'tri'].iloc[0]-1)
-        hret=0.0
-        if held:
+        core_ret=float(t.loc[t.date==d,'tri'].iloc[0]/t.loc[t.date==prev,'tri'].iloc[0]-1); hret=0.0
+        if held and prev_opt is not None:
             ex,strike=held; q=g[(g.expiry==ex)&(g.strike==strike)]
-            if not q.empty and entry>0: hret=float(q.iloc[0].close/entry-1)
-            else: hedge_missing+=1
-        # Hedge premium is a fixed 3% sleeve. At monthly roll, the sleeve is reset to its budget.
-        daily=CORE*core_ret+HEDGE*hret-(ROLL_COST if month!=last_month or i==1 else 0.0)
-        eq*=1+daily; peak=max(peak,eq); vals.append((d,eq))
+            if not q.empty:
+                px=float(q.iloc[0].close); hret=px/prev_opt-1; prev_opt=px
+            else: missing+=1; held=None; prev_opt=None
+        daily=CORE*core_ret+HEDGE*hret-(ROLL_COST if rolled else 0.0); eq*=1+daily; peak=max(peak,eq); vals.append((d,eq))
     s=pd.Series(dict(vals)).sort_index(); rr=s.pct_change().dropna(); years=(s.index[-1]-s.index[0]).days/365.25
-    return {'cagr':float(s.iloc[-1]**(1/years)-1),'max_drawdown':float((s/s.cummax()-1).min()),'sharpe':float(rr.mean()/rr.std()*math.sqrt(252)) if rr.std()>0 else 0.0,'rolls':rolls,'missing_events':hedge_missing,'observations':len(opt)}
+    return {'cagr':float(s.iloc[-1]**(1/years)-1),'max_drawdown':float((s/s.cummax()-1).min()),'sharpe':float(rr.mean()/rr.std()*math.sqrt(252)) if rr.std()>0 else 0.0,'rolls':rolls,'missing_events':missing,'observations':len(opt)}
 
 def main():
     opt=load(); t=tri(); m=run(opt,t); years=(t.date.iloc[-1]-t.date.iloc[0]).days/365.25; bench=float((t.tri.iloc[-1]/t.tri.iloc[0])**(1/years)-1)
