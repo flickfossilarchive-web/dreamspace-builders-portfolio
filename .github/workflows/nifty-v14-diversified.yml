@@ -25,3 +25,4 @@ jobs:
           name: nifty-v14-diversified-results
           path: nifty_v14_diversified_results.json
           if-no-files-found: ignore
+# Force execution after V14 architecture fix.
