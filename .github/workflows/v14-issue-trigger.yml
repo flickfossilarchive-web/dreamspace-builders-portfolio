@@ -1,6 +1,11 @@
 name: V14 Backtest Issue Trigger
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'trading/test_nifty_v14_diversified.py'
+      - '.github/workflows/v14-issue-trigger.yml'
   issues:
     types: [opened]
   issue_comment:
@@ -13,8 +18,9 @@ permissions:
 jobs:
   v14:
     if: >-
-      contains(github.event.issue.title, '[RUN V14]') &&
-      (github.event_name == 'issues' || startsWith(github.event.comment.body, 'RUN V14 NOW'))
+      github.event_name == 'push' ||
+      (contains(github.event.issue.title, '[RUN V14]') &&
+      (github.event_name == 'issues' || startsWith(github.event.comment.body, 'RUN V14 NOW')))
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -30,7 +36,7 @@ jobs:
           set -o pipefail
           python -u trading/test_nifty_v14_diversified.py 2>&1 | tee v14_execution.log
       - name: Publish result or failure diagnostics
-        if: always()
+        if: always() && github.event_name != 'push'
         env:
           GH_TOKEN: ${{ github.token }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
