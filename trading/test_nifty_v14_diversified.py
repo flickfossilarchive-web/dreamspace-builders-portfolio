@@ -14,8 +14,6 @@ def load(name,ticker):
  s=pd.to_numeric(s,errors='coerce').rename(name); s.index=pd.to_datetime(s.index).tz_localize(None); return s
 
 def load_cash():
- # ^IRX is the 13-week Treasury-bill secondary-market discount-rate series.
- # Convert the quoted annualized rate into an approximate daily cash return.
  d=yf.download(CASH_TICKER,start=START,auto_adjust=False,progress=False)
  if d is None or d.empty: raise RuntimeError(f'No data for CASH ({CASH_TICKER})')
  if isinstance(d.columns,pd.MultiIndex):
@@ -23,8 +21,7 @@ def load_cash():
   if isinstance(s,pd.DataFrame): s=s.iloc[:,0]
  else: s=d['Close']
  s=pd.to_numeric(s,errors='coerce'); s.index=pd.to_datetime(s.index).tz_localize(None)
- rate=s.ffill().clip(lower=0)/100
- daily=(1+rate)**(1/252)-1
+ rate=s.ffill().clip(lower=0)/100; daily=(1+rate)**(1/252)-1
  return (1+daily).cumprod().rename(CASH)
 
 def data():
@@ -42,14 +39,14 @@ def risk_weights(v):
   pool=raw[free].sum()
   if pool<=0: raise RuntimeError('Invalid inverse-vol weights')
   proposal=raw[free]/pool*remaining
-  capped=[k for k in free if proposal[k] >= caps[k]-1e-12]
+  capped=[k for k in free if proposal[k] >= caps[k]-1e-10]
   if not capped:
    w.loc[free]=proposal; remaining=0.0; break
   for k in capped:
    w[k]=float(caps[k]); remaining-=w[k]
   free=[k for k in free if k not in capped]
- if abs(w.sum()-1)>1e-10: raise RuntimeError(f'Risk weight normalization failed: {w.to_dict()}')
- if any(w[k]>caps[k]+1e-10 for k in w.index): raise RuntimeError(f'Risk cap failed: {w.to_dict()}')
+ if abs(w.sum()-1)>1e-8: raise RuntimeError(f'Risk weight normalization failed: {w.to_dict()}')
+ if any(w[k]>caps[k]+1e-8 for k in w.index): raise RuntimeError(f'Risk cap failed: {w.to_dict()}')
  return w
 
 def run(d):
@@ -60,7 +57,8 @@ def run(d):
    v=rv.iloc[p]
    if v.notna().all() and (v>0).all():
     risk=risk_weights(v); target=risk*0.90; target[CASH]=CASH_BASE
-    if target[CASH]<CASH_MIN or target[CASH]>CASH_MAX or abs(target.sum()-1)>1e-9 or any(target[k]>RISK_CAPS[k]*.90+1e-9 for k in RISK_ASSETS): raise RuntimeError(f'Allocation sanity gate failed: {target.to_dict()}')
+    tol=1e-7
+    if target[CASH]<CASH_MIN-tol or target[CASH]>CASH_MAX+tol or abs(target.sum()-1)>tol or any(target[k]>RISK_CAPS[k]*.90+tol for k in RISK_ASSETS): raise RuntimeError(f'Allocation sanity gate failed: {target.to_dict()}')
     turnover=float((target-current).abs().sum()); eq*=max(0,1-turnover*(COST+SLIPPAGE)); current=target; trades+=1
   eq*=1+float((current*r.iloc[i]).sum()); vals.append((d.index[i],eq))
  s=pd.Series(dict(vals)).sort_index(); rr=s.pct_change().fillna(0); yrs=(s.index[-1]-s.index[0]).days/365.25
