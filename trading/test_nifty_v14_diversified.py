@@ -1,7 +1,7 @@
 import json, numpy as np, pandas as pd, yfinance as yf
 from test_nifty_v10_regime import tri_history
 START='2007-09-17'; COST=0.0005; SLIPPAGE=0.0005; LOOKBACK=60
-RISK_ASSETS={'NIFTY':'^NSEI','GOLD':'GC=F','NASDAQ':'^IXIC'}; CASH='CASH'; CASH_TICKER='BIL'
+RISK_ASSETS={'NIFTY':'^NSEI','GOLD':'GC=F','NASDAQ':'^IXIC'}; CASH='CASH'; CASH_TICKER='^IRX'
 BASE_RISK={'NIFTY':0.55,'GOLD':0.20,'NASDAQ':0.15}; RISK_CAPS={'NIFTY':0.70,'GOLD':0.30,'NASDAQ':0.25}; CASH_BASE=0.10; CASH_MIN=0.10; CASH_MAX=0.30
 
 def load(name,ticker):
@@ -13,8 +13,22 @@ def load(name,ticker):
  else: s=d['Close']
  s=pd.to_numeric(s,errors='coerce').rename(name); s.index=pd.to_datetime(s.index).tz_localize(None); return s
 
+def load_cash():
+ # ^IRX is the 13-week Treasury-bill secondary-market discount-rate series.
+ # Convert the quoted annualized rate into an approximate daily cash return.
+ d=yf.download(CASH_TICKER,start=START,auto_adjust=False,progress=False)
+ if d is None or d.empty: raise RuntimeError(f'No data for CASH ({CASH_TICKER})')
+ if isinstance(d.columns,pd.MultiIndex):
+  s=d['Close'] if 'Close' in d.columns.get_level_values(0) else d.xs('Close',axis=1,level=1)
+  if isinstance(s,pd.DataFrame): s=s.iloc[:,0]
+ else: s=d['Close']
+ s=pd.to_numeric(s,errors='coerce'); s.index=pd.to_datetime(s.index).tz_localize(None)
+ rate=s.ffill().clip(lower=0)/100
+ daily=(1+rate)**(1/252)-1
+ return (1+daily).cumprod().rename(CASH)
+
 def data():
- p=pd.concat([load(n,t) for n,t in RISK_ASSETS.items()]+[load(CASH,CASH_TICKER)],axis=1).sort_index(); coverage={c:int(p[c].notna().sum()) for c in p}
+ p=pd.concat([load(n,t) for n,t in RISK_ASSETS.items()]+[load_cash()],axis=1).sort_index(); coverage={c:int(p[c].notna().sum()) for c in p}
  if any(v<500 for v in coverage.values()): raise RuntimeError(f'Insufficient observations: {coverage}')
  p=p.ffill().dropna(); tri=tri_history(p.index[0].date(),p.index[-1].date()); out=p.join(tri,how='inner').dropna(subset=['TRI'])
  if len(out)<500: raise RuntimeError(f'Insufficient common history: {len(out)}')
@@ -60,6 +74,6 @@ def period(s,a,b):
 
 def main():
  d=data(); s,m=run(d); tri=d.TRI; yrs=(tri.index[-1]-tri.index[0]).days/365.25; bench=float((tri.iloc[-1]/tri.iloc[0])**(1/yrs)-1); windows=[('2008','2008-01-01','2009-12-31'),('2011','2011-01-01','2011-12-31'),('2015-2016','2015-01-01','2016-12-31'),('2018','2018-01-01','2018-12-31'),('2020','2020-01-01','2020-12-31'),('2022','2022-01-01','2022-12-31'),('2025-2026','2025-01-01',str(d.index[-1].date()))]
- out={'strategy':'V14 diversified risk sleeves; inverse-vol only on risky assets; fixed 10% cash; monthly rebalance','benchmark':'Official NIFTY 50 TRI','data_start':str(d.index[0].date()),'data_end':str(d.index[-1].date()),'buy_hold_tri_cagr':bench,'full':m,'windows':[{'name':n,'start':a,'end':b,**period(s,a,b)} for n,a,b in windows],'parameters':{'base_risk_weights':BASE_RISK,'risk_caps':RISK_CAPS,'cash_fixed':CASH_BASE,'cash_bounds':[CASH_MIN,CASH_MAX],'lookback_days':LOOKBACK,'rebalance':'monthly','cost':COST,'slippage':SLIPPAGE,'risk_assets':RISK_ASSETS,'cash_proxy':CASH_TICKER},'warnings':['BIL is a U.S. 1-3 month Treasury-bill ETF used as a stable cash-like research proxy, not Indian cash.','GC=F and ^IXIC are research proxies, not exact Indian execution.','No leverage; no final-test parameter fitting.','Cash excluded from inverse-vol weighting.']}
+ out={'strategy':'V14 diversified risk sleeves; inverse-vol only on risky assets; fixed 10% cash; monthly rebalance','benchmark':'Official NIFTY 50 TRI','data_start':str(d.index[0].date()),'data_end':str(d.index[-1].date()),'buy_hold_tri_cagr':bench,'full':m,'windows':[{'name':n,'start':a,'end':b,**period(s,a,b)} for n,a,b in windows],'parameters':{'base_risk_weights':BASE_RISK,'risk_caps':RISK_CAPS,'cash_fixed':CASH_BASE,'cash_bounds':[CASH_MIN,CASH_MAX],'lookback_days':LOOKBACK,'rebalance':'monthly','cost':COST,'slippage':SLIPPAGE,'risk_assets':RISK_ASSETS,'cash_proxy':CASH_TICKER},'warnings':['^IRX is the U.S. 13-week Treasury-bill rate used to model the fixed cash sleeve; it is not Indian cash.','GC=F and ^IXIC are research proxies, not exact Indian execution.','No leverage; no final-test parameter fitting.','Cash excluded from inverse-vol weighting.']}
  json.dump(out,open('nifty_v14_diversified_results.json','w'),indent=2); print(json.dumps(out,indent=2))
 if __name__=='__main__': main()
