@@ -21,15 +21,22 @@ def data():
  print(json.dumps({'data_integrity':{'columns':list(out.columns),'rows':len(out),'start':str(out.index[0].date()),'end':str(out.index[-1].date()),'raw_coverage':coverage}},indent=2)); return out
 
 def risk_weights(v):
- inv=1/v; w=pd.Series(BASE_RISK)*inv/inv.mean(); w=w.clip(lower=0)
- for _ in range(20):
-  over={k:max(0,float(w[k]-RISK_CAPS[k])) for k in w.index}; excess=sum(over.values())
-  if excess<1e-10: break
-  for k in w.index: w[k]=min(float(w[k]),RISK_CAPS[k])
-  room=[k for k in w.index if w[k]<RISK_CAPS[k]-1e-10]
-  if not room: break
-  for k in room: w[k]=float(w[k])+excess/len(room)
- return w/w.sum()
+ inv=1/v; raw=pd.Series(BASE_RISK,index=v.index)*inv/inv.mean(); raw=raw.clip(lower=0); caps=pd.Series(RISK_CAPS,index=v.index)
+ w=pd.Series(0.0,index=v.index); free=list(v.index); remaining=1.0
+ for _ in range(len(v)+5):
+  if not free: break
+  pool=raw[free].sum()
+  if pool<=0: raise RuntimeError('Invalid inverse-vol weights')
+  proposal=raw[free]/pool*remaining
+  capped=[k for k in free if proposal[k] >= caps[k]-1e-12]
+  if not capped:
+   w.loc[free]=proposal; remaining=0.0; break
+  for k in capped:
+   w[k]=float(caps[k]); remaining-=w[k]
+  free=[k for k in free if k not in capped]
+ if abs(w.sum()-1)>1e-10: raise RuntimeError(f'Risk weight normalization failed: {w.to_dict()}')
+ if any(w[k]>caps[k]+1e-10 for k in w.index): raise RuntimeError(f'Risk cap failed: {w.to_dict()}')
+ return w
 
 def run(d):
  r=d[list(RISK_ASSETS)+[CASH]].pct_change().fillna(0); rv=r[list(RISK_ASSETS)].rolling(LOOKBACK).std()*np.sqrt(252); current=pd.Series({'NIFTY':.55,'GOLD':.20,'NASDAQ':.15,'CASH':.10}); vals=[]; eq=1.; trades=0
@@ -39,7 +46,7 @@ def run(d):
    v=rv.iloc[p]
    if v.notna().all() and (v>0).all():
     risk=risk_weights(v); target=risk*0.90; target[CASH]=CASH_BASE
-    if target[CASH]<CASH_MIN or target[CASH]>CASH_MAX or abs(target.sum()-1)>1e-9 or any(target[k]>RISK_CAPS[k]*.90+1e-9 for k in RISK_ASSETS): raise RuntimeError('Allocation sanity gate failed')
+    if target[CASH]<CASH_MIN or target[CASH]>CASH_MAX or abs(target.sum()-1)>1e-9 or any(target[k]>RISK_CAPS[k]*.90+1e-9 for k in RISK_ASSETS): raise RuntimeError(f'Allocation sanity gate failed: {target.to_dict()}')
     turnover=float((target-current).abs().sum()); eq*=max(0,1-turnover*(COST+SLIPPAGE)); current=target; trades+=1
   eq*=1+float((current*r.iloc[i]).sum()); vals.append((d.index[i],eq))
  s=pd.Series(dict(vals)).sort_index(); rr=s.pct_change().fillna(0); yrs=(s.index[-1]-s.index[0]).days/365.25
