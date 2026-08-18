@@ -6,15 +6,22 @@ on:
 jobs:
   backtest:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - run: pip install pandas numpy yfinance requests
-      - run: python trading/test_nifty_v9_tri_overlay.py
+      - name: Run V9
+        run: python trading/test_nifty_v9_tri_overlay.py
+      - name: Run V14
+        run: python trading/test_nifty_v14_diversified.py
       - uses: actions/upload-artifact@v4
         with:
           name: nifty-v9-tri-results
           path: nifty_v9_results.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nifty-v14-diversified-results
+          path: nifty_v14_diversified_results.json
