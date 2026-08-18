@@ -3,6 +3,8 @@ name: V14 Backtest Issue Trigger
 on:
   issues:
     types: [opened]
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: read
@@ -10,7 +12,9 @@ permissions:
 
 jobs:
   v14:
-    if: contains(github.event.issue.title, '[RUN V14]')
+    if: >-
+      contains(github.event.issue.title, '[RUN V14]') &&
+      (github.event_name == 'issues' || startsWith(github.event.comment.body, 'RUN V14 NOW'))
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -34,8 +38,6 @@ jobs:
           if [ -f nifty_v14_diversified_results.json ]; then
             gh issue comment "$ISSUE_NUMBER" --body "## V14 execution result\n\n\`\`\`json\n$(cat nifty_v14_diversified_results.json)\n\`\`\`"
           else
-            echo 'V14 did not produce a result file.'
-            tail -n 120 v14_execution.log || true
             gh issue comment "$ISSUE_NUMBER" --body "## V14 execution failed\n\n\`\`\`text\n$(tail -n 120 v14_execution.log 2>/dev/null || echo 'No execution log produced')\n\`\`\`"
           fi
       - name: Upload V14 diagnostics
