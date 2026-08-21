@@ -30,14 +30,8 @@ jobs:
       - name: Execute frozen V14
         shell: bash
         run: |
-          set -o pipefail
-          python -u trading/test_nifty_v14_diversified.py > v14_execution.log 2>&1
-          rc=$?
-          cat v14_execution.log
-          if [ "$rc" -ne 0 ]; then
-            echo "V14 execution failed with exit code $rc"
-            exit "$rc"
-          fi
+          set -euo pipefail
+          python -u trading/test_nifty_v14_diversified.py 2>&1 | tee v14_execution.log
 
       - name: Validate V14 result
         shell: bash
@@ -45,16 +39,48 @@ jobs:
           test -s nifty_v14_diversified_results.json
           python - <<'PY'
           import json
+          import math
+          from datetime import date
           from pathlib import Path
+
           p = Path('nifty_v14_diversified_results.json')
           data = json.loads(p.read_text())
-          required = ['strategy', 'benchmark', 'data_start', 'data_end', 'buy_hold_tri_cagr', 'full', 'windows', 'parameters']
-          missing = [k for k in required if k not in data]
+          required = ['strategy', 'benchmark', 'data_start', 'data_end', 'buy_hold_tri_cagr', 'full', 'windows', 'parameters', 'warnings']
+          missing = [key for key in required if key not in data]
           if missing:
               raise SystemExit(f'Missing result fields: {missing}')
-          for k in ['cagr', 'total_return', 'max_drawdown', 'sharpe', 'trades']:
-              if k not in data['full']:
-                  raise SystemExit(f'Missing full metric: {k}')
+          if date.fromisoformat(data['data_start']) >= date.fromisoformat(data['data_end']):
+              raise SystemExit('Invalid result date range')
+          if not isinstance(data['warnings'], list) or not data['warnings']:
+              raise SystemExit('Warnings must be a non-empty list')
+
+          full = data['full']
+          for key in ['cagr', 'total_return', 'max_drawdown', 'sharpe']:
+              value = full.get(key)
+              if not isinstance(value, (int, float)) or not math.isfinite(value):
+                  raise SystemExit(f'Invalid full metric {key}: {value!r}')
+          if not isinstance(full.get('trades'), int) or full['trades'] <= 0:
+              raise SystemExit(f'Invalid rebalance count: {full.get("trades")!r}')
+          weights = full.get('avg_weights')
+          expected_assets = {'NIFTY', 'GOLD', 'NASDAQ', 'CASH'}
+          if not isinstance(weights, dict) or set(weights) != expected_assets:
+              raise SystemExit(f'Invalid average-weight assets: {weights!r}')
+          if any(not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0 for value in weights.values()):
+              raise SystemExit(f'Invalid average weights: {weights!r}')
+          if abs(sum(weights.values()) - 1) > 1e-7:
+              raise SystemExit(f'Average weights do not sum to one: {weights!r}')
+
+          windows = data['windows']
+          if not isinstance(windows, list) or not windows:
+              raise SystemExit('Missing stress windows')
+          for window in windows:
+              for key in ['name', 'start', 'end', 'cagr', 'max_drawdown', 'sharpe']:
+                  if key not in window:
+                      raise SystemExit(f'Missing window metric {key}: {window!r}')
+                  if key in {'cagr', 'max_drawdown', 'sharpe'} and (
+                      not isinstance(window[key], (int, float)) or not math.isfinite(window[key])
+                  ):
+                      raise SystemExit(f'Invalid window metric {key}: {window!r}')
           print(json.dumps(data, indent=2))
           PY
 
