@@ -7,6 +7,12 @@ on:
       - 'trading/test_nifty_v15_regime_diversified.py'
       - 'trading/test_nifty_v10_regime.py'
       - '.github/workflows/v15-regime.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'trading/test_nifty_v15_regime_diversified.py'
+      - 'trading/test_nifty_v10_regime.py'
+      - '.github/workflows/v15-regime.yml'
   workflow_dispatch:
 
 permissions:
