@@ -7,10 +7,16 @@ on:
       - 'trading/test_nifty_v15_regime_diversified.py'
       - 'trading/test_nifty_v10_regime.py'
       - '.github/workflows/v15-regime.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'trading/test_nifty_v15_regime_diversified.py'
+      - 'trading/test_nifty_v10_regime.py'
+      - '.github/workflows/v15-regime.yml'
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   backtest:
@@ -47,6 +53,14 @@ jobs:
               for k in ['name','start','end','cagr','max_drawdown','sharpe']: assert k in x
           print(json.dumps(d, indent=2))
           PY
+      - name: Publish verified result to repository
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add nifty_v15_regime_results.json
+          git commit -m 'results: publish verified V15 backtest' || exit 0
+          git push
       - name: Upload final result
         uses: actions/upload-artifact@v4
         with:
