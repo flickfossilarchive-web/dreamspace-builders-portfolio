@@ -50,7 +50,7 @@ def risk_weights(v):
  return w
 
 def run(d):
- r=d[list(RISK_ASSETS)+[CASH]].pct_change().fillna(0); rv=r[list(RISK_ASSETS)].rolling(LOOKBACK).std()*np.sqrt(252); current=pd.Series({'NIFTY':.55,'GOLD':.20,'NASDAQ':.15,'CASH':.10}); vals=[]; eq=1.; trades=0
+ r=d[list(RISK_ASSETS)+[CASH]].pct_change().fillna(0); rv=r[list(RISK_ASSETS)].rolling(LOOKBACK).std()*np.sqrt(252); current=pd.Series({'NIFTY':.55,'GOLD':.20,'NASDAQ':.15,'CASH':.10}); vals=[]; allocations=[]; eq=1.; trades=0
  for i in range(1,len(d)):
   p=i-1
   if i==1 or d.index[i].month!=d.index[i-1].month:
@@ -60,9 +60,11 @@ def run(d):
     tol=1e-7
     if target[CASH]<CASH_MIN-tol or target[CASH]>CASH_MAX+tol or abs(target.sum()-1)>tol or any(target[k]>RISK_CAPS[k]*.90+tol for k in RISK_ASSETS): raise RuntimeError(f'Allocation sanity gate failed: {target.to_dict()}')
     turnover=float((target-current).abs().sum()); eq*=max(0,1-turnover*(COST+SLIPPAGE)); current=target; trades+=1
+  allocations.append(current.copy())
   eq*=1+float((current*r.iloc[i]).sum()); vals.append((d.index[i],eq))
  s=pd.Series(dict(vals)).sort_index(); rr=s.pct_change().fillna(0); yrs=(s.index[-1]-s.index[0]).days/365.25
- return s,{'cagr':float(s.iloc[-1]**(1/yrs)-1),'total_return':float(s.iloc[-1]-1),'max_drawdown':float((s/s.cummax()-1).min()),'sharpe':float(rr.mean()/rr.std()*np.sqrt(252)),'trades':trades,'avg_weights':current.to_dict()}
+ avg_weights={k:float(v) for k,v in pd.DataFrame(allocations).mean().items()}
+ return s,{'cagr':float(s.iloc[-1]**(1/yrs)-1),'total_return':float(s.iloc[-1]-1),'max_drawdown':float((s/s.cummax()-1).min()),'sharpe':float(rr.mean()/rr.std()*np.sqrt(252)),'trades':trades,'avg_weights':avg_weights}
 
 def period(s,a,b):
  x=s.loc[a:b]
