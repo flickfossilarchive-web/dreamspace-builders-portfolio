@@ -1,12 +1,10 @@
-name: NIFTY V14 Diversified Portfolio Backtest
+name: NIFTY V14 Diversified Portfolio Backtest (Legacy)
+
+# Deprecated automatic workflow. Use v14-dispatch.yml as the single authoritative
+# V14 execution/validation path. Kept manual-only to avoid duplicate backtests.
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'trading/test_nifty_v14_diversified.py'
-      - 'trading/test_nifty_v10_regime.py'
-      - '.github/workflows/nifty-v14-diversified.yml'
   workflow_dispatch:
+
 jobs:
   backtest:
     runs-on: ubuntu-latest
@@ -16,13 +14,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install pandas numpy requests yfinance
+      - run: python -m pip install --upgrade pip && python -m pip install pandas numpy requests yfinance
       - name: Run V14
-        run: python trading/test_nifty_v14_diversified.py
+        run: python -u trading/test_nifty_v14_diversified.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: nifty-v14-diversified-results
+          name: nifty-v14-diversified-results-legacy
           path: nifty_v14_diversified_results.json
           if-no-files-found: ignore
-# Force execution after V14 architecture fix.
