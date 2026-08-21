@@ -5,6 +5,11 @@ on:
       - 'trading/v26_relative_strength_rotation.py'
       - 'trading/test_nifty_v10_regime.py'
       - '.github/workflows/v26-relative-strength.yml'
+  pull_request:
+    paths:
+      - 'trading/v26_relative_strength_rotation.py'
+      - 'trading/test_nifty_v10_regime.py'
+      - '.github/workflows/v26-relative-strength.yml'
   workflow_dispatch:
 jobs:
   test:
