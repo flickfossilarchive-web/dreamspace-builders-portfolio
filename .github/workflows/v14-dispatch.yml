@@ -7,6 +7,11 @@ on:
     paths:
       - 'trading/test_nifty_v14_diversified.py'
       - '.github/workflows/v14-dispatch.yml'
+  pull_request:
+    paths:
+      - 'trading/test_nifty_v14_diversified.py'
+      - '.github/workflows/v14-dispatch.yml'
+      - 'trading/test_nifty_v10_regime.py'
 
 permissions:
   contents: read
@@ -49,10 +54,17 @@ jobs:
           missing = [key for key in required if key not in data]
           if missing:
               raise SystemExit(f'Missing result fields: {missing}')
+          if not isinstance(data['strategy'], str) or not data['strategy'].strip():
+              raise SystemExit('Invalid strategy description')
+          if not isinstance(data['benchmark'], str) or not data['benchmark'].strip():
+              raise SystemExit('Invalid benchmark description')
           if date.fromisoformat(data['data_start']) >= date.fromisoformat(data['data_end']):
               raise SystemExit('Invalid result date range')
           if not isinstance(data['warnings'], list) or not data['warnings']:
               raise SystemExit('Warnings must be a non-empty list')
+          benchmark_cagr = data['buy_hold_tri_cagr']
+          if not isinstance(benchmark_cagr, (int, float)) or not math.isfinite(benchmark_cagr):
+              raise SystemExit(f'Invalid benchmark CAGR: {benchmark_cagr!r}')
 
           full = data['full']
           for key in ['cagr', 'total_return', 'max_drawdown', 'sharpe']:
