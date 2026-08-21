@@ -4,30 +4,65 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['trading/test_nifty_v14_diversified.py', '.github/workflows/v14-dispatch.yml']
+    paths:
+      - 'trading/test_nifty_v14_diversified.py'
+      - '.github/workflows/v14-dispatch.yml'
 
 permissions:
   contents: read
-  issues: write
 
 jobs:
   backtest:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install pandas numpy requests yfinance
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && python -m pip install pandas numpy requests yfinance
+
       - name: Execute frozen V14
-        run: python -u trading/test_nifty_v14_diversified.py | tee v14_execution.log
-      - name: Upload result
-        if: always()
+        shell: bash
+        run: |
+          set -o pipefail
+          python -u trading/test_nifty_v14_diversified.py > v14_execution.log 2>&1
+          rc=$?
+          cat v14_execution.log
+          if [ "$rc" -ne 0 ]; then
+            echo "V14 execution failed with exit code $rc"
+            exit "$rc"
+          fi
+
+      - name: Validate V14 result
+        shell: bash
+        run: |
+          test -s nifty_v14_diversified_results.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('nifty_v14_diversified_results.json')
+          data = json.loads(p.read_text())
+          required = ['strategy', 'benchmark', 'data_start', 'data_end', 'buy_hold_tri_cagr', 'full', 'windows', 'parameters']
+          missing = [k for k in required if k not in data]
+          if missing:
+              raise SystemExit(f'Missing result fields: {missing}')
+          for k in ['cagr', 'total_return', 'max_drawdown', 'sharpe', 'trades']:
+              if k not in data['full']:
+                  raise SystemExit(f'Missing full metric: {k}')
+          print(json.dumps(data, indent=2))
+          PY
+
+      - name: Upload final result
         uses: actions/upload-artifact@v4
         with:
           name: v14-final-result
           path: |
             nifty_v14_diversified_results.json
             v14_execution.log
-          if-no-files-found: ignore
+          if-no-files-found: error
