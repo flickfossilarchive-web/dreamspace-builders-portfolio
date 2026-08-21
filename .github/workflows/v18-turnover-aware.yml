@@ -1,0 +1,46 @@
+name: V18 Turnover Aware Research
+on:
+  push:
+    branches: [fix/v17-real-robustness]
+    paths: ['trading/test_nifty_v18_turnover_aware_dual_momentum.py','.github/workflows/v18-turnover-aware.yml']
+  pull_request:
+    branches: [main]
+    paths: ['trading/test_nifty_v18_turnover_aware_dual_momentum.py','.github/workflows/v18-turnover-aware.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  v18:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && python -m pip install pandas numpy requests yfinance
+      - name: Run V18
+        run: python -u trading/test_nifty_v18_turnover_aware_dual_momentum.py 2>&1 | tee v18_execution.log
+      - name: Validate
+        run: |
+          python - <<'PY'
+          import json, math
+          d=json.load(open('nifty_v18_turnover_aware_results.json'))
+          assert d['data_start'] < d['data_end']
+          assert d['full']['rebalances'] > 0
+          assert len(d['cost_sensitivity']) == 7
+          for k in ['cagr','total_return','max_drawdown','sharpe','avg_annual_turnover']:
+              assert math.isfinite(d['full'][k])
+          for x in d['cost_sensitivity']:
+              assert math.isfinite(x['cagr'])
+          print(json.dumps({'benchmark':d['buy_hold_tri_cagr'],'full':d['full'],'cost_sensitivity':d['cost_sensitivity']},indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v18-turnover-aware-result
+          path: |
+            nifty_v18_turnover_aware_results.json
+            v18_execution.log
+          if-no-files-found: warn
