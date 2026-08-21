@@ -1,0 +1,44 @@
+name: V17 Relative Momentum Backtest
+on:
+  push:
+    branches: [test/v17-run]
+    paths: ['trading/test_nifty_v17_relative_momentum.py','.github/workflows/v17-relative-momentum.yml']
+  pull_request:
+    branches: [main]
+    paths: ['trading/test_nifty_v17_relative_momentum.py','.github/workflows/v17-relative-momentum.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Install
+        run: python -m pip install --upgrade pip && python -m pip install pandas numpy requests yfinance
+      - name: Run V17
+        run: python -u trading/test_nifty_v17_relative_momentum.py 2>&1 | tee v17_execution.log
+      - name: Validate
+        run: |
+          test -s nifty_v17_relative_momentum_results.json
+          python - <<'PY'
+          import json,math
+          d=json.load(open('nifty_v17_relative_momentum_results.json'))
+          for k in ['strategy','benchmark','data_start','data_end','buy_hold_tri_cagr','full','windows','parameters','warnings']: assert k in d,k
+          assert d['data_start']<d['data_end'] and d['full']['rebalances']>0
+          for k in ['cagr','total_return','max_drawdown','sharpe']:
+            assert math.isfinite(d['full'][k])
+          w=d['full']['avg_weights']; assert set(w)=={'NIFTY','GOLD','NASDAQ','CASH'} and abs(sum(w.values())-1)<1e-7
+          assert d['windows']
+          print(json.dumps(d,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v17-final-result
+          path: |
+            nifty_v17_relative_momentum_results.json
+            v17_execution.log
+          if-no-files-found: error
