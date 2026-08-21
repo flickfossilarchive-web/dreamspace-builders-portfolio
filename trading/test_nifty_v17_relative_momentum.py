@@ -1,4 +1,4 @@
-import json, math
+import json
 import numpy as np
 import pandas as pd
 import yfinance as yf
@@ -20,27 +20,35 @@ def cash():
 def data():
     p=pd.concat([series(t,n) for n,t in ASSETS.items()]+[cash()],axis=1).sort_index().ffill().dropna()
     tri=tri_history(p.index[0].date(),p.index[-1].date()); d=p.join(tri,how='inner').dropna(subset=['TRI'])
-    for n in ASSETS: d[n+'_MOM']=d[n].pct_change(MOM); d[n+'_VOL']=d[n].pct_change().rolling(VOL).std()*np.sqrt(252); d[n+'_TREND']=d[n]/d[n].rolling(TREND).mean()-1
+    for n in ASSETS:
+        d[n+'_MOM']=d[n].pct_change(MOM); d[n+'_VOL']=d[n].pct_change().rolling(VOL).std()*np.sqrt(252); d[n+'_TREND']=d[n]/d[n].rolling(TREND).mean()-1
     return d
 
-def run(d):
-    ret=d[list(ASSETS)+[CASH]].pct_change().fillna(0); cur=pd.Series({'NIFTY':0.55,'GOLD':0.20,'NASDAQ':0.15,'CASH':0.10}); eq=1.; vals=[]; alloc=[]; rebalances=0; defensive=0
-    for i in range(1,len(d)):
+def run(d, mom_days=MOM, vol_days=VOL, trend_days=TREND, leaders_n=2, defensive_exposure=0.70, cost=COST, slippage=SLIPPAGE, rebalance='monthly'):
+    # Recompute every signal window from raw prices for genuinely independent parameter tests.
+    x=d.copy()
+    for n in ASSETS:
+        x[n+'_MOM_T']=x[n].pct_change(mom_days)
+        x[n+'_VOL_T']=x[n].pct_change().rolling(vol_days).std()*np.sqrt(252)
+        x[n+'_TREND_T']=x[n]/x[n].rolling(trend_days).mean()-1
+    ret=x[list(ASSETS)+[CASH]].pct_change().fillna(0)
+    cur=pd.Series({'NIFTY':0.55,'GOLD':0.20,'NASDAQ':0.15,'CASH':0.10}); eq=1.; vals=[]; alloc=[]; rebalances=0; defensive=0
+    for i in range(1,len(x)):
         p=i-1
-        if i==1 or d.index[i].month!=d.index[i-1].month:
-            mom={n: d[n+'_MOM'].iloc[p] for n in ASSETS}; vol={n:d[n+'_VOL'].iloc[p] for n in ASSETS}; trend={n:d[n+'_TREND'].iloc[p] for n in ASSETS}
+        new_period = i==1 or (x.index[i].month!=x.index[i-1].month if rebalance=='monthly' else x.index[i].isocalendar().week!=x.index[i-1].isocalendar().week)
+        if new_period:
+            mom={n:x[n+'_MOM_T'].iloc[p] for n in ASSETS}; vol={n:x[n+'_VOL_T'].iloc[p] for n in ASSETS}; trend={n:x[n+'_TREND_T'].iloc[p] for n in ASSETS}
             if all(np.isfinite(v) and v>0 for v in vol.values()) and all(np.isfinite(v) for v in mom.values()):
-                ranked=sorted(ASSETS,key=lambda n:mom[n],reverse=True)
-                leaders=[n for n in ranked if trend[n]>-0.05][:2]
-                if not leaders: leaders=[ranked[0]]
+                ranked=sorted(ASSETS,key=lambda n:mom[n],reverse=True); leaders=[n for n in ranked if trend[n]>-0.05][:leaders_n]
+                if not leaders: leaders=ranked[:1]
                 inv={n:1/vol[n] for n in leaders}; z=sum(inv.values()); risk={n:inv[n]/z for n in leaders}
-                exposure=1.0 if d['NIFTY'].iloc[p] >= d['NIFTY'].rolling(TREND).mean().iloc[p] else 0.70
+                exposure=1.0 if x['NIFTY'].iloc[p] >= x['NIFTY'].rolling(trend_days).mean().iloc[p] else defensive_exposure
                 target=pd.Series(0.,index=cur.index)
                 for n,w in risk.items(): target[n]=w*exposure
                 target[CASH]=1-target[list(ASSETS)].sum()
-                turnover=float((target-cur).abs().sum()); eq*=max(0,1-turnover*(COST+SLIPPAGE)); cur=target; rebalances+=1
+                turnover=float((target-cur).abs().sum()); eq*=max(0,1-turnover*(cost+slippage)); cur=target; rebalances+=1
         if cur[CASH]>0.1000001: defensive+=1
-        alloc.append(cur.copy()); eq*=1+float((cur*ret.iloc[i]).sum()); vals.append((d.index[i],eq))
+        alloc.append(cur.copy()); eq*=1+float((cur*ret.iloc[i]).sum()); vals.append((x.index[i],eq))
     s=pd.Series(dict(vals)); rr=s.pct_change().fillna(0); yrs=(s.index[-1]-s.index[0]).days/365.25
     m={'cagr':float(s.iloc[-1]**(1/yrs)-1),'total_return':float(s.iloc[-1]-1),'max_drawdown':float((s/s.cummax()-1).min()),'sharpe':float(rr.mean()/rr.std()*np.sqrt(252)),'rebalances':rebalances,'defensive_fraction':float(defensive/max(1,len(s))),'avg_weights':{k:float(v) for k,v in pd.DataFrame(alloc).mean().items()}}
     return s,m
