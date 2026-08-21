@@ -2,6 +2,8 @@ name: V17 Real Robustness
 on:
   push:
     branches: [fix/v17-real-robustness]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
@@ -12,8 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+        with: {python-version: '3.12'}
       - name: Install
         run: python -m pip install --upgrade pip && python -m pip install pandas numpy requests yfinance
       - name: Run V17 base
@@ -24,38 +25,29 @@ jobs:
           set -euo pipefail
           python - <<'PY'
           import json, subprocess, pathlib
-          # Run the frozen engine repeatedly with explicit environment overrides.
-          # The engine must honor these values; each result is a fresh simulation.
-          variants=[
-            ('base',126,60,2,0.70),('mom40',40,60,2,0.70),('mom90',90,60,2,0.70),('mom252',252,60,2,0.70),
-            ('vol40',126,40,2,0.70),('vol90',126,90,2,0.70),
-            ('leader1',126,60,1,0.70),('leader3',126,60,3,0.70),
-            ('def60',126,60,2,0.60),('def80',126,60,2,0.80)]
-          out=[]
-          src=pathlib.Path('trading/test_nifty_v17_relative_momentum.py').read_text()
+          variants=[('base',126,60,2,0.70),('mom40',40,60,2,0.70),('mom90',90,60,2,0.70),('mom252',252,60,2,0.70),('vol40',126,40,2,0.70),('vol90',126,90,2,0.70),('leader1',126,60,1,0.70),('leader3',126,60,3,0.70),('def60',126,60,2,0.60),('def80',126,60,2,0.80)]
+          out=[]; src=pathlib.Path('trading/test_nifty_v17_relative_momentum.py').read_text()
           for name,mom,vol,leaders,defexp in variants:
-            t=src.replace('MOM=126; VOL=60; TREND=200','MOM=%d; VOL=%d; TREND=200'% (mom,vol)).replace('[:2]','[:%d]'%leaders).replace('else 0.70','else %.2f'%defexp)
-            p=pathlib.Path('/tmp/v17_%s.py'%name); p.write_text(t)
-            subprocess.run(['python',str(p)],check=True)
+            t=src.replace('MOM=126; VOL=60; TREND=200',f'MOM={mom}; VOL={vol}; TREND=200').replace('[:2]',f'[:{leaders}]').replace('else 0.70',f'else {defexp:.2f}')
+            p=pathlib.Path(f'/tmp/v17_{name}.py'); p.write_text(t); subprocess.run(['python',str(p)],check=True)
             r=json.loads(pathlib.Path('nifty_v17_relative_momentum_results.json').read_text())
             out.append({'name':name,'cagr':r['full']['cagr'],'max_drawdown':r['full']['max_drawdown'],'sharpe':r['full']['sharpe'],'benchmark_cagr':r['buy_hold_tri_cagr']})
-          json.dump(out,open('v17_perturbation_results.json','w'),indent=2)
-          print(json.dumps(out,indent=2))
+          json.dump(out,open('v17_perturbation_results.json','w'),indent=2); print(json.dumps(out,indent=2))
           PY
       - name: Validate
         run: |
           python - <<'PY'
           import json, math
-          x=json.load(open('v17_perturbation_results.json'))
-          assert len(x)==10
-          for r in x:
-            assert all(math.isfinite(r[k]) for k in ['cagr','max_drawdown','sharpe','benchmark_cagr'])
+          x=json.load(open('v17_perturbation_results.json')); assert len(x)==10
+          for r in x: assert all(math.isfinite(r[k]) for k in ['cagr','max_drawdown','sharpe','benchmark_cagr'])
           print('Independent perturbation matrix passed structural validation')
           PY
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: v17-real-robustness
           path: |
             nifty_v17_relative_momentum_results.json
             v17_perturbation_results.json
             v17_base.log
+          if-no-files-found: warn
