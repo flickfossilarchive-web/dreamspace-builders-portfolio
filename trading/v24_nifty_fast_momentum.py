@@ -12,25 +12,23 @@ GOLD_CAP=0.35
 
 
 def run(d, cost=COST, slippage=SLIPPAGE, mom=MOM, trend=TREND, gold_cap=GOLD_CAP):
-    n=d.Close.astype(float); tri=d.TRI.astype(float); gold=d.Gold.astype(float) if 'Gold' in d else None
-    nr=tri.pct_change().fillna(0)
+    n=d.Close.astype(float); tri=d.TRI.astype(float); gold=d.Gold.astype(float)
+    nr=tri.pct_change().fillna(0); gr=gold.pct_change().fillna(0)
     ma=n.rolling(trend).mean(); momr=n.pct_change(mom)
-    gr=gold.pct_change().fillna(0) if gold is not None else None
     eq=1.0; w=1.0; vals=[]; trades=0; turnover=0.0; exposures=[]
     for i in range(1,len(d)):
         p=i-1
-        if not np.isfinite(ma.iloc[p]) or not np.isfinite(momr.iloc[p]):
-            eq*=1+w*nr.iloc[i]; vals.append((d.index[i],eq)); exposures.append(w); continue
-        risk_on=(n.iloc[p]>ma.iloc[p] and momr.iloc[p]>0)
-        severe=(n.iloc[p]<ma.iloc[p] and momr.iloc[p]<0)
-        target=1.0 if risk_on else (1.0-gold_cap if severe else 0.80)
-        # Gold sleeve is implemented as a return contribution, not leverage.
-        wg=1-target
         weekly=(i==1 or d.index[i].isocalendar().week!=d.index[i-1].isocalendar().week or d.index[i].year!=d.index[i-1].year)
-        if weekly and abs(target-w)>=0.05:
-            t=abs(target-w); turnover+=t; eq*=max(0,1-t*(cost+slippage)); w=target; trades+=1
-        gr_i=gr.iloc[i] if gr is not None and np.isfinite(gr.iloc[i]) else 0.0
-        eq*=1+w*nr.iloc[i]+wg*gr_i; vals.append((d.index[i],eq)); exposures.append(w)
+        if weekly and np.isfinite(ma.iloc[p]) and np.isfinite(momr.iloc[p]):
+            risk_on=(n.iloc[p]>ma.iloc[p] and momr.iloc[p]>0)
+            severe=(n.iloc[p]<ma.iloc[p] and momr.iloc[p]<0)
+            target=1.0 if risk_on else (1.0-gold_cap if severe else 0.80)
+            if abs(target-w)>=0.05:
+                t=abs(target-w); turnover+=t; eq*=max(0,1-t*(cost+slippage)); w=target; trades+=1
+        # Portfolio weights are the actual post-rebalance weights; no look-ahead.
+        wg=1.0-w
+        eq*=1+w*nr.iloc[i]+wg*gr.iloc[i]
+        vals.append((d.index[i],eq)); exposures.append(w)
     s=pd.Series(dict(vals)).sort_index(); rr=s.pct_change().fillna(0); yrs=(s.index[-1]-s.index[0]).days/365.25
     return s, {'cagr':float(s.iloc[-1]**(1/yrs)-1),'total_return':float(s.iloc[-1]-1),'max_drawdown':float((s/s.cummax()-1).min()),'sharpe':float(rr.mean()/rr.std()*np.sqrt(252)),'trades':trades,'turnover':turnover,'avg_nifty_weight':float(np.mean(exposures))}
 
@@ -42,8 +40,6 @@ def metrics(x):
 
 def main():
     d=data()
-    # Gold research proxy is intentionally kept out of signal formation; it is only a defensive return sleeve.
-    # Use a fixed, public research proxy downloaded in the same pipeline and aligned by date.
     import yfinance as yf
     g=yf.download('GC=F',start=str(d.index[0].date()),end=str((d.index[-1]+pd.Timedelta(days=1)).date()),auto_adjust=False,progress=False)
     if isinstance(g.columns,pd.MultiIndex): g=g.xs('GC=F',axis=1,level=1)
