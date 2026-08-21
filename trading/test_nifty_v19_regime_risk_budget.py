@@ -28,7 +28,6 @@ def series(ticker,name):
 
 def data():
     raw=pd.concat([series(t,n) for n,t in ASSETS.items()]+[series(FX,'USDINR')],axis=1).sort_index().ffill()
-    # Convert USD-denominated research proxies into INR before calculating returns/signals.
     p=pd.DataFrame(index=raw.index)
     p['NIFTY']=raw['NIFTY']; p['GOLD']=raw['GOLD']*raw['USDINR']; p['NASDAQ']=raw['NASDAQ']*raw['USDINR']
     p['CASH']=1.0
@@ -54,15 +53,19 @@ def run(d,total_cost=COST):
             eligible=[n for n in valid if mom[n]>MIN_SCORE and trend[n]>MIN_SCORE]
             target=pd.Series(0.,index=cur.index)
             if eligible:
-                # Risk budget: inverse-vol weights capped per asset, then scaled to regime exposure.
                 ranked=sorted(eligible,key=lambda n:scores[n],reverse=True)
-                inv={n:1/vol[n] for n in ranked}; z=sum(inv.values())
-                raw={n:inv[n]/z for n in ranked}
-                raw={n:min(w,MAX_RISK_ASSET) for n,w in raw.items()}
-                z=sum(raw.values()); raw={n:w/z for n,w in raw.items()}
-                # Broad regime: full risk when NIFTY trend is positive; 55% otherwise.
-                exposure=1.0 if x['NIFTY'].iloc[p] > x['NIFTY'].rolling(TREND).mean().iloc[p] else 0.55
-                for n,w in raw.items(): target[n]=exposure*w
+                inv={n:1/vol[n] for n in ranked}; z=sum(inv.values()); raw={n:inv[n]/z for n in ranked}
+                raw={n:min(w,MAX_RISK_ASSET) for n,w in raw.items()}; z=sum(raw.values()); raw={n:w/z for n,w in raw.items()}
+                regime=1.0 if x['NIFTY'].iloc[p] > x['NIFTY'].rolling(TREND).mean().iloc[p] else 0.55
+                for n,w in raw.items(): target[n]=regime*w
+                # Volatility target is applied to total risky exposure using a covariance estimate.
+                names=list(raw); cov=x[names].pct_change().rolling(VOL).cov().loc[x.index[p]]*252
+                w=np.array([raw[n] for n in names]);
+                try: port_vol=float(np.sqrt(max(0,w@cov.loc[names,names].to_numpy()@w)))
+                except Exception: port_vol=0.0
+                if np.isfinite(port_vol) and port_vol>0:
+                    target_risk=min(regime,TARGET_VOL/port_vol)
+                    for n in names: target[n]=target_risk*raw[n]
             target['CASH']=1-target[list(ASSETS)].sum()
             t=float((target-cur).abs().sum())
             if t>=TURNOVER_TRIGGER or rebalances==0:
@@ -77,6 +80,6 @@ def main():
     costs=[]
     for bps in [0,5,10,15,20,30,40]:
         _,mm=run(d,bps/10000); costs.append({'bps':bps,**mm,'beats_benchmark':mm['cagr']>bench})
-    out={'strategy':'V19 INR regime risk-budget: dual signal, inverse-vol capped risk budget, 21-day rebalance, turnover gate','benchmark_cagr':bench,'data_start':str(d.index[0].date()),'data_end':str(d.index[-1].date()),'full':m,'cost_sensitivity':costs,'parameters':{'momentum_days':MOM,'vol_days':VOL,'trend_days':TREND,'target_vol':TARGET_VOL,'max_risk_asset':MAX_RISK_ASSET,'rebalance_days':REBALANCE_DAYS,'turnover_trigger':TURNOVER_TRIGGER,'base_cost_bps':10},'warnings':['Gold/Nasdaq are research proxies converted to INR using USDINR.','Cash is zero-return research cash, conservative.','Signals use prior-day data.','No final-period parameter fitting.']}
+    out={'strategy':'V19 INR regime risk-budget: dual signal, inverse-vol capped risk budget, portfolio-vol target, 21-day rebalance, turnover gate','benchmark_cagr':bench,'data_start':str(d.index[0].date()),'data_end':str(d.index[-1].date()),'full':m,'cost_sensitivity':costs,'parameters':{'momentum_days':MOM,'vol_days':VOL,'trend_days':TREND,'target_vol':TARGET_VOL,'max_risk_asset':MAX_RISK_ASSET,'rebalance_days':REBALANCE_DAYS,'turnover_trigger':TURNOVER_TRIGGER,'base_cost_bps':10},'warnings':['Gold/Nasdaq are research proxies converted to INR using USDINR.','Cash is zero-return research cash, conservative.','Signals use prior-day data.','No final-period parameter fitting.']}
     json.dump(out,open('nifty_v19_results.json','w'),indent=2); print(json.dumps(out,indent=2))
 if __name__=='__main__': main()
