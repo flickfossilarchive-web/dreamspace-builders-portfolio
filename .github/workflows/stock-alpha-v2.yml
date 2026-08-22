@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - 'trading/stock_alpha_v2.py'
+      - 'trading/paper_trade_v2.py'
+      - 'trading/test_paper_trade_v2.py'
       - 'trading/pit_universe_fetch.py'
       - '.github/workflows/stock-alpha-v2.yml'
 jobs:
@@ -16,7 +18,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install
-        run: pip install pandas numpy yfinance
+        run: pip install pandas numpy yfinance pytest
       - name: Build PIT universe
         run: python trading/pit_universe_fetch.py --out data/pit/index_membership_history.csv --report data/pit/validation_report.json
       - name: Run V2
@@ -33,7 +35,27 @@ jobs:
           assert all(v['days'] > 0 for v in p['crisis_periods'].values())
           print(json.dumps(p,indent=2))
           PY
+      - name: Generate paper portfolio
+        run: python trading/paper_trade_v2.py --membership data/pit/index_membership_history.csv --out data/paper_trade_v2
+      - name: Safety tests
+        run: pytest -q trading/test_paper_trade_v2.py
+      - name: Validate paper portfolio
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open('data/paper_trade_v2/paper_portfolio.json'))
+          assert p['mode']=='PAPER_ONLY'
+          assert p['real_orders'] is False
+          assert len(p['positions'])==20
+          assert abs(sum(x['target_weight'] for x in p['positions'])-1)<1e-9
+          print(json.dumps(p,indent=2))
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: stock-alpha-v2
           path: data/stock_alpha_v2/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stock-alpha-v2-paper-portfolio
+          path: data/paper_trade_v2/
+          retention-days: 30
