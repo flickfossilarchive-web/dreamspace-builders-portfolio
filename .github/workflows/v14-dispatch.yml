@@ -6,6 +6,13 @@ on:
     branches: [main]
     paths:
       - 'trading/test_nifty_v14_diversified.py'
+      - 'trading/test_nifty_v10_regime.py'
+      - '.github/workflows/v14-dispatch.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'trading/test_nifty_v14_diversified.py'
+      - 'trading/test_nifty_v10_regime.py'
       - '.github/workflows/v14-dispatch.yml'
 
 permissions:
@@ -38,50 +45,32 @@ jobs:
         run: |
           test -s nifty_v14_diversified_results.json
           python - <<'PY'
-          import json
-          import math
+          import json, math
           from datetime import date
           from pathlib import Path
-
-          p = Path('nifty_v14_diversified_results.json')
-          data = json.loads(p.read_text())
-          required = ['strategy', 'benchmark', 'data_start', 'data_end', 'buy_hold_tri_cagr', 'full', 'windows', 'parameters', 'warnings']
-          missing = [key for key in required if key not in data]
-          if missing:
-              raise SystemExit(f'Missing result fields: {missing}')
-          if date.fromisoformat(data['data_start']) >= date.fromisoformat(data['data_end']):
-              raise SystemExit('Invalid result date range')
-          if not isinstance(data['warnings'], list) or not data['warnings']:
-              raise SystemExit('Warnings must be a non-empty list')
-
-          full = data['full']
-          for key in ['cagr', 'total_return', 'max_drawdown', 'sharpe']:
-              value = full.get(key)
-              if not isinstance(value, (int, float)) or not math.isfinite(value):
-                  raise SystemExit(f'Invalid full metric {key}: {value!r}')
-          if not isinstance(full.get('trades'), int) or full['trades'] <= 0:
-              raise SystemExit(f'Invalid rebalance count: {full.get("trades")!r}')
-          weights = full.get('avg_weights')
-          expected_assets = {'NIFTY', 'GOLD', 'NASDAQ', 'CASH'}
-          if not isinstance(weights, dict) or set(weights) != expected_assets:
-              raise SystemExit(f'Invalid average-weight assets: {weights!r}')
-          if any(not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0 for value in weights.values()):
-              raise SystemExit(f'Invalid average weights: {weights!r}')
-          if abs(sum(weights.values()) - 1) > 1e-7:
-              raise SystemExit(f'Average weights do not sum to one: {weights!r}')
-
-          windows = data['windows']
-          if not isinstance(windows, list) or not windows:
-              raise SystemExit('Missing stress windows')
-          for window in windows:
-              for key in ['name', 'start', 'end', 'cagr', 'max_drawdown', 'sharpe']:
-                  if key not in window:
-                      raise SystemExit(f'Missing window metric {key}: {window!r}')
-                  if key in {'cagr', 'max_drawdown', 'sharpe'} and (
-                      not isinstance(window[key], (int, float)) or not math.isfinite(window[key])
-                  ):
-                      raise SystemExit(f'Invalid window metric {key}: {window!r}')
-          print(json.dumps(data, indent=2))
+          data=json.loads(Path('nifty_v14_diversified_results.json').read_text())
+          required=['strategy','benchmark','data_start','data_end','buy_hold_tri_cagr','full','windows','parameters','warnings']
+          missing=[k for k in required if k not in data]
+          if missing: raise SystemExit(f'Missing result fields: {missing}')
+          if date.fromisoformat(data['data_start']) >= date.fromisoformat(data['data_end']): raise SystemExit('Invalid result date range')
+          if not isinstance(data['warnings'],list) or not data['warnings']: raise SystemExit('Warnings must be a non-empty list')
+          if not isinstance(data['buy_hold_tri_cagr'],(int,float)) or not math.isfinite(data['buy_hold_tri_cagr']): raise SystemExit('Invalid benchmark CAGR')
+          full=data['full']
+          for k in ['cagr','total_return','max_drawdown','sharpe']:
+            v=full.get(k)
+            if not isinstance(v,(int,float)) or not math.isfinite(v): raise SystemExit(f'Invalid full metric {k}: {v!r}')
+          if not isinstance(full.get('trades'),int) or full['trades']<=0: raise SystemExit(f'Invalid rebalance count: {full.get("trades")!r}')
+          weights=full.get('avg_weights'); expected={'NIFTY','GOLD','NASDAQ','CASH'}
+          if not isinstance(weights,dict) or set(weights)!=expected: raise SystemExit(f'Invalid average-weight assets: {weights!r}')
+          if any(not isinstance(v,(int,float)) or not math.isfinite(v) or v<0 for v in weights.values()): raise SystemExit(f'Invalid average weights: {weights!r}')
+          if abs(sum(weights.values())-1)>1e-7: raise SystemExit(f'Average weights do not sum to one: {weights!r}')
+          windows=data['windows']
+          if not isinstance(windows,list) or not windows: raise SystemExit('Missing stress windows')
+          for w in windows:
+            for k in ['name','start','end','cagr','max_drawdown','sharpe']:
+              if k not in w: raise SystemExit(f'Missing window metric {k}: {w!r}')
+              if k in {'cagr','max_drawdown','sharpe'} and (not isinstance(w[k],(int,float)) or not math.isfinite(w[k])): raise SystemExit(f'Invalid window metric {k}: {w!r}')
+          print(json.dumps(data,indent=2))
           PY
 
       - name: Upload final result
