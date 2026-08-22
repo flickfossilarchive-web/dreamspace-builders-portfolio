@@ -4,6 +4,10 @@ from pathlib import Path
 import numpy as np,pandas as pd,yfinance as yf
 from stock_alpha_v2 import load_membership,fetch_prices
 
+# Hard safety invariant: this engine can only generate paper portfolios.
+real_orders=False
+PAPER_ONLY=True
+
 def signal(px,mem,asof,top_n=20):
     asof=pd.Timestamp(asof)
     hist=px.loc[:asof].iloc[:-1]
@@ -33,6 +37,8 @@ def risk_scale(px,picks,asof,benchmark):
     return scale,bull,vol
 
 def main():
+    if real_orders is not False or PAPER_ONLY is not True:
+        raise RuntimeError('paper-only safety invariant violated')
     ap=argparse.ArgumentParser();ap.add_argument('--membership',default='data/pit/index_membership_history.csv');ap.add_argument('--out',default='data/paper_trade_v2');ap.add_argument('--asof',default=None);a=ap.parse_args()
     out=Path(a.out);out.mkdir(parents=True,exist_ok=True)
     mem=load_membership(a.membership);symbols=sorted(mem.symbol.unique());end=(pd.Timestamp.now(tz='UTC').tz_localize(None)+pd.Timedelta(days=1)).strftime('%Y-%m-%d')
