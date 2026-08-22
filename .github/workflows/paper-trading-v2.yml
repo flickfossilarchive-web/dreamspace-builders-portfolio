@@ -18,13 +18,10 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '30 10 * * 1-5'
-concurrency:
-  group: stock-alpha-v2-paper
-  cancel-in-progress: false
 jobs:
   paper:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     permissions:
       contents: read
     steps:
@@ -40,19 +37,20 @@ jobs:
         run: python trading/paper_trade_v2.py --membership data/pit/index_membership_history.csv --out data/paper_trade_v2
       - name: Safety tests
         run: pytest -q trading/test_paper_trade_v2.py
-      - name: Publish summary
+      - name: Validate paper portfolio
         run: |
           python - <<'PY'
-          import json
+          import json, math
           p=json.load(open('data/paper_trade_v2/paper_portfolio.json'))
-          print('MODE:',p['mode'])
-          print('ASOF:',p['asof'])
-          print('POSITIONS:',len(p['positions']))
-          print('REAL_ORDERS:',p['real_orders'])
           assert p['mode']=='PAPER_ONLY'
           assert p['real_orders'] is False
           assert len(p['positions'])==20
-          assert abs(sum(x['target_weight'] for x in p['positions'])-1)<1e-9
+          assert len({x['symbol'] for x in p['positions']})==20
+          total=sum(x['target_weight'] for x in p['positions'])+p['cash_weight']
+          assert math.isclose(total,1.0,rel_tol=0,abs_tol=1e-9)
+          assert 0.25 <= p['gross_exposure'] <= 1.0
+          assert p['estimated_63d_annualized_vol'] >= 0
+          print(json.dumps(p,indent=2))
           PY
       - uses: actions/upload-artifact@v4
         with:
