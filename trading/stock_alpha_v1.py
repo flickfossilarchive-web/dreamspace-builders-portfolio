@@ -1,4 +1,5 @@
 """PIT Nifty-500 cross-sectional alpha research."""
+# Research rules are frozen; this change only triggers the integrated CI safety validation.
 from __future__ import annotations
 import argparse,json,time
 from pathlib import Path
