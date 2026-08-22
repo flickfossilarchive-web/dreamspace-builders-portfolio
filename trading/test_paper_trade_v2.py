@@ -11,15 +11,17 @@ def test_paper_engine_is_explicitly_paper_only():
 def test_portfolio_constraints_after_generation():
     p=Path('data/paper_trade_v2/paper_portfolio.json')
     if not p.exists(): return
-    x=json.loads(p.read_text())
-    pos=x['positions']
+    x=json.loads(p.read_text());pos=x['positions']
     assert x['real_orders'] is False
     assert len(pos)==20
     assert len({r['symbol'] for r in pos})==20
-    assert abs(sum(r['target_weight'] for r in pos)-1)<1e-9
+    assert abs(sum(r['target_weight'] for r in pos)+x['cash_weight']-1)<1e-9
+    assert 0.25 <= x['gross_exposure'] <= 1.0
 
 def test_no_future_signal_timestamp():
     p=Path('data/paper_trade_v2/paper_portfolio.json')
     if not p.exists(): return
     x=json.loads(p.read_text())
-    assert pd.Timestamp(x['asof']) <= pd.Timestamp.utcnow().normalize()
+    asof=pd.Timestamp(x['asof'])
+    now=pd.Timestamp.now(tz='UTC').tz_localize(None).normalize()
+    assert asof <= now
