@@ -1,0 +1,46 @@
+name: Stock Alpha V2 Paper Trading
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 10 * * 1-5'
+concurrency:
+  group: stock-alpha-v2-paper
+  cancel-in-progress: false
+jobs:
+  paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: pip install pandas numpy yfinance pytest
+      - name: Build PIT universe
+        run: python trading/pit_universe_fetch.py --out data/pit/index_membership_history.csv --report data/pit/validation_report.json
+      - name: Generate paper portfolio
+        run: python trading/paper_trade_v2.py --membership data/pit/index_membership_history.csv --out data/paper_trade_v2
+      - name: Safety tests
+        run: pytest -q trading/test_paper_trade_v2.py
+      - name: Publish summary
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open('data/paper_trade_v2/paper_portfolio.json'))
+          print('MODE:',p['mode'])
+          print('ASOF:',p['asof'])
+          print('POSITIONS:',len(p['positions']))
+          print('REAL_ORDERS:',p['real_orders'])
+          assert p['mode']=='PAPER_ONLY'
+          assert p['real_orders'] is False
+          assert len(p['positions'])==20
+          assert abs(sum(x['target_weight'] for x in p['positions'])-1)<1e-9
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stock-alpha-v2-paper-portfolio
+          path: data/paper_trade_v2/
+          retention-days: 30
