@@ -1,0 +1,39 @@
+name: PIT Universe Validation
+
+on:
+  push:
+    branches: [data-reconstruction]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  validate-pit-universe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install validation dependency
+        run: python -m pip install --disable-pip-version-check pandas
+      - name: Fetch and validate PIT ledger
+        run: python trading/pit_universe_fetch.py --out /tmp/nifty500_pit.csv --report /tmp/pit_validation.json
+      - name: Validate direct-source coverage
+        run: |
+          python - <<'PY'
+          import json
+          r=json.load(open('/tmp/pit_validation.json'))
+          print(json.dumps(r, indent=2))
+          # The ledger may contain inferred rows; never present those as official.
+          # Require a non-empty direct-source component and valid intervals.
+          assert r['rows'] > 0
+          assert r['direct_source_rows'] > 0
+          assert r['direct_source_fraction'] > 0
+          PY
+      - name: Upload validation report
+        uses: actions/upload-artifact@v4
+        with:
+          name: pit-universe-validation
+          path: /tmp/pit_validation.json
