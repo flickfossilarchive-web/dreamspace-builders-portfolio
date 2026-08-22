@@ -41,12 +41,17 @@ jobs:
       - name: Paper-only gate
         run: |
           python - <<'PY'
-          import json
+          import json, math
           p=json.load(open('data/paper_trade_v2/paper_portfolio.json'))
           assert p['mode']=='PAPER_ONLY'
           assert p['real_orders'] is False
           assert len(p['positions'])==20
-          assert abs(sum(x['target_weight'] for x in p['positions'])-1)<1e-9
+          assert len({x['symbol'] for x in p['positions']})==20
+          stock_weight=sum(x['target_weight'] for x in p['positions'])
+          assert math.isclose(stock_weight+p['cash_weight'],1.0,rel_tol=0,abs_tol=1e-9)
+          assert math.isclose(stock_weight,p['gross_exposure'],rel_tol=0,abs_tol=1e-9)
+          assert 0.0 <= p['cash_weight'] <= 1.0
+          assert 0.0 <= p['gross_exposure'] <= 1.0
           print(json.dumps(p,indent=2))
           PY
       - uses: actions/upload-artifact@v4
