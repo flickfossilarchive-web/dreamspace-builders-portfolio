@@ -1,0 +1,38 @@
+name: Stock Alpha V1
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'trading/stock_alpha_v1.py'
+      - 'trading/pit_universe_fetch.py'
+      - '.github/workflows/stock-alpha-v1.yml'
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: pip install pandas numpy yfinance
+      - name: Build PIT universe
+        run: python trading/pit_universe_fetch.py --out data/pit/index_membership_history.csv --report data/pit/validation_report.json
+      - name: Backtest
+        run: python trading/stock_alpha_v1.py --membership data/pit/index_membership_history.csv --out data/stock_alpha_v1
+      - name: Sanity checks
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open('data/stock_alpha_v1/result.json'))
+          s=p['stats']
+          assert s['days']>1000, s
+          assert s['cagr']==s['cagr'], s
+          assert s['sharpe']==s['sharpe'], s
+          print(json.dumps(p,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stock-alpha-v1
+          path: data/stock_alpha_v1/
