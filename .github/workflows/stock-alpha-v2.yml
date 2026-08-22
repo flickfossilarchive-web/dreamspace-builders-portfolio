@@ -1,0 +1,38 @@
+name: Stock Alpha V2 Risk Validation
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'trading/stock_alpha_v2.py'
+      - 'trading/pit_universe_fetch.py'
+      - '.github/workflows/stock-alpha-v2.yml'
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: pip install pandas numpy yfinance
+      - name: Build PIT universe
+        run: python trading/pit_universe_fetch.py --out data/pit/index_membership_history.csv --report data/pit/validation_report.json
+      - name: Run V2
+        run: python trading/stock_alpha_v2.py --membership data/pit/index_membership_history.csv --out data/stock_alpha_v2
+      - name: Validate output
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open('data/stock_alpha_v2/result.json'))
+          assert p['baseline']['days'] > 1000
+          assert p['baseline']['cagr'] is not None
+          assert p['baseline']['sharpe'] is not None
+          assert p['baseline']['mean_selected_price_coverage'] >= .90
+          print(json.dumps(p,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stock-alpha-v2
+          path: data/stock_alpha_v2/
