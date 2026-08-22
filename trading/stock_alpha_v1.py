@@ -42,8 +42,15 @@ def backtest(px,mem,cost=.002):
   z=(score-score.mean())/score.std(ddof=0).replace(0,np.nan);z["score"]=.4*z.mom+.2*z.short+.2*z.trend+.2*z.lowvol
   picks=z.score.nlargest(20).index;w=pd.Series(0.,index=px.columns);w.loc[picks]=1/20
   turn=sum(abs(w.get(s,0)-prev.get(s,0)) for s in set(w.index)|set(prev));turnover+=float(turn);prev=w.to_dict()
-  nxt=dates[dates>d];end=nxt[-1] if len(nxt) else dates[-1];seg=px.loc[d:end].pct_change().iloc[1:]
-  daily=(seg*w).sum(axis=1);daily.iloc[0]-=cost*turn;port.loc[daily.index]=daily
+  nxt=dates[dates>d]
+  if len(nxt)==0:continue
+  end=nxt[-1];seg=px.loc[d:end].pct_change().iloc[1:]
+  if seg.empty:continue
+  daily=(seg*w).sum(axis=1)
+  daily=daily.dropna()
+  if daily.empty:continue
+  daily.iloc[0]-=cost*turn
+  port.loc[daily.index]=daily
  return port.dropna(),turnover
 
 def main():
