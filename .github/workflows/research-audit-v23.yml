@@ -1,0 +1,45 @@
+name: V23 Research Framework Audit
+on:
+  push:
+    branches: [fix/v17-real-robustness]
+    paths:
+      - 'trading/research_audit_v23.py'
+      - 'trading/test_nifty_v10_regime.py'
+      - '.github/workflows/research-audit-v23.yml'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: pip install pandas numpy requests yfinance
+      - name: Run research audit
+        run: python trading/research_audit_v23.py
+      - name: Validate audit artifact
+        run: |
+          python - <<'PY'
+          import json
+          r=json.load(open('research_audit_v23_results.json'))
+          assert r['checks']['official_tri_used']
+          assert r['checks']['strategy_returns_use_tri']
+          assert r['checks']['signals_use_previous_session']
+          assert r['checks']['no_leverage']
+          assert r['data']['rows'] > 4000
+          assert len(r['cost_sensitivity']) == 6
+          assert len(r['parameter_perturbations']) == 6
+          assert len(r['walk_forward']) == 4
+          print('V23 research audit validation passed')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v23-research-audit
+          path: research_audit_v23_results.json
+          if-no-files-found: error

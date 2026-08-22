@@ -1,0 +1,87 @@
+name: V18 INR Validation
+on:
+  push:
+    branches: [fix/v17-real-robustness]
+    paths: ['trading/test_nifty_v18_inr_cost_aware.py','.github/workflows/v18-inr-validation.yml']
+  pull_request:
+    branches: [main]
+    paths: ['trading/test_nifty_v18_inr_cost_aware.py','.github/workflows/v18-inr-validation.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Install
+        run: python -m pip install --upgrade pip && python -m pip install pandas numpy requests yfinance
+      - name: Syntax and invariants
+        run: |
+          python -m py_compile trading/test_nifty_v18_inr_cost_aware.py
+          python - <<'PY'
+          import ast
+          p='trading/test_nifty_v18_inr_cost_aware.py'; t=ast.parse(open(p).read())
+          assert 'INR=X' in open(p).read()
+          assert 'USDINR' in open(p).read()
+          assert 'TURNOVER_MIN' in open(p).read()
+          print('V18 static invariants passed')
+          PY
+      - name: Base V18
+        env: {V18_COST: '0.0005', V18_SLIPPAGE: '0.0005'}
+        run: python -u trading/test_nifty_v18_inr_cost_aware.py | tee v18_base.log
+      - name: Cost sensitivity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, pathlib, subprocess
+          variants=[('0bps','0','0'),('10bps','0.0005','0.0005'),('15bps','0.00075','0.00075'),('20bps','0.001','0.001'),('30bps','0.0015','0.0015')]
+          out=[]
+          for name,c,s in variants:
+            e=os.environ.copy(); e.update(V18_COST=c,V18_SLIPPAGE=s)
+            subprocess.run(['python','-u','trading/test_nifty_v18_inr_cost_aware.py'],env=e,check=True,stdout=subprocess.DEVNULL)
+            r=json.load(open('nifty_v18_inr_results.json')); out.append({'name':name,'cagr':r['full']['cagr'],'max_drawdown':r['full']['max_drawdown'],'sharpe':r['full']['sharpe'],'benchmark_cagr':r['buy_hold_tri_cagr'],'rebalances':r['full']['rebalances']})
+          json.dump(out,open('v18_cost_results.json','w'),indent=2); print(json.dumps(out,indent=2))
+          PY
+      - name: Parameter sensitivity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, subprocess
+          variants=[('mom90',90,60,2,0.70,0.05),('mom126',126,60,2,0.70,0.05),('mom252',252,60,2,0.70,0.05),('vol40',126,40,2,0.70,0.05),('vol90',126,90,2,0.70,0.05),('lead1',126,60,1,0.70,0.05),('lead3',126,60,3,0.70,0.05),('def60',126,60,2,0.60,0.05),('def80',126,60,2,0.80,0.05),('turn10',126,60,2,0.70,0.10)]
+          out=[]
+          for name,m,v,l,d,t in variants:
+            e=os.environ.copy(); e.update(V18_MOM=str(m),V18_VOL=str(v),V18_LEADERS=str(l),V18_DEFENSIVE=str(d),V18_TURNOVER_MIN=str(t),V18_COST='0.0005',V18_SLIPPAGE='0.0005')
+            subprocess.run(['python','-u','trading/test_nifty_v18_inr_cost_aware.py'],env=e,check=True,stdout=subprocess.DEVNULL)
+            r=json.load(open('nifty_v18_inr_results.json')); out.append({'name':name,'cagr':r['full']['cagr'],'max_drawdown':r['full']['max_drawdown'],'sharpe':r['full']['sharpe'],'benchmark_cagr':r['buy_hold_tri_cagr'],'rebalances':r['full']['rebalances']})
+          json.dump(out,open('v18_parameter_results.json','w'),indent=2); print(json.dumps(out,indent=2))
+          PY
+      - name: Validate outputs
+        run: |
+          python - <<'PY'
+          import json,math
+          base=json.load(open('nifty_v18_inr_results.json')); costs=json.load(open('v18_cost_results.json')); params=json.load(open('v18_parameter_results.json'))
+          assert base['data_start'] < base['data_end']
+          assert len(costs)==5 and len(params)==10
+          for rows in [costs,params]:
+            for r in rows:
+              assert all(math.isfinite(r[k]) for k in ['cagr','max_drawdown','sharpe','benchmark_cagr'])
+              assert r['max_drawdown'] <= 0
+              assert r['rebalances'] >= 1
+          print('V18 validation passed structurally')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v18-validation
+          path: |
+            nifty_v18_inr_results.json
+            v18_cost_results.json
+            v18_parameter_results.json
+            v18_base.log
+          if-no-files-found: warn
