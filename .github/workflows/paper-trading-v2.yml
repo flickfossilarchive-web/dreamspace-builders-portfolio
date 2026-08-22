@@ -8,6 +8,13 @@ on:
       - 'trading/pit_universe_fetch.py'
       - 'trading/test_paper_trade_v2.py'
       - '.github/workflows/paper-trading-v2.yml'
+  pull_request:
+    paths:
+      - 'trading/paper_trade_v2.py'
+      - 'trading/stock_alpha_v2.py'
+      - 'trading/pit_universe_fetch.py'
+      - 'trading/test_paper_trade_v2.py'
+      - '.github/workflows/paper-trading-v2.yml'
   workflow_dispatch:
   schedule:
     - cron: '30 10 * * 1-5'
