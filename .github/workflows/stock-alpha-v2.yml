@@ -30,6 +30,7 @@ jobs:
           assert p['baseline']['cagr'] is not None
           assert p['baseline']['sharpe'] is not None
           assert p['baseline']['mean_selected_price_coverage'] >= .90
+          assert all(v['days'] > 0 for v in p['crisis_periods'].values())
           print(json.dumps(p,indent=2))
           PY
       - uses: actions/upload-artifact@v4
