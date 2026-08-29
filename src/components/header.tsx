@@ -12,6 +12,7 @@ const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/about', label: 'About' },
   { href: '/projects', label: 'Projects' },
+  { href: '/design-reference', label: 'Design References' },
   { href: '/contact', label: 'Contact' },
 ];
 
@@ -32,23 +33,16 @@ export function Header() {
           </span>
         </Link>
 
-        <nav className="ml-auto hidden items-center gap-8 md:flex" aria-label="Main navigation">
+        <nav className="ml-auto hidden items-center gap-7 lg:flex" aria-label="Main navigation">
           {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                'relative py-2 text-sm font-semibold transition-colors hover:text-primary',
-                pathname === link.href ? 'text-primary' : 'text-white/72'
-              )}
-            >
+            <Link key={link.href} href={link.href} className={cn('relative py-2 text-sm font-semibold transition-colors hover:text-primary', pathname === link.href ? 'text-primary' : 'text-white/72')}>
               {link.label}
               {pathname === link.href && <span className="absolute inset-x-0 -bottom-[17px] h-0.5 bg-primary" />}
             </Link>
           ))}
         </nav>
 
-        <div className="ml-7 hidden items-center gap-4 lg:flex">
+        <div className="ml-7 hidden items-center gap-4 xl:flex">
           <a href="tel:+919008592532" className="inline-flex items-center gap-2 text-sm font-semibold text-white/80 transition-colors hover:text-primary">
             <Phone className="h-4 w-4 text-primary" /> +91 9008592532
           </a>
@@ -57,7 +51,7 @@ export function Header() {
           </Button>
         </div>
 
-        <div className="ml-auto md:hidden">
+        <div className="ml-auto lg:hidden">
           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 hover:text-white" aria-label="Open menu">
@@ -74,12 +68,7 @@ export function Header() {
                 </div>
                 <nav className="flex flex-col gap-6" aria-label="Mobile navigation">
                   {navLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={cn('text-lg font-semibold', pathname === link.href ? 'text-primary' : 'text-white/75')}
-                    >
+                    <Link key={link.href} href={link.href} onClick={() => setIsMobileMenuOpen(false)} className={cn('text-lg font-semibold', pathname === link.href ? 'text-primary' : 'text-white/75')}>
                       {link.label}
                     </Link>
                   ))}
