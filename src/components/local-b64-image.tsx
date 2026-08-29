@@ -31,13 +31,9 @@ export function LocalB64Image({ src, alt, className, loading = 'lazy', decoding 
     };
   }, [src]);
 
-  return (
-    <img
-      src={dataUrl || '/generated/design-references/hero.svg'}
-      alt={alt}
-      loading={loading}
-      decoding={decoding}
-      className={className}
-    />
-  );
+  if (!dataUrl) {
+    return <div aria-label={alt} className={`${className ?? ''} bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900`} role="img" />;
+  }
+
+  return <img src={dataUrl} alt={alt} loading={loading} decoding={decoding} className={className} />;
 }
