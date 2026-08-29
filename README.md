@@ -4,4 +4,4 @@ This is a NextJS starter in Firebase Studio.
 
 To get started, take a look at src/app/page.tsx.
 
-<!-- Vercel deployment trigger: finalized local realistic design references -->
+<!-- Vercel deployment trigger: direct local WebP image loading -->
