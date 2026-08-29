@@ -1,0 +1,89 @@
+name: Ruflo V14 Swarm Audit
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  ruflo-audit:
+    if: >-
+      startsWith(github.event.comment.body, 'RUN RUFLO V14') &&
+      contains(github.event.issue.title, '[RUN V14]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Ruflo
+        run: npm install --global ruflo@latest
+
+      - name: Initialize Ruflo coordination
+        run: |
+          ruflo init --codex || ruflo init
+          ruflo memory init --force || true
+          ruflo memory search --query "V14 pandas Series allocation cap cash proxy backtest" --namespace patterns --json || true
+          ruflo hooks route --task "Audit and fix the current V14 diversified backtest failure without changing strategy parameters" --json || true
+
+      - name: Build specialized V14 swarm
+        run: |
+          ruflo swarm init --topology hierarchical --max-agents 4 --strategy specialized --json || true
+          ruflo agent spawn --type coordinator --name v14-lead --json || true
+          ruflo agent spawn --type researcher --name v14-researcher --json || true
+          ruflo agent spawn --type coder --name v14-coder --json || true
+          ruflo agent spawn --type tester --name v14-tester --json || true
+          ruflo agent list --json || true
+
+      - name: Run deterministic Ruflo diagnostics
+        run: |
+          set +e
+          ruflo doctor --json > ruflo-doctor.json 2>&1
+          ruflo security scan --depth full --json > ruflo-security.json 2>&1
+          ruflo testgen --help > ruflo-testgen.txt 2>&1
+          ruflo performance benchmark --suite all --json > ruflo-performance.json 2>&1
+          true
+
+      - name: Explain execution model
+        run: |
+          cat > ruflo-v14-report.md <<'EOF'
+          ## Ruflo V14 swarm audit
+
+          Ruflo is being used here as the orchestration/coordination layer. Per Ruflo's own agent guide, the orchestrator records coordination while the executor performs the actual code changes and commands.
+
+          Agents registered:
+          - coordinator: v14-lead
+          - researcher: v14-researcher
+          - coder: v14-coder
+          - tester: v14-tester
+
+          The deterministic diagnostics are included as artifacts. A real LLM agent execution requires a configured provider such as ANTHROPIC_API_KEY; this workflow does not fabricate an agent result when no provider is configured.
+          EOF
+          cat ruflo-v14-report.md
+
+      - name: Publish Ruflo audit
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          gh issue comment "$ISSUE_NUMBER" --body "$(cat ruflo-v14-report.md)"
+
+      - name: Upload Ruflo diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ruflo-v14-swarm-audit
+          path: |
+            ruflo-v14-report.md
+            ruflo-doctor.json
+            ruflo-security.json
+            ruflo-testgen.txt
+            ruflo-performance.json
+          if-no-files-found: ignore
