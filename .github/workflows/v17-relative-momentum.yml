@@ -1,0 +1,48 @@
+name: V17 Robustness Suite
+on:
+  push:
+    branches: [test/v17-run, fix/v17-real-robustness]
+    paths: ['trading/test_nifty_v17_relative_momentum.py','trading/test_v17_robustness.py','.github/workflows/v17-relative-momentum.yml']
+  pull_request:
+    branches: [main]
+    paths: ['trading/test_nifty_v17_relative_momentum.py','trading/test_v17_robustness.py','.github/workflows/v17-relative-momentum.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  robustness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Install
+        run: python -m pip install --upgrade pip && python -m pip install pandas numpy requests yfinance
+      - name: Run V17
+        run: python -u trading/test_nifty_v17_relative_momentum.py 2>&1 | tee v17_execution.log
+      - name: Run robustness harness
+        run: python -u trading/test_v17_robustness.py 2>&1 | tee v17_robustness.log
+      - name: Validate outputs
+        run: |
+          test -s nifty_v17_relative_momentum_results.json
+          test -s v17_robustness_results.json
+          python - <<'PY'
+          import json,math
+          d=json.load(open('nifty_v17_relative_momentum_results.json')); r=json.load(open('v17_robustness_results.json'))
+          assert d['data_start']<d['data_end'] and d['full']['rebalances']>0
+          for k in ['cagr','total_return','max_drawdown','sharpe']: assert math.isfinite(d['full'][k])
+          assert r['benchmark_cagr']>0 and r['base']['cagr']>0
+          assert len(r['cost_sensitivity'])==5 and len(r['parameter_perturbations'])>=10
+          print(json.dumps({'base':d['full'],'benchmark':d['buy_hold_tri_cagr'],'robustness':r},indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v17-robustness-result
+          path: |
+            nifty_v17_relative_momentum_results.json
+            v17_robustness_results.json
+            v17_execution.log
+            v17_robustness.log
+          if-no-files-found: warn

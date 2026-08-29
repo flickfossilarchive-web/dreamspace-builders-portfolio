@@ -1,0 +1,43 @@
+name: V25 Breadth Confirmation Robustness
+on:
+  push:
+    branches: [fix/v17-real-robustness]
+    paths:
+      - 'trading/v25_breadth_confirmation.py'
+      - 'trading/test_nifty_v10_regime.py'
+      - '.github/workflows/v25-breadth.yml'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  robustness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pandas numpy requests yfinance
+      - name: Run V25
+        run: python trading/v25_breadth_confirmation.py
+      - name: Validate locked suite
+        run: |
+          python - <<'PY'
+          import json
+          r=json.load(open('v25_results.json'))
+          assert r['benchmark_cagr'] > 0
+          assert len(r['cost_sensitivity']) == 8
+          assert len(r['parameter_perturbations']) == 8
+          assert len(r['walk_forward']) == 4
+          assert r['base']['avg_nifty_weight'] <= 1.0
+          assert r['base']['turnover'] >= 0
+          print('V25 locked robustness suite passed')
+          print(json.dumps(r, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v25-breadth-confirmation
+          path: v25_results.json
+          if-no-files-found: error

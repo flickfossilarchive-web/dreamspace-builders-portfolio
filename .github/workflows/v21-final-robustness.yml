@@ -1,0 +1,45 @@
+name: V21 Final Robustness
+on:
+  push:
+    branches: [fix/v17-real-robustness]
+    paths: ['trading/test_nifty_v21_adaptive_core.py','trading/test_nifty_v21_final_robustness.py','.github/workflows/v21-final-robustness.yml']
+  pull_request:
+    branches: [main]
+    paths: ['trading/test_nifty_v21_adaptive_core.py','trading/test_nifty_v21_final_robustness.py','.github/workflows/v21-final-robustness.yml']
+  workflow_dispatch:
+jobs:
+  robustness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - name: Install
+        run: python -m pip install --upgrade pip && python -m pip install pandas numpy requests yfinance
+      - name: Run V21 final robustness
+        run: python -u trading/test_nifty_v21_final_robustness.py 2>&1 | tee v21_final_robustness.log
+      - name: Validate
+        run: |
+          python - <<'PY'
+          import json,math
+          d=json.load(open('nifty_v21_final_robustness_results.json'))
+          assert d['data_start'] < d['data_end']
+          assert len(d['parameter_perturbations']) == 13
+          assert len(d['cost_sensitivity']) == 8
+          assert len(d['walk_forward']) == 4
+          assert d['bootstrap']['iterations'] == 2000
+          for r in d['parameter_perturbations']:
+            assert all(math.isfinite(r[k]) for k in ('cagr','max_drawdown','sharpe'))
+          print('V21 FINAL ROBUSTNESS COMPLETE')
+          print('Investment gate:',d['investment_gate']['pass'])
+          PY
+      - name: Upload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v21-final-robustness
+          path: |
+            nifty_v21_final_robustness_results.json
+            v21_final_robustness.log
+          if-no-files-found: error

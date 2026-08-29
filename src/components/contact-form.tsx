@@ -11,12 +11,12 @@ import { useToast } from '@/hooks/use-toast';
 import { Send, Sparkles } from 'lucide-react';
 import { useFirestore } from '@/firebase';
 import { collection, addDoc } from 'firebase/firestore';
-import { useState, useTransition } from 'react';
+import { useTransition } from 'react';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters.'),
   email: z.string().email('Invalid email address.'),
-  phone: z.string().length(10, 'Phone number must be 10 digits.'),
+  phone: z.string().min(10, 'Please enter a valid 10-digit phone number.').max(10, 'Please enter a valid 10-digit phone number.'),
   subject: z.string().min(5, 'Subject must be at least 5 characters.'),
   message: z.string().min(10, 'Message must be at least 10 characters.'),
 });
@@ -54,17 +54,18 @@ export function ContactForm() {
                 createdAt: new Date(),
                 read: false,
             });
-
+            
             toast({
                 title: 'Message Sent!',
-                description: 'Thank you for contacting us. We will get back to you shortly.',
+                description: 'Thank you for reaching out to Dreamspace Builders. Our team will get in touch with you shortly.',
             });
             form.reset();
+
         } catch (error) {
             console.error('Error saving message:', error);
-             toast({
+            toast({
                 variant: 'destructive',
-                title: 'Uh oh! Something went wrong.',
+                title: 'Submission Failed',
                 description: 'There was a problem sending your message. Please try again.',
             });
         }
@@ -109,7 +110,7 @@ export function ContactForm() {
               <FormItem>
                 <FormLabel>Phone Number</FormLabel>
                 <FormControl>
-                  <Input placeholder="9876543210" {...field} disabled={isPending} />
+                  <Input placeholder="+91" {...field} disabled={isPending} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
