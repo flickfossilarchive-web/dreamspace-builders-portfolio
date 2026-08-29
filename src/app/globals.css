@@ -4,85 +4,106 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%; /* Very light blue */
-    --foreground: 222.2 47.4% 11.2%;
-
-    --card: 210 20% 100%;
-    --card-foreground: 222.2 47.4% 11.2%;
- 
-    --popover: 210 20% 100%;
-    --popover-foreground: 222.2 47.4% 11.2%;
- 
-    --primary: 206 45% 53%; /* Desaturated Blue */
-    --primary-foreground: 210 40% 98%;
- 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
- 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
- 
-    --accent: 95 44% 53%; /* Soft Green */
-    --accent-foreground: 222.2 47.4% 11.2%;
- 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 206 45% 53%;
- 
-    --radius: 0.75rem;
-
-    --chart-1: 206 45% 53%;
-    --chart-2: 95 44% 53%;
-    --chart-3: 160 60% 45%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 30 80% 55%;
+    --background: 40 33% 98%;
+    --foreground: 219 38% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 219 38% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 219 38% 12%;
+    --primary: 38 88% 55%;
+    --primary-foreground: 219 38% 10%;
+    --secondary: 218 30% 95%;
+    --secondary-foreground: 219 38% 18%;
+    --muted: 218 20% 94%;
+    --muted-foreground: 218 12% 42%;
+    --accent: 38 88% 55%;
+    --accent-foreground: 219 38% 10%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 218 18% 86%;
+    --input: 218 18% 86%;
+    --ring: 38 88% 55%;
+    --radius: 1rem;
   }
- 
+
   .dark {
-    --background: 207 19% 11%; /* Darker, desaturated blue */
-    --foreground: 210 40% 98%;
-
-    --card: 207 19% 14%;
-    --card-foreground: 210 40% 98%;
- 
-    --popover: 207 19% 11%;
-    --popover-foreground: 210 40% 98%;
- 
-    --primary: 206 45% 53%; /* Desaturated Blue */
-    --primary-foreground: 210 40% 98%;
- 
-    --secondary: 207 19% 18%;
-    --secondary-foreground: 210 40% 98%;
- 
-    --muted: 207 19% 18%;
-    --muted-foreground: 215 20% 65%;
- 
-    --accent: 95 44% 53%; /* Soft Green */
-    --accent-foreground: 222.2 47.4% 11.2%;
- 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
- 
-    --border: 207 19% 20%;
-    --input: 207 19% 20%;
-    --ring: 206 45% 53%;
-    
-    --chart-1: 206 45% 53%;
-    --chart-2: 95 44% 53%;
-    --chart-3: 160 60% 45%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 30 80% 55%;
+    --background: 219 38% 9%;
+    --foreground: 40 33% 97%;
+    --card: 219 34% 12%;
+    --card-foreground: 40 33% 97%;
+    --popover: 219 34% 12%;
+    --popover-foreground: 40 33% 97%;
+    --primary: 38 88% 58%;
+    --primary-foreground: 219 38% 10%;
+    --secondary: 219 28% 16%;
+    --secondary-foreground: 40 33% 97%;
+    --muted: 219 24% 17%;
+    --muted-foreground: 218 12% 69%;
+    --accent: 38 88% 58%;
+    --accent-foreground: 219 38% 10%;
+    --destructive: 0 62% 42%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 219 20% 24%;
+    --input: 219 20% 24%;
+    --ring: 38 88% 58%;
   }
-}
- 
-@layer base {
+
   * {
     @apply border-border;
   }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    background-image:
+      radial-gradient(circle at top left, hsl(var(--primary) / 0.06), transparent 28rem),
+      radial-gradient(circle at 90% 20%, hsl(219 38% 12% / 0.04), transparent 24rem);
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.3);
+  }
+}
+
+@layer components {
+  .section-shell {
+    @apply container mx-auto px-4 md:px-6;
+  }
+
+  .eyebrow {
+    @apply text-xs font-bold uppercase tracking-[0.24em] text-primary;
+  }
+
+  .display-title {
+    @apply font-headline font-bold tracking-[-0.035em] text-foreground;
+  }
+
+  .luxury-card {
+    @apply rounded-2xl border bg-card shadow-sm transition-all duration-300;
+  }
+
+  .luxury-card:hover {
+    @apply -translate-y-1 shadow-2xl;
+  }
+
+  .gold-line {
+    @apply h-1 w-16 rounded-full bg-primary;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
