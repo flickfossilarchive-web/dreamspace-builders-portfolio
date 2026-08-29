@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Search, ArrowRight, FolderOpen, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -18,9 +18,21 @@ const categories = ['All', 'Commercial', 'Residential', 'Industrial'];
 export default function ProjectsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
+  const [additionalGallerySrc, setAdditionalGallerySrc] = useState<string | null>(null);
   const firestore = useFirestore();
   const projectsCollection = useMemo(() => firestore ? collection(firestore, 'projects') : null, [firestore]);
   const { data: projects, loading } = useCollection<Project>(projectsCollection);
+
+  useEffect(() => {
+    let active = true;
+    fetch('/house-designs/residential-design-gallery-more.b64', { cache: 'force-cache' })
+      .then((response) => response.ok ? response.text() : '')
+      .then((base64) => {
+        if (active && base64.trim()) setAdditionalGallerySrc(`data:image/webp;base64,${base64.trim()}`);
+      })
+      .catch(() => undefined);
+    return () => { active = false; };
+  }, []);
 
   const filteredProjects = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
@@ -58,13 +70,32 @@ export default function ProjectsPage() {
           </div>
         </section>
 
+        {additionalGallerySrc && (
+          <section className="mt-8 overflow-hidden rounded-3xl border bg-white shadow-lg">
+            <div className="grid items-center gap-0 lg:grid-cols-[0.75fr_1.25fr]">
+              <div className="p-6 sm:p-8 md:p-10">
+                <p className="eyebrow">More residential references</p>
+                <h2 className="display-title mt-4 text-3xl sm:text-4xl">More facade directions to explore.</h2>
+                <p className="mt-5 max-w-xl text-sm leading-7 text-muted-foreground sm:text-base">A second set of residential design visuals shared by the client, showing alternate facade compositions, materials and massing ideas.</p>
+                <div className="mt-6 flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                  <span className="rounded-full border bg-secondary px-3 py-2">4 additional visuals</span>
+                  <span className="rounded-full border bg-secondary px-3 py-2">Residential</span>
+                  <span className="rounded-full border bg-secondary px-3 py-2">Facade concepts</span>
+                </div>
+                <Button asChild variant="outline" className="mt-8 rounded-xl"><Link href="/contact">Talk about your design <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+              </div>
+              <div className="bg-[#0d1724] p-4 sm:p-6">
+                <img src={additionalGallerySrc} alt="Additional residential house design references featuring modern facades and architectural forms" width="1200" height="820" loading="lazy" decoding="async" className="h-auto w-full rounded-2xl object-cover" />
+              </div>
+            </div>
+          </section>
+        )}
+
         <div className="mt-10" aria-busy={loading}>
           {loading ? (
             <Card className="rounded-2xl border bg-card shadow-sm">
               <CardContent className="flex min-h-64 flex-col items-center justify-center px-6 py-16 text-center">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
-                  <Loader2 className="h-7 w-7 animate-spin text-primary" aria-hidden="true" />
-                </div>
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10"><Loader2 className="h-7 w-7 animate-spin text-primary" aria-hidden="true" /></div>
                 <h2 className="mt-5 text-2xl font-semibold">Loading our projects</h2>
                 <p className="mx-auto mt-3 max-w-xl text-muted-foreground">We are loading the latest portfolio entries. You can search or filter them as soon as they are available.</p>
               </CardContent>
