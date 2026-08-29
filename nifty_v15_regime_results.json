@@ -1,0 +1,111 @@
+{
+  "strategy": "V15 diversified regime portfolio; 60-day inverse-vol risk sleeves; NIFTY 200-day trend exposure switch; monthly rebalance",
+  "benchmark": "Official NIFTY 50 TRI",
+  "data_start": "2007-09-17",
+  "data_end": "2026-08-21",
+  "buy_hold_tri_cagr": 0.10618811555495156,
+  "full": {
+    "cagr": 0.099972990211874,
+    "total_return": 5.068961591761186,
+    "max_drawdown": -0.29903423650774374,
+    "sharpe": 0.9447684888790042,
+    "rebalances": 224,
+    "defensive_days": 1393,
+    "defensive_fraction": 0.2989911998282893,
+    "avg_weights": {
+      "NIFTY": 0.5052150797978421,
+      "GOLD": 0.18145386790551055,
+      "NASDAQ": 0.12363369234816055,
+      "CASH": 0.1896973599484868
+    }
+  },
+  "windows": [
+    {
+      "name": "2008-2009",
+      "start": "2008-01-01",
+      "end": "2009-12-31",
+      "cagr": 0.07946115834093259,
+      "max_drawdown": -0.29903423650774374,
+      "sharpe": 0.5249953441394438
+    },
+    {
+      "name": "2011",
+      "start": "2011-01-01",
+      "end": "2011-12-31",
+      "cagr": -0.09698500795906972,
+      "max_drawdown": -0.0990998244602147,
+      "sharpe": -0.9605323296503532
+    },
+    {
+      "name": "2015-2016",
+      "start": "2015-01-01",
+      "end": "2016-12-31",
+      "cagr": -0.0046751998323100175,
+      "max_drawdown": -0.1296826690416647,
+      "sharpe": -0.013756041730137903
+    },
+    {
+      "name": "2018",
+      "start": "2018-01-01",
+      "end": "2018-12-31",
+      "cagr": -0.0029112934690181946,
+      "max_drawdown": -0.0927026282246387,
+      "sharpe": 0.0018702514877308911
+    },
+    {
+      "name": "2020",
+      "start": "2020-01-01",
+      "end": "2020-12-31",
+      "cagr": 0.18058678584740484,
+      "max_drawdown": -0.2025992565539695,
+      "sharpe": 1.1893489256155214
+    },
+    {
+      "name": "2022",
+      "start": "2022-01-01",
+      "end": "2022-12-31",
+      "cagr": -0.02575860568714028,
+      "max_drawdown": -0.10503074733955942,
+      "sharpe": -0.20947685472159638
+    },
+    {
+      "name": "2025-2026",
+      "start": "2025-01-01",
+      "end": "2026-08-21",
+      "cagr": 0.10018714689477637,
+      "max_drawdown": -0.08260768121295115,
+      "sharpe": 1.2302639050149111
+    }
+  ],
+  "parameters": {
+    "base_risk_weights": {
+      "NIFTY": 0.55,
+      "GOLD": 0.2,
+      "NASDAQ": 0.15
+    },
+    "risk_caps": {
+      "NIFTY": 0.7,
+      "GOLD": 0.3,
+      "NASDAQ": 0.25
+    },
+    "normal_risk_exposure": 0.9,
+    "defensive_risk_exposure": 0.6,
+    "trend_window_days": 200,
+    "vol_lookback_days": 60,
+    "rebalance": "monthly",
+    "cost": 0.0005,
+    "slippage": 0.0005,
+    "risk_assets": {
+      "NIFTY": "^NSEI",
+      "GOLD": "GC=F",
+      "NASDAQ": "^IXIC"
+    },
+    "cash_proxy": "^IRX"
+  },
+  "warnings": [
+    "^IRX is the U.S. 13-week Treasury-bill rate used to model the cash sleeve; it is not Indian cash.",
+    "GC=F and ^IXIC are research proxies, not exact Indian execution.",
+    "No leverage; no final-test parameter fitting.",
+    "Trend decision uses prior-day NIFTY close and 200-day SMA to avoid same-day look-ahead."
+  ]
+}

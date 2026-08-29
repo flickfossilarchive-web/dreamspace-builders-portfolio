@@ -1,0 +1,112 @@
+{
+  "strategy": "V16 diversified confirmed-regime portfolio; 60-day inverse-vol; defensive only when NIFTY is below 200-day SMA and 60-day momentum is negative; monthly rebalance",
+  "benchmark": "Official NIFTY 50 TRI",
+  "data_start": "2007-09-17",
+  "data_end": "2026-08-21",
+  "buy_hold_tri_cagr": 0.10618811555495156,
+  "full": {
+    "cagr": 0.10127417978464082,
+    "total_return": 5.206269925451668,
+    "max_drawdown": -0.33923443733531733,
+    "sharpe": 0.9209195015419716,
+    "rebalances": 224,
+    "defensive_days": 1088,
+    "defensive_fraction": 0.2335265078342992,
+    "avg_weights": {
+      "NIFTY": 0.5164210455597029,
+      "GOLD": 0.18655582095276854,
+      "NASDAQ": 0.12696518113723887,
+      "CASH": 0.17005795235028975
+    }
+  },
+  "windows": [
+    {
+      "name": "2008-2009",
+      "start": "2008-01-01",
+      "end": "2009-12-31",
+      "cagr": 0.07171233800990451,
+      "max_drawdown": -0.3392344373353172,
+      "sharpe": 0.450116053559146
+    },
+    {
+      "name": "2011",
+      "start": "2011-01-01",
+      "end": "2011-12-31",
+      "cagr": -0.0969850079590695,
+      "max_drawdown": -0.09909982446021426,
+      "sharpe": -0.960532329650353
+    },
+    {
+      "name": "2015-2016",
+      "start": "2015-01-01",
+      "end": "2016-12-31",
+      "cagr": -0.0020583863111768297,
+      "max_drawdown": -0.12968266904166414,
+      "sharpe": 0.018642735425457236
+    },
+    {
+      "name": "2018",
+      "start": "2018-01-01",
+      "end": "2018-12-31",
+      "cagr": -0.0029112934690181946,
+      "max_drawdown": -0.09270262822463915,
+      "sharpe": 0.001870251487736656
+    },
+    {
+      "name": "2020",
+      "start": "2020-01-01",
+      "end": "2020-12-31",
+      "cagr": 0.2081611304470672,
+      "max_drawdown": -0.20259925655396926,
+      "sharpe": 1.3353540587461254
+    },
+    {
+      "name": "2022",
+      "start": "2022-01-01",
+      "end": "2022-12-31",
+      "cagr": -0.02575860568714028,
+      "max_drawdown": -0.10503074733955964,
+      "sharpe": -0.20947685472158523
+    },
+    {
+      "name": "2025-2026",
+      "start": "2025-01-01",
+      "end": "2026-08-21",
+      "cagr": 0.10612955100778998,
+      "max_drawdown": -0.08260768121295137,
+      "sharpe": 1.2660673220435024
+    }
+  ],
+  "parameters": {
+    "base_risk_weights": {
+      "NIFTY": 0.55,
+      "GOLD": 0.2,
+      "NASDAQ": 0.15
+    },
+    "risk_caps": {
+      "NIFTY": 0.7,
+      "GOLD": 0.3,
+      "NASDAQ": 0.25
+    },
+    "normal_exposure": 0.9,
+    "defensive_exposure": 0.6,
+    "trend_window_days": 200,
+    "momentum_window_days": 60,
+    "vol_lookback_days": 60,
+    "rebalance": "monthly",
+    "cost": 0.0005,
+    "slippage": 0.0005,
+    "risk_assets": {
+      "NIFTY": "^NSEI",
+      "GOLD": "GC=F",
+      "NASDAQ": "^IXIC"
+    },
+    "cash_proxy": "^IRX"
+  },
+  "warnings": [
+    "^IRX is a U.S. Treasury-bill rate proxy, not Indian cash.",
+    "GC=F and ^IXIC are research proxies, not exact Indian execution.",
+    "No leverage; no final-test parameter fitting.",
+    "Regime inputs use prior-day values to avoid same-day look-ahead."
+  ]
+}
