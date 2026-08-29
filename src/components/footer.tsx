@@ -1,45 +1,47 @@
 import Link from 'next/link';
-import { Building2, Mail, MapPin, Phone } from 'lucide-react';
+import { ArrowRight, Building2, Mail, MapPin, Phone } from 'lucide-react';
 
 export function Footer() {
   return (
-    <footer className="border-t border-border/40 bg-background">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+    <footer className="border-t border-white/10 bg-[#08121f] text-white">
+      <div className="section-shell py-14 md:py-16">
+        <div className="grid gap-12 lg:grid-cols-[1.25fr_0.8fr_0.8fr]">
           <div>
             <div className="flex items-center gap-3">
-              <Building2 className="h-7 w-7 text-primary" />
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary"><Building2 className="h-5 w-5" /></div>
               <div>
-                <p className="font-bold text-lg font-headline">Dreamspace Builders</p>
-                <p className="text-xs text-muted-foreground">BUILT By YOU.....</p>
+                <p className="text-lg font-bold tracking-wide">DREAMSPACE</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">Builders</p>
               </div>
             </div>
-            <p className="mt-5 text-sm leading-6 text-muted-foreground max-w-sm">
-              Construction and design services for residential, commercial and industrial projects in Davanagere, Karnataka.
-            </p>
+            <p className="mt-6 max-w-md text-sm leading-7 text-white/55">Construction and design services for residential, commercial and industrial projects in Davanagere, Karnataka.</p>
+            <Link href="/contact" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-white">Start a project <ArrowRight className="h-4 w-4" /></Link>
           </div>
+
           <div>
-            <p className="font-semibold font-headline mb-4">Contact</p>
-            <div className="space-y-3 text-sm text-muted-foreground">
-              <a href="tel:+919008592532" className="flex items-start gap-3 hover:text-primary transition-colors"><Phone className="h-4 w-4 mt-0.5 shrink-0" /><span>+91 9008592532</span></a>
-              <a href="mailto:Dreamspacebuilders12@gmail.com" className="flex items-start gap-3 hover:text-primary transition-colors"><Mail className="h-4 w-4 mt-0.5 shrink-0" /><span>Dreamspacebuilders12@gmail.com</span></a>
-              <a href="https://www.google.com/maps/search/?api=1&query=%2370%2F7%2C%2015th%20Cross%20Road%2C%20Nijalingappa%20Layout%2C%20Davanagere%20577004" target="_blank" rel="noreferrer" className="flex items-start gap-3 hover:text-primary transition-colors"><MapPin className="h-4 w-4 mt-0.5 shrink-0" /><span>#70/7, 15th Cross Road, Nijalingappa Layout, Davanagere - 577004</span></a>
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-white/90">Contact</p>
+            <div className="mt-5 space-y-4 text-sm text-white/60">
+              <a href="tel:+919008592532" className="flex items-start gap-3 hover:text-primary"><Phone className="mt-0.5 h-4 w-4 shrink-0 text-primary" /><span>+91 9008592532</span></a>
+              <a href="mailto:Dreamspacebuilders12@gmail.com" className="flex items-start gap-3 hover:text-primary"><Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" /><span className="break-all">Dreamspacebuilders12@gmail.com</span></a>
+              <a href="https://www.google.com/maps/search/?api=1&query=%2370%2F7%2C%2015th%20Cross%20Road%2C%20Nijalingappa%20Layout%2C%20Davanagere%20577004" target="_blank" rel="noreferrer" className="flex items-start gap-3 hover:text-primary"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" /><span>#70/7, 15th Cross Road, Nijalingappa Layout, Davanagere - 577004</span></a>
             </div>
           </div>
+
           <div>
-            <p className="font-semibold font-headline mb-4">Explore</p>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <Link href="/" className="text-muted-foreground hover:text-primary transition-colors">Home</Link>
-              <Link href="/about" className="text-muted-foreground hover:text-primary transition-colors">About</Link>
-              <Link href="/projects" className="text-muted-foreground hover:text-primary transition-colors">Projects</Link>
-              <Link href="/contact" className="text-muted-foreground hover:text-primary transition-colors">Contact</Link>
+            <p className="text-sm font-bold uppercase tracking-[0.18em] text-white/90">Explore</p>
+            <div className="mt-5 grid grid-cols-2 gap-4 text-sm text-white/60">
+              <Link href="/" className="hover:text-primary">Home</Link>
+              <Link href="/about" className="hover:text-primary">About</Link>
+              <Link href="/projects" className="hover:text-primary">Projects</Link>
+              <Link href="/contact" className="hover:text-primary">Contact</Link>
             </div>
-            <p className="mt-6 text-xs text-muted-foreground">GSTIN: 29DFEPP1670H1Z7</p>
+            <p className="mt-7 text-xs text-white/35">GSTIN: 29DFEPP1670H1Z7</p>
           </div>
         </div>
-        <div className="mt-10 pt-6 border-t border-border/40 flex flex-col sm:flex-row justify-between gap-3 text-xs text-muted-foreground">
+
+        <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-white/35 sm:flex-row sm:items-center sm:justify-between">
           <p>&copy; {new Date().getFullYear()} Dreamspace Builders. All rights reserved.</p>
-          <p>Built for clear communication, strong execution, and lasting spaces.</p>
+          <p>Built around clear communication and dependable execution.</p>
         </div>
       </div>
     </footer>
