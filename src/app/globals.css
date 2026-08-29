@@ -78,7 +78,7 @@
   }
 
   .display-title {
-    @apply font-headline font-bold tracking-[-0.035em] text-foreground;
+    @apply font-headline font-bold tracking-[-0.02em] text-foreground;
   }
 
   .luxury-card {
