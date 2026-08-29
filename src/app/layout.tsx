@@ -1,10 +1,24 @@
 import type { Metadata } from 'next';
+import { Inter, Manrope } from 'next/font/google';
 import './globals.css';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
+
+const bodyFont = Inter({
+  subsets: ['latin'],
+  variable: '--font-body',
+  display: 'swap',
+});
+
+const headingFont = Manrope({
+  subsets: ['latin'],
+  variable: '--font-headline',
+  display: 'swap',
+  weight: ['500', '600', '700', '800'],
+});
 
 const siteUrl = 'https://www.dreamspacebuilders12.com';
 
@@ -68,13 +82,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en-IN">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-      </head>
-      <body className={cn('font-body bg-background text-foreground antialiased')}>
+    <html lang="en-IN" className={cn(bodyFont.variable, headingFont.variable)}>
+      <body className="font-body bg-background text-foreground antialiased">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(businessSchema) }}
