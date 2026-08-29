@@ -41,9 +41,9 @@ const services = [
 ];
 
 const reasons = [
-  ['Clear communication', 'You always know what is being planned, built and completed next.', MessageCircle],
-  ['Quality-first execution', 'We focus on workmanship, materials and attention to detail at every stage.', ShieldCheck],
-  ['End-to-end capability', 'From concept and estimate to execution and interiors, fewer handoffs mean better coordination.', Layers3],
+  ['One accountable team', 'Fewer handoffs from planning and estimation through execution and finishing.', Layers3],
+  ['Clear project planning', 'Know the scope, decisions and next step before work moves forward.', Ruler],
+  ['Quality at every stage', 'A consistent focus on workmanship, materials and finishing details.', ShieldCheck],
 ];
 
 const process = [
@@ -51,6 +51,13 @@ const process = [
   ['02', 'Design & Estimate', 'Shape the solution and make the cost and scope easier to understand.'],
   ['03', 'Build', 'Execute with coordination, supervision and regular communication.'],
   ['04', 'Handover', 'Complete the work with a clear path to the finished space.'],
+];
+
+const trustPoints = [
+  ['Quality-led workmanship', 'Thoughtful execution and attention to detail.', ShieldCheck],
+  ['Coordinated delivery', 'One team across planning and execution.', Users],
+  ['Clear next steps', 'A process you can understand from day one.', Ruler],
+  ['Easy to reach', 'Call, email or message when you need us.', MessageCircle],
 ];
 
 export default function Home() {
@@ -65,43 +72,47 @@ export default function Home() {
 
   return (
     <div className="flex flex-col bg-background">
-      <section className="relative isolate min-h-[720px] overflow-hidden bg-[#0d1724] text-white">
-        <Image
-          src={hero.src}
-          alt={hero.alt}
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-center"
-        />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,15,25,0.9)_0%,rgba(7,15,25,0.72)_40%,rgba(7,15,25,0.25)_75%,rgba(7,15,25,0.12)_100%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,15,25,0.12)_0%,rgba(7,15,25,0.05)_45%,rgba(7,15,25,0.9)_100%)]" />
-        <div className="absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.12)_1px,transparent_1px)] [background-size:72px_72px] [mask-image:linear-gradient(to_bottom,black,transparent_72%)]" />
+      <section className="relative isolate overflow-hidden bg-[#0d1724] text-white">
+        <div className="absolute inset-0">
+          <Image
+            src={hero.src}
+            alt={hero.alt}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,15,25,0.92)_0%,rgba(7,15,25,0.76)_44%,rgba(7,15,25,0.30)_78%,rgba(7,15,25,0.16)_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(7,15,25,0.30)_0%,rgba(7,15,25,0.04)_48%,rgba(7,15,25,0.84)_100%)]" />
+          <div className="absolute inset-0 opacity-10 [background-image:linear-gradient(rgba(255,255,255,0.18)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.18)_1px,transparent_1px)] [background-size:72px_72px] [mask-image:linear-gradient(to_bottom,black,transparent_72%)]" />
+        </div>
 
-        <div className="section-shell relative z-10 flex min-h-[720px] items-end pb-16 pt-28 md:pb-24">
+        <div className="section-shell relative z-10 flex min-h-[660px] items-center py-24 md:min-h-[700px] md:py-28">
           <div className="max-w-4xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/85 backdrop-blur-sm">
-              <Sparkles className="h-4 w-4 text-primary" /> Construction & design · Davanagere
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.20em] text-white/85 backdrop-blur-sm">
+              <Sparkles className="h-4 w-4 text-primary" /> Davanagere · Construction &amp; Design
             </div>
-            <h1 className="display-title mt-7 max-w-4xl text-5xl leading-[0.98] text-white sm:text-6xl md:text-7xl lg:text-8xl">
-              Building spaces.
-              <span className="block text-white/90">Creating legacies.</span>
+
+            <h1 className="display-title mt-7 max-w-4xl text-[3.25rem] leading-[0.98] text-white sm:text-6xl md:text-7xl lg:text-[5.5rem]">
+              Thoughtfully planned.
+              <span className="block text-white/90">Expertly built.</span>
             </h1>
+
             <p className="mt-7 max-w-2xl text-base leading-7 text-white/78 sm:text-lg sm:leading-8">
-              From concept and estimation to construction, supervision and interiors, Dreamspace Builders brings the whole project together under one roof.
+              Residential, commercial and industrial projects managed from planning and estimation through construction, interiors and handover.
             </p>
 
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg" className="h-14 rounded-xl bg-primary px-7 text-base font-bold shadow-2xl shadow-black/20 hover:bg-primary/90">
-                <Link href="/contact">Get a project estimate <ArrowRight className="ml-2 h-5 w-5" /></Link>
+              <Button asChild size="lg" className="h-14 rounded-xl bg-primary px-7 text-base font-bold text-[#0d1724] shadow-2xl shadow-black/20 hover:bg-primary/90">
+                <Link href="/contact">Discuss your project <ArrowRight className="ml-2 h-5 w-5" /></Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="h-14 rounded-xl border-white/40 bg-white/5 px-7 text-base font-bold text-white backdrop-blur-sm hover:bg-white hover:text-[#0d1724]">
-                <Link href="/projects">View our work</Link>
+                <Link href="/projects">Explore our projects</Link>
               </Button>
             </div>
 
-            <div className="mt-9 flex flex-wrap gap-5 text-sm text-white/75">
-              {['Residential', 'Commercial', 'Industrial', 'Turnkey'].map((item) => (
+            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-white/72">
+              {['Homes', 'Commercial spaces', 'Industrial projects', 'Turnkey delivery'].map((item) => (
                 <span key={item} className="inline-flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-primary" /> {item}
                 </span>
@@ -109,37 +120,32 @@ export default function Home() {
             </div>
           </div>
         </div>
+      </section>
 
-        <div className="section-shell absolute bottom-0 left-0 right-0 z-20 translate-y-1/2">
-          <div className="grid grid-cols-1 overflow-hidden rounded-2xl border border-white/70 bg-white shadow-2xl shadow-black/10 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              ['Quality focused', 'Thoughtful workmanship and materials.', ShieldCheck],
-              ['Experienced coordination', 'One team across planning and execution.', Users],
-              ['Clear process', 'Understand what happens next.', Ruler],
-              ['Client-first support', 'Easy ways to call, message or enquire.', MessageCircle],
-            ].map(([title, copy, Icon], index) => (
-              <div key={String(title)} className={`flex gap-4 p-6 ${index !== 3 ? 'border-b sm:border-b-0 lg:border-r' : ''}`}>
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0d1724] text-primary">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="font-semibold text-[#0d1724]">{title}</p>
-                  <p className="mt-1 text-sm leading-5 text-slate-500">{copy}</p>
-                </div>
+      <section className="section-shell relative z-20 -mt-8 pb-20 md:-mt-10 md:pb-28">
+        <div className="grid overflow-hidden rounded-2xl border border-border bg-white shadow-xl shadow-black/10 sm:grid-cols-2 lg:grid-cols-4">
+          {trustPoints.map(([title, copy, Icon], index) => (
+            <div key={String(title)} className={`flex gap-4 p-6 ${index !== trustPoints.length - 1 ? 'border-b sm:border-b-0 lg:border-r' : ''}`}>
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#0d1724] text-primary">
+                <Icon className="h-5 w-5" />
               </div>
-            ))}
-          </div>
+              <div>
+                <p className="font-semibold text-[#0d1724]">{title}</p>
+                <p className="mt-1 text-sm leading-5 text-slate-500">{copy}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
-      <section className="section-shell pt-36 pb-24 md:pt-40 md:pb-32">
+      <section className="section-shell pb-24 md:pb-32">
         <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
           <div>
             <p className="eyebrow">Why Dreamspace</p>
-            <h2 className="display-title mt-4 text-4xl sm:text-5xl">Your vision.<br />Our commitment.</h2>
+            <h2 className="display-title mt-4 text-4xl sm:text-5xl">A simpler way to build.</h2>
             <div className="gold-line mt-6" />
             <p className="mt-6 max-w-xl text-base leading-8 text-muted-foreground">
-              Good construction is not only about the finished structure. It is about making the journey clearer, the decisions easier and the execution more dependable.
+              You should know what is being planned, what the scope includes and what happens next. We keep the process clear from the first conversation to handover.
             </p>
             <Button asChild variant="outline" className="mt-8 rounded-xl px-5">
               <Link href="/about">Discover our approach <ArrowRight className="ml-2 h-4 w-4" /></Link>
@@ -165,9 +171,9 @@ export default function Home() {
       <section className="bg-[#101b29] py-24 text-white md:py-28">
         <div className="section-shell">
           <div className="max-w-3xl">
-            <p className="eyebrow text-primary">Services</p>
+            <p className="eyebrow text-primary">What we do</p>
             <h2 className="display-title mt-4 text-4xl text-white sm:text-5xl">One team for the full project.</h2>
-            <p className="mt-5 text-base leading-8 text-white/65 sm:text-lg">Practical services that cover the stages that matter most—planning, design, construction, supervision and finishing.</p>
+            <p className="mt-5 text-base leading-8 text-white/65 sm:text-lg">Practical services across planning, design, construction, supervision and finishing.</p>
           </div>
 
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -188,7 +194,7 @@ export default function Home() {
         <div className="grid gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:items-start lg:gap-20">
           <div>
             <p className="eyebrow">How it works</p>
-            <h2 className="display-title mt-4 text-4xl sm:text-5xl">A clearer path from idea to handover.</h2>
+            <h2 className="display-title mt-4 text-4xl sm:text-5xl">A clear path from idea to handover.</h2>
             <p className="mt-6 text-base leading-8 text-muted-foreground">A simple process helps you understand the next step without getting buried in construction jargon.</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -214,7 +220,7 @@ export default function Home() {
             <div>
               <p className="eyebrow">Portfolio</p>
               <h2 className="display-title mt-4 text-4xl sm:text-5xl">Selected work.</h2>
-              <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">Explore completed and featured projects by category and see how we approach different kinds of spaces.</p>
+              <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">Explore featured projects and see the details behind the finished work.</p>
             </div>
             <Button asChild variant="outline" className="rounded-xl">
               <Link href="/projects">View all projects <ArrowRight className="ml-2 h-4 w-4" /></Link>
@@ -252,7 +258,7 @@ export default function Home() {
               <p className="mt-5 text-base leading-7 text-white/65 sm:text-lg">Share your idea, location and approximate scope. We’ll help you understand the next step.</p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <Button asChild size="lg" className="h-14 rounded-xl bg-primary px-7 font-bold hover:bg-primary/90">
+              <Button asChild size="lg" className="h-14 rounded-xl bg-primary px-7 font-bold text-[#0d1724] hover:bg-primary/90">
                 <Link href="/contact">Request a quote <ArrowRight className="ml-2 h-5 w-5" /></Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="h-14 rounded-xl border-white/25 bg-white/5 px-7 font-bold text-white hover:bg-white hover:text-[#0d1724]">
