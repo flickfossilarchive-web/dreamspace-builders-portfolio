@@ -1,0 +1,59 @@
+name: Stock Alpha V2 Paper Trading
+on:
+  push:
+    branches: [stock-alpha-v1]
+    paths:
+      - 'trading/paper_trade_v2.py'
+      - 'trading/stock_alpha_v2.py'
+      - 'trading/pit_universe_fetch.py'
+      - 'trading/test_paper_trade_v2.py'
+      - '.github/workflows/paper-trading-v2.yml'
+  pull_request:
+    paths:
+      - 'trading/paper_trade_v2.py'
+      - 'trading/stock_alpha_v2.py'
+      - 'trading/pit_universe_fetch.py'
+      - 'trading/test_paper_trade_v2.py'
+      - '.github/workflows/paper-trading-v2.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '30 10 * * 1-5'
+jobs:
+  paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: pip install pandas numpy yfinance pytest
+      - name: Build PIT universe
+        run: python trading/pit_universe_fetch.py --out data/pit/index_membership_history.csv --report data/pit/validation_report.json
+      - name: Generate paper portfolio
+        run: python trading/paper_trade_v2.py --membership data/pit/index_membership_history.csv --out data/paper_trade_v2
+      - name: Safety tests
+        run: pytest -q trading/test_paper_trade_v2.py
+      - name: Validate paper portfolio
+        run: |
+          python - <<'PY'
+          import json, math
+          p=json.load(open('data/paper_trade_v2/paper_portfolio.json'))
+          assert p['mode']=='PAPER_ONLY'
+          assert p['real_orders'] is False
+          assert len(p['positions'])==20
+          assert len({x['symbol'] for x in p['positions']})==20
+          total=sum(x['target_weight'] for x in p['positions'])+p['cash_weight']
+          assert math.isclose(total,1.0,rel_tol=0,abs_tol=1e-9)
+          assert 0.25 <= p['gross_exposure'] <= 1.0
+          assert p['estimated_63d_annualized_vol'] >= 0
+          print(json.dumps(p,indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stock-alpha-v2-paper-portfolio
+          path: data/paper_trade_v2/
+          retention-days: 30

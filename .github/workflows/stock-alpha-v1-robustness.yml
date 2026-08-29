@@ -1,0 +1,39 @@
+name: Stock Alpha V1 Robustness
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'trading/stock_alpha_v1.py'
+      - 'trading/stock_alpha_v1_robustness.py'
+      - 'trading/pit_universe_fetch.py'
+      - '.github/workflows/stock-alpha-v1-robustness.yml'
+jobs:
+  robustness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install
+        run: pip install pandas numpy yfinance
+      - name: Build PIT universe
+        run: python trading/pit_universe_fetch.py --out data/pit/index_membership_history.csv --report data/pit/validation_report.json
+      - name: Robustness suite
+        working-directory: trading
+        run: python stock_alpha_v1_robustness.py --membership ../data/pit/index_membership_history.csv --out ../data/stock_alpha_v1_robustness
+      - name: Gate
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open('data/stock_alpha_v1_robustness/result.json'))
+          print(json.dumps(p,indent=2))
+          assert p['baseline']['days'] > 1000
+          assert p['baseline']['cagr'] is not None
+          assert p['baseline']['sharpe'] is not None
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stock-alpha-v1-robustness
+          path: data/stock_alpha_v1_robustness/
