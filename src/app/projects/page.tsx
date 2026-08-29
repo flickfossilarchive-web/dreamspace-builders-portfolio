@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Search, ArrowRight, FolderOpen, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ProjectCard } from '@/components/project-card';
@@ -37,6 +38,26 @@ export default function ProjectsPage() {
       <section className="bg-[#0d1724] py-20 text-white md:py-28"><div className="section-shell"><p className="eyebrow text-primary">Portfolio</p><h1 className="display-title mt-4 max-w-4xl text-5xl text-white sm:text-6xl md:text-7xl">Selected work, thoughtfully built.</h1><p className="mt-6 max-w-2xl text-base leading-8 text-white/65 sm:text-lg">Explore projects by type and see the range of spaces Dreamspace Builders can help plan, build and complete.</p></div></section>
       <section className="section-shell py-16 md:py-24">
         <div className="rounded-2xl border bg-secondary/60 p-4 md:p-5"><div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"><div className="relative w-full lg:max-w-md"><Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" /><Input type="search" placeholder="Search projects..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="h-12 rounded-xl bg-background pl-10" aria-label="Search projects" /></div><Tabs value={activeCategory} onValueChange={setActiveCategory}><TabsList className="grid w-full grid-cols-2 rounded-xl sm:grid-cols-4 lg:w-auto">{categories.map((category) => <TabsTrigger key={category} value={category}>{category}</TabsTrigger>)}</TabsList></Tabs></div></div>
+
+        <section className="mt-14 rounded-3xl border bg-[#0d1724] p-5 text-white shadow-xl sm:p-8 md:mt-16 md:p-10">
+          <div className="grid items-center gap-8 lg:grid-cols-[0.75fr_1.25fr] lg:gap-12">
+            <div>
+              <p className="eyebrow text-primary">Residential design collection</p>
+              <h2 className="display-title mt-4 text-3xl text-white sm:text-4xl">House designs with a strong sense of place.</h2>
+              <p className="mt-5 max-w-xl text-sm leading-7 text-white/65 sm:text-base">A curated selection of residential design visuals shared by the client, showcasing contemporary facades, planning ideas and different architectural directions.</p>
+              <div className="mt-6 flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.14em] text-white/55">
+                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-2">Residential</span>
+                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-2">Design concepts</span>
+                <span className="rounded-full border border-white/10 bg-white/5 px-3 py-2">9 visuals</span>
+              </div>
+              <Button asChild className="mt-8 rounded-xl bg-primary font-bold text-[#0d1724] hover:bg-primary/90"><Link href="/contact">Discuss a house design <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+            </div>
+            <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+              <Image src="/house-designs/residential-design-gallery.webp" alt="Residential house design collection featuring contemporary facade concepts" width={1332} height={972} sizes="(max-width: 1024px) 100vw, 60vw" className="h-auto w-full object-cover" />
+            </div>
+          </div>
+        </section>
+
         <div className="mt-10" aria-busy={loading}>
           {loading ? (
             <Card className="rounded-2xl border bg-card shadow-sm">
