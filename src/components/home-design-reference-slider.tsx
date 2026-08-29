@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, Images } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,12 +13,17 @@ const slides = [
 ];
 
 export function HomeDesignReferenceSlider() {
+  const pathname = usePathname();
   const [index, setIndex] = useState(0);
   const slide = slides[index];
+
   useEffect(() => {
+    if (pathname !== '/') return;
     const timer = window.setInterval(() => setIndex((current) => (current + 1) % slides.length), 6500);
     return () => window.clearInterval(timer);
-  }, []);
+  }, [pathname]);
+
+  if (pathname !== '/') return null;
   const go = (next: number) => setIndex((next + slides.length) % slides.length);
 
   return (
