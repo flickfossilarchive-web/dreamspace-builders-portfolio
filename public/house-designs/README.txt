@@ -1,0 +1,1 @@
+Residential design reference imagery is maintained as optimized web assets for the public Projects page.
