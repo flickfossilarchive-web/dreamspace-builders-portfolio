@@ -1,8 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, CheckCircle2, MapPin, Ruler, CalendarDays, Layers3 } from 'lucide-react';
-import { doc, getDoc, getFirestore } from 'firebase/firestore';
-import { initializeFirebase } from '@/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { getServerFirestore } from '@/lib/server-firebase';
 import type { Project } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,8 +12,7 @@ export const dynamic = 'force-dynamic';
 
 async function getProject(id: string): Promise<Project | null> {
   try {
-    const { firebaseApp } = initializeFirebase();
-    const db = getFirestore(firebaseApp);
+    const db = getServerFirestore();
     const snapshot = await getDoc(doc(db, 'projects', id));
     if (!snapshot.exists()) return null;
     return { id: snapshot.id, ...(snapshot.data() as Omit<Project, 'id'>) };
