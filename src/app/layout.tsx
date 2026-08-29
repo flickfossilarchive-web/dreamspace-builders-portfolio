@@ -6,7 +6,6 @@ import { Footer } from '@/components/footer';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
-import { HomeDesignReferenceSlider } from '@/components/home-design-reference-slider';
 
 const bodyFont = Inter({ subsets: ['latin'], variable: '--font-body', display: 'swap' });
 const headingFont = Manrope({ subsets: ['latin'], variable: '--font-headline', display: 'swap', weight: ['500', '600', '700', '800'] });
@@ -36,7 +35,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <FirebaseClientProvider>
           <div className="relative flex min-h-screen flex-col">
             <Header />
-            <main className="flex-1">{children}<HomeDesignReferenceSlider /></main>
+            <main className="flex-1">{children}</main>
             <Footer />
           </div>
           <Toaster />
