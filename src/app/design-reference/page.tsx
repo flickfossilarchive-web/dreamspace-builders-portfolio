@@ -2,10 +2,11 @@ import Link from 'next/link';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+const ASSET_VERSION = '20260829-2';
 const references = [
-  { src: '/generated/design-references/realistic-local-01.webp', title: 'Contemporary Elegance', copy: 'Warm timber, stone textures and layered lighting for a premium family home.' },
-  { src: '/generated/design-references/realistic-local-02.webp', title: 'Modern Minimalist', copy: 'Clean geometry, generous glazing and a calm contemporary facade.' },
-  { src: '/generated/design-references/realistic-local-03.webp', title: 'Architectural Harmony', copy: 'Balanced volumes, landscaped edges and refined exterior detailing.' },
+  { src: `/generated/design-references/realistic-local-01.webp?v=${ASSET_VERSION}`, title: 'Contemporary Elegance', copy: 'Warm timber, stone textures and layered lighting for a premium family home.' },
+  { src: `/generated/design-references/realistic-local-02.webp?v=${ASSET_VERSION}`, title: 'Modern Minimalist', copy: 'Clean geometry, generous glazing and a calm contemporary facade.' },
+  { src: `/generated/design-references/realistic-local-03.webp?v=${ASSET_VERSION}`, title: 'Architectural Harmony', copy: 'Balanced volumes, landscaped edges and refined exterior detailing.' },
 ];
 
 export const metadata = {
