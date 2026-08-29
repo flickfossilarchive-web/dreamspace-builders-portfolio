@@ -1,0 +1,23 @@
+name: NIFTY V10 Defensive Regime Backtest
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'trading/test_nifty_v10_regime.py'
+      - '.github/workflows/nifty-v10.yml'
+  workflow_dispatch:
+jobs:
+  backtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pandas numpy yfinance requests
+      - run: python trading/test_nifty_v10_regime.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nifty-v10-results
+          path: nifty_v10_results.json

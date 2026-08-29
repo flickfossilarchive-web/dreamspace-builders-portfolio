@@ -1,0 +1,60 @@
+name: V14 Backtest Issue Trigger
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'trading/test_nifty_v14_diversified.py'
+      - '.github/workflows/v14-issue-trigger.yml'
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  v14:
+    if: >-
+      github.event_name == 'push' ||
+      (contains(github.event.issue.title, '[RUN V14]') &&
+      (github.event_name == 'issues' || startsWith(github.event.comment.body, 'RUN V14 NOW')))
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pandas numpy requests yfinance
+      - name: Run V14 with diagnostics
+        id: run_v14
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          python -u trading/test_nifty_v14_diversified.py 2>&1 | tee v14_execution.log
+      - name: Publish result or failure diagnostics
+        if: always() && github.event_name != 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          if [ -f nifty_v14_diversified_results.json ]; then
+            gh issue comment "$ISSUE_NUMBER" --body "## V14 execution result\n\n\`\`\`json\n$(cat nifty_v14_diversified_results.json)\n\`\`\`"
+          else
+            gh issue comment "$ISSUE_NUMBER" --body "## V14 execution failed\n\n\`\`\`text\n$(tail -n 120 v14_execution.log 2>/dev/null || echo 'No execution log produced')\n\`\`\`"
+          fi
+      - name: Upload V14 diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nifty-v14-execution-diagnostics
+          path: |
+            v14_execution.log
+            nifty_v14_diversified_results.json
+          if-no-files-found: ignore
+      - name: Fail workflow if V14 failed
+        if: steps.run_v14.outcome == 'failure'
+        run: exit 1
