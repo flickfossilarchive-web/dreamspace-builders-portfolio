@@ -1,92 +1,84 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { Search, ArrowRight, FolderOpen } from 'lucide-react';
+import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ProjectCard } from '@/components/project-card';
 import type { Project } from '@/lib/types';
-import { Search } from 'lucide-react';
 import { useCollection, useFirestore } from '@/firebase';
 import { collection } from 'firebase/firestore';
-import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 const categories = ['All', 'Commercial', 'Residential', 'Industrial'];
 
 export default function ProjectsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
-  
   const firestore = useFirestore();
-  const projectsCollection = useMemo(() => {
-    if (!firestore) return null;
-    return collection(firestore, 'projects');
-  }, [firestore]);
-
+  const projectsCollection = useMemo(() => firestore ? collection(firestore, 'projects') : null, [firestore]);
   const { data: projects, loading } = useCollection<Project>(projectsCollection);
 
   const filteredProjects = useMemo(() => {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
     if (!projects) return [];
-    return projects.filter((project: Project) => {
+    return projects.filter((project) => {
       const matchesCategory = activeCategory === 'All' || project.category === activeCategory;
-      const matchesSearch =
-        project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (project.tags && project.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())));
-      return matchesCategory && matchesSearch;
+      const searchable = [project.title, project.description, ...(project.tags ?? [])].join(' ').toLowerCase();
+      return matchesCategory && (!normalizedSearch || searchable.includes(normalizedSearch));
     });
   }, [projects, searchTerm, activeCategory]);
 
   return (
-    <div className="container mx-auto px-4 py-16 md:py-24">
-      <div className="text-center mb-16">
-        <h1 className="text-5xl md:text-6xl font-bold font-headline text-foreground">Our Portfolio</h1>
-        <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
-          Explore our diverse range of successfully completed projects, showcasing our commitment to quality and innovation.
-        </p>
-      </div>
-
-      <div className="flex flex-col md:flex-row gap-6 mb-12 justify-center items-center p-4 bg-secondary rounded-lg border">
-        <div className="relative w-full md:w-1/2 lg:w-1/3">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Search by keyword..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 bg-background"
-          />
+    <div className="bg-background">
+      <section className="bg-[#0d1724] py-20 text-white md:py-28">
+        <div className="section-shell">
+          <p className="eyebrow text-primary">Portfolio</p>
+          <h1 className="display-title mt-4 max-w-4xl text-5xl text-white sm:text-6xl md:text-7xl">Selected work, thoughtfully built.</h1>
+          <p className="mt-6 max-w-2xl text-base leading-8 text-white/65 sm:text-lg">Explore projects by type and see the range of spaces Dreamspace Builders can help plan, build and complete.</p>
         </div>
-        <Tabs value={activeCategory} onValueChange={setActiveCategory} className="w-full md:w-auto">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 md:w-auto">
-            {categories.map((category) => (
-              <TabsTrigger key={category} value={category}>{category}</TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-      </div>
+      </section>
 
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {[...Array(3)].map((_, i) => (
-             <Card key={i}><CardHeader className="p-0"><div className="relative aspect-video w-full overflow-hidden bg-muted animate-pulse"></div></CardHeader><CardContent className="space-y-2 mt-6 p-6"><div className="h-6 w-3/4 bg-muted animate-pulse rounded-md"></div><div className="h-4 w-full bg-muted animate-pulse rounded-md"></div></CardContent><CardFooter className="p-6"><div className="h-10 w-full bg-muted animate-pulse rounded-md"></div></CardFooter></Card>
-          ))}
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProjects.map((project) => (
-              <ProjectCard key={project.id} project={project} />
-            ))}
-          </div>
-
-          {filteredProjects.length === 0 && (
-            <div className="text-center py-24">
-                <p className="text-2xl font-semibold text-muted-foreground">No Projects Found</p>
-                <p className="mt-3 text-muted-foreground">Try adjusting your search or filter to find what you're looking for.</p>
+      <section className="section-shell py-16 md:py-24">
+        <div className="rounded-2xl border bg-secondary/60 p-4 md:p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="relative w-full lg:max-w-md">
+              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+              <Input type="search" placeholder="Search projects..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="h-12 rounded-xl bg-background pl-10" />
             </div>
+            <Tabs value={activeCategory} onValueChange={setActiveCategory}>
+              <TabsList className="grid w-full grid-cols-2 rounded-xl sm:grid-cols-4 lg:w-auto">
+                {categories.map((category) => <TabsTrigger key={category} value={category}>{category}</TabsTrigger>)}
+              </TabsList>
+            </Tabs>
+          </div>
+        </div>
+
+        <div className="mt-10">
+          {loading ? (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3, 4, 5, 6].map((item) => (
+                <Card key={item} className="overflow-hidden rounded-2xl"><div className="aspect-[4/3] animate-pulse bg-muted" /><div className="space-y-3 p-6"><div className="h-5 w-2/3 animate-pulse rounded bg-muted" /><div className="h-4 w-full animate-pulse rounded bg-muted" /></div></Card>
+              ))}
+            </div>
+          ) : filteredProjects.length > 0 ? (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {filteredProjects.map((project) => <ProjectCard key={project.id} project={project} />)}
+            </div>
+          ) : (
+            <Card className="rounded-2xl border-dashed">
+              <CardContent className="px-6 py-20 text-center">
+                <FolderOpen className="mx-auto h-10 w-10 text-primary" />
+                <h2 className="mt-5 text-2xl font-semibold">No matching projects</h2>
+                <p className="mx-auto mt-3 max-w-xl text-muted-foreground">Try another keyword or browse all categories. You can also contact us to discuss a project similar to what you have in mind.</p>
+                <Button asChild className="mt-7 rounded-xl"><Link href="/contact">Discuss your project <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+              </CardContent>
+            </Card>
           )}
-        </>
-      )}
+        </div>
+      </section>
     </div>
   );
 }
