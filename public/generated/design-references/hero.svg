@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-label="Original modern luxury home architectural design reference">
+<defs>
+ <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#183149"/><stop offset=".55" stop-color="#607f98"/><stop offset="1" stop-color="#d9c7ae"/></linearGradient>
+ <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f6f1e9"/><stop offset="1" stop-color="#cfc7bc"/></linearGradient>
+ <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#173247"/><stop offset=".55" stop-color="#5e8ba0"/><stop offset="1" stop-color="#d1e0e4"/></linearGradient>
+ <linearGradient id="wood" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9c6844"/><stop offset="1" stop-color="#4d2f20"/></linearGradient>
+ <linearGradient id="warm" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffd17e"/><stop offset="1" stop-color="#bd6f25"/></linearGradient>
+ <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="18" stdDeviation="20" flood-opacity=".28"/></filter>
+</defs>
+<rect width="1600" height="900" fill="url(#sky)"/>
+<circle cx="1270" cy="155" r="82" fill="#fff3d6" opacity=".9"/>
+<rect y="590" width="1600" height="310" fill="#1e2a2c"/>
+<path d="M0 660 C280 610 500 625 760 650 S1270 620 1600 650 V900 H0Z" fill="#243d2b"/>
+<g filter="url(#shadow)">
+ <path d="M485 600V300H1115V600H485Z" fill="url(#wall)"/>
+ <path d="M560 300V205H1050V300Z" fill="#ece7df"/>
+ <path d="M1030 350H1280V600H1030Z" fill="#ded7cf"/>
+ <path d="M455 600H1180V640H455Z" fill="#b7aea4"/>
+ <path d="M675 420H910V600H675Z" fill="#3b3028"/>
+ <rect x="700" y="448" width="180" height="152" fill="url(#glass)"/>
+ <g stroke="#d7e1e3" stroke-width="6"><path d="M790 448V600"/><path d="M700 523H880"/></g>
+ <rect x="515" y="330" width="170" height="230" rx="10" fill="#252b31"/>
+ <rect x="540" y="355" width="120" height="205" fill="url(#glass)"/>
+ <g stroke="#c9d6db" stroke-width="5"><path d="M600 355V560"/><path d="M540 458H660"/></g>
+ <path d="M490 245H1110" stroke="#a67a58" stroke-width="24"/>
+ <rect x="945" y="225" width="90" height="370" fill="url(#wood)"/>
+ <path d="M955 245H1025M955 275H1025M955 305H1025M955 335H1025M955 365H1025M955 395H1025M955 425H1025M955 455H1025M955 485H1025M955 515H1025M955 545H1025" stroke="#d5b08c" stroke-width="4" opacity=".7"/>
+ <path d="M1030 375H1260" stroke="#fff5e5" stroke-width="18"/>
+ <path d="M1065 390H1245V500H1065Z" fill="url(#glass)"/>
+ <path d="M1080 500H1245V515H1080Z" fill="#6b5a4e"/>
+ <path d="M525 585H1120" stroke="#262d31" stroke-width="30"/>
+ <path d="M550 575H1095" stroke="#d2b38b" stroke-width="8" stroke-dasharray="28 15"/>
+</g>
+<g fill="#1f3525"><ellipse cx="360" cy="720" rx="90" ry="34"/><ellipse cx="1250" cy="720" rx="110" ry="36"/><ellipse cx="1435" cy="710" rx="85" ry="30"/></g>
+<g fill="#50764d"><circle cx="350" cy="665" r="58"/><circle cx="1280" cy="660" r="68"/><circle cx="1450" cy="660" r="54"/></g>
+<g fill="url(#warm)"><circle cx="560" cy="410" r="7"/><circle cx="1080" cy="405" r="7"/><circle cx="1190" cy="405" r="7"/></g>
+<path d="M610 720H990L1040 900H560Z" fill="#7c8a82" opacity=".65"/>
+<text x="85" y="115" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="28" font-weight="700" letter-spacing="8">DREAMSPACE BUILDERS</text>
+<text x="85" y="160" fill="#f5ae2b" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="700" letter-spacing="6">ORIGINAL DESIGN REFERENCE</text>
+</svg>
