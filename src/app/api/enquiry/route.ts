@@ -3,6 +3,8 @@ import { z } from 'zod';
 
 export const runtime = 'nodejs';
 
+const RESEND_REQUEST_TIMEOUT_MS = 10_000;
+
 const enquirySchema = z.object({
   name: z.string().trim().min(2).max(120),
   email: z.string().trim().email().max(254),
@@ -72,6 +74,7 @@ export async function POST(request: Request) {
         html,
         text,
       }),
+      signal: AbortSignal.timeout(RESEND_REQUEST_TIMEOUT_MS),
     });
 
     if (!response.ok) {
@@ -86,3 +89,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'The enquiry was saved, but its email notification could not be sent.' }, { status: 502 });
   }
 }
+
