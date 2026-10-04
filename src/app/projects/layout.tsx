@@ -4,14 +4,14 @@ const siteUrl = 'https://www.dreamspacebuilders12.com';
 
 export const metadata: Metadata = {
   title: 'Projects',
-  description: 'Explore residential, commercial and industrial construction projects by Dreamspace Builders in Davanagere, Karnataka.',
+  description: 'Explore residential, commercial and industrial construction projects by Dreamspace Builders serving Davangere, Bengaluru, Tumkur, Hiriyur and Bellary, Karnataka.',
   alternates: { canonical: `${siteUrl}/projects` },
   openGraph: {
     type: 'website',
     url: `${siteUrl}/projects`,
     siteName: 'Dreamspace Builders',
     title: 'Projects | Dreamspace Builders',
-    description: 'Explore residential, commercial and industrial construction projects by Dreamspace Builders in Davanagere, Karnataka.',
+    description: 'Explore residential, commercial and industrial construction projects by Dreamspace Builders serving Davangere, Bengaluru, Tumkur, Hiriyur and Bellary, Karnataka.',
     locale: 'en_IN',
   },
 };
@@ -19,3 +19,4 @@ export const metadata: Metadata = {
 export default function ProjectsLayout({ children }: { children: React.ReactNode }) {
   return children;
 }
+

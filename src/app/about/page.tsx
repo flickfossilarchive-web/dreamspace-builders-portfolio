@@ -23,7 +23,7 @@ export default function AboutPage() {
           <div>
             <h2 className="text-3xl font-headline font-bold text-foreground mb-4">Who We Are</h2>
             <p className="text-muted-foreground text-lg leading-relaxed">
-              Dreamspace Builders is based in Davanagere, Karnataka, and provides construction and design support across residential, commercial, and industrial projects. Our services cover building construction, contracting, consulting, drafting, estimation, supervision, architectural and engineering support, interiors, and turnkey projects.
+              Dreamspace Builders is based in Davanagere, Karnataka, and serves residential, commercial, and industrial projects in Davangere, Bengaluru, Tumkur, Hiriyur, and Bellary. Our services cover building construction, contracting, consulting, drafting, estimation, supervision, architectural and engineering support, interiors, and turnkey projects.
             </p>
           </div>
           <div>
@@ -47,7 +47,7 @@ export default function AboutPage() {
             [Building, 'Quality', 'Focus on dependable workmanship, materials, and attention to detail.'],
             [Users, 'Integrity', 'Keep communication honest, expectations clear, and decisions transparent.'],
             [Target, 'Practical Innovation', 'Use thoughtful ideas and suitable technology where they add real value.'],
-            [BarChart2, 'Client-Centric', 'Keep the project aligned with the client’s requirements, priorities, and goals.'],
+            [BarChart2, 'Client-Centric', 'Keep the project aligned with the clientâ€™s requirements, priorities, and goals.'],
           ].map(([Icon, title, description]) => {
             const ValueIcon = Icon as typeof Building;
             return (
@@ -65,3 +65,4 @@ export default function AboutPage() {
     </div>
   );
 }
+
