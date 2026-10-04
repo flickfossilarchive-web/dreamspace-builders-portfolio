@@ -11,7 +11,10 @@ import { useToast } from '@/hooks/use-toast';
 import { Send, Loader2 } from 'lucide-react';
 import { useFirestore } from '@/firebase';
 import { collection, addDoc } from 'firebase/firestore';
-import { useTransition } from 'react';
+import { useState } from 'react';
+
+const FIRESTORE_STATUS_TIMEOUT_MS = 2_000;
+const EMAIL_REQUEST_TIMEOUT_MS = 15_000;
 
 const formSchema = z.object({
   name: z.string().trim().min(2, 'Please enter your full name.'),
@@ -24,50 +27,95 @@ const formSchema = z.object({
 export function ContactForm() {
   const { toast } = useToast();
   const firestore = useFirestore();
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   const form = useForm<z.input<typeof formSchema>, unknown, z.output<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: { name: '', email: '', phone: '', subject: '', message: '' },
   });
 
-  function onSubmit(values: z.output<typeof formSchema>) {
-    if (!firestore) {
-      toast({ variant: 'destructive', title: 'Unable to connect', description: 'Please try again in a moment or call us directly.' });
-      return;
-    }
+  async function onSubmit(values: z.output<typeof formSchema>) {
+    setIsPending(true);
+    setFeedback(null);
 
-    startTransition(async () => {
+    const savePromise = (async (): Promise<boolean> => {
+      if (!firestore) return false;
+
       try {
         await addDoc(collection(firestore, 'contact-messages'), {
           ...values,
           createdAt: new Date(),
           read: false,
         });
-
-        const emailResponse = await fetch('/api/enquiry', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(values),
-        });
-
-        if (!emailResponse.ok) {
-          toast({
-            variant: 'destructive',
-            title: 'Enquiry received',
-            description: 'Your enquiry was saved, but its email notification could not be sent. Please call us if your request is urgent.',
-          });
-          form.reset();
-          return;
-        }
-
-        toast({ title: 'Message sent', description: 'Thank you. We will get back to you shortly.' });
-        form.reset();
+        return true;
       } catch (error) {
-        console.error('Error saving message:', error);
-        toast({ variant: 'destructive', title: 'Message not sent', description: 'Please try again or contact us by phone or email.' });
+        console.error('Error saving enquiry:', error);
+        return false;
       }
-    });
+    })();
+
+    async function getSaveStatus() {
+      let timeout: ReturnType<typeof setTimeout> | undefined;
+      try {
+        return await Promise.race([
+          savePromise.then((saved) => (saved ? 'saved' as const : 'failed' as const)),
+          new Promise<'pending'>((resolve) => {
+            timeout = setTimeout(() => resolve('pending'), FIRESTORE_STATUS_TIMEOUT_MS);
+          }),
+        ]);
+      } finally {
+        if (timeout) clearTimeout(timeout);
+      }
+    }
+
+    function report(type: 'success' | 'error', title: string, message: string) {
+      setFeedback({ type, message });
+      toast({
+        ...(type === 'error' ? { variant: 'destructive' as const } : {}),
+        title,
+        description: message,
+      });
+    }
+
+    try {
+      // Email is the primary confirmation; a slow Firestore admin copy cannot block it.
+      const emailResponse = await fetch('/api/enquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values),
+        signal: AbortSignal.timeout(EMAIL_REQUEST_TIMEOUT_MS),
+      });
+
+      if (!emailResponse.ok) {
+        const saveStatus = await getSaveStatus();
+        if (saveStatus === 'saved') {
+          report(
+            'error',
+            'Enquiry received',
+            'Your enquiry was saved, but its email notification could not be sent. Please call us if your request is urgent.',
+          );
+          form.reset();
+        } else {
+          report('error', 'Could not confirm your enquiry', 'The notification could not be confirmed. Please call us directly before submitting again.');
+        }
+        return;
+      }
+
+      report('success', 'Message sent', 'Thank you. We will get back to you shortly.');
+      form.reset();
+    } catch (error) {
+      console.error('Error submitting enquiry:', error);
+      const saveStatus = await getSaveStatus();
+      if (saveStatus === 'saved') {
+        report('error', 'Enquiry received', 'Your enquiry was saved, but email could not be confirmed. Please call us if your request is urgent.');
+        form.reset();
+      } else {
+        report('error', 'Could not confirm your enquiry', 'The request timed out or could not be reached. Please call us directly before submitting again.');
+      }
+    } finally {
+      setIsPending(false);
+    }
   }
 
   return (
@@ -109,7 +157,18 @@ export function ContactForm() {
             <FormControl><Textarea placeholder="Tell us about your project, location, approximate size, and what you need help with..." className="min-h-[150px]" {...field} disabled={isPending} /></FormControl>
             <FormMessage />
           </FormItem>
-        )} />
+          )} />
+        {feedback && (
+          <div
+            role={feedback.type === 'error' ? 'alert' : 'status'}
+            aria-live={feedback.type === 'error' ? 'assertive' : 'polite'}
+            className={feedback.type === 'error'
+              ? 'rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive'
+              : 'rounded-lg border border-green-600/20 bg-green-600/5 px-4 py-3 text-sm text-green-800'}
+          >
+            {feedback.message}
+          </div>
+        )}
         <Button type="submit" size="lg" className="w-full font-semibold" disabled={isPending}>
           {isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending...</> : <><Send className="mr-2 h-4 w-4" /> Send Project Enquiry</>}
         </Button>
@@ -117,3 +176,4 @@ export function ContactForm() {
     </Form>
   );
 }
+
