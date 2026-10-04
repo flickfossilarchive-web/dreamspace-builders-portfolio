@@ -4,7 +4,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Home, LogOut, Mail, PlusSquare, Building2, FolderKanban } from 'lucide-react';
+import { Home, LogOut, Mail, Building2, FolderKanban } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useFirestore, useCollection } from '@/firebase';
 import { collection, where, query } from 'firebase/firestore';
@@ -29,7 +29,6 @@ export function AdminDashboardShell({ children }: { children: ReactNode }) {
   const adminNavLinks = [
     { href: '/admin/dashboard/enquiries', label: 'Enquiries', icon: Mail, notificationCount: unreadCount },
     { href: '/admin/dashboard/projects', label: 'Projects', icon: FolderKanban },
-    { href: '/admin/dashboard/add-project', label: 'Add Project', icon: PlusSquare },
   ];
 
   return (

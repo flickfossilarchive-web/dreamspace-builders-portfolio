@@ -1,29 +1,23 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, ArrowRight, CheckCircle2, MapPin, Ruler, CalendarDays, Layers3 } from 'lucide-react';
-import { doc, getDoc } from 'firebase/firestore';
-import { getServerFirestore } from '@/lib/server-firebase';
+import { PORTFOLIO_PROJECTS } from '@/data/projects';
 import type { Project } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { notFound } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
+function getProject(id: string): Project | null {
+  return PORTFOLIO_PROJECTS.find((project) => project.id === id) ?? null;
+}
 
-async function getProject(id: string): Promise<Project | null> {
-  try {
-    const db = getServerFirestore();
-    const snapshot = await getDoc(doc(db, 'projects', id));
-    if (!snapshot.exists()) return null;
-    return { id: snapshot.id, ...(snapshot.data() as Omit<Project, 'id'>) };
-  } catch {
-    return null;
-  }
+export function generateStaticParams() {
+  return PORTFOLIO_PROJECTS.map(({ id }) => ({ id }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const project = await getProject(id);
+  const project = getProject(id);
   if (!project) return { title: 'Project not found' };
   return {
     title: project.title,
@@ -34,7 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const project = await getProject(id);
+  const project = getProject(id);
   if (!project || project.visible === false) notFound();
 
   const gallery = [project.imageUrl, ...(project.galleryUrls ?? [])].filter(Boolean);

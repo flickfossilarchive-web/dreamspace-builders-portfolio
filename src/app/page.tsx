@@ -6,10 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ProjectCard } from '@/components/project-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { HomeDesignShowcase } from '@/components/home-design-showcase';
-import { useCollection, useFirestore } from '@/firebase';
-import type { Project } from '@/lib/types';
-import { collection, limit, query, where } from 'firebase/firestore';
-import { useMemo } from 'react';
+import { PORTFOLIO_PROJECTS } from '@/data/projects';
 
 const services = [
   { icon: Building2, title: 'Building Construction', description: 'Residential, commercial and industrial construction delivered with disciplined execution.' },
@@ -43,12 +40,7 @@ const trustPoints = [
 ];
 
 export default function Home() {
-  const firestore = useFirestore();
-  const projectsQuery = useMemo(() => {
-    if (!firestore) return null;
-    return query(collection(firestore, 'projects'), where('featured', '==', true), limit(3));
-  }, [firestore]);
-  const { data: featuredProjects, loading } = useCollection<Project>(projectsQuery);
+  const featuredProjects = PORTFOLIO_PROJECTS.filter((project) => project.featured && project.visible !== false).slice(0, 3);
 
   return (
     <div className="flex flex-col bg-background">
@@ -117,9 +109,7 @@ export default function Home() {
             <Button asChild variant="outline" className="rounded-xl"><Link href="/projects">View all projects <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
           </div>
           <div className="mt-12">
-            {loading ? (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">{[1,2,3].map((item)=><Card key={item} className="overflow-hidden rounded-2xl"><div className="aspect-[4/3] animate-pulse bg-muted"/><div className="space-y-3 p-6"><div className="h-5 w-2/3 animate-pulse rounded bg-muted"/><div className="h-4 w-full animate-pulse rounded bg-muted"/></div></Card>)}</div>
-            ) : featuredProjects && featuredProjects.length ? (
+            {featuredProjects.length ? (
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">{featuredProjects.map(project => <ProjectCard key={project.id} project={project} />)}</div>
             ) : (
               <div className="rounded-2xl border border-dashed bg-background/70 px-6 py-16 text-center"><Building2 className="mx-auto h-10 w-10 text-primary"/><h3 className="mt-5 text-2xl font-semibold">Our portfolio is being updated</h3><p className="mx-auto mt-3 max-w-xl text-muted-foreground">Completed projects will appear here as they are published through the admin portal.</p><Button asChild className="mt-7 rounded-xl"><Link href="/contact">Discuss your project <ArrowRight className="ml-2 h-4 w-4"/></Link></Button></div>
