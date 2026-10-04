@@ -6,7 +6,7 @@ export const runtime = 'nodejs';
 const enquirySchema = z.object({
   name: z.string().trim().min(2).max(120),
   email: z.string().trim().email().max(254),
-  phone: z.string().trim().regex(/^\\d{10}$/),
+  phone: z.string().trim().regex(/^\d{10}$/),
   subject: z.string().trim().min(5).max(160),
   message: z.string().trim().min(10).max(5000),
 });
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
   }
 
   const { name, email, phone, subject, message } = parsed.data;
-  const safeSubject = subject.replace(/[\\r\\n]+/g, ' ').slice(0, 160);
+  const safeSubject = subject.replace(/[\r\n]+/g, ' ').slice(0, 160);
   const details = [
     ['Name', name],
     ['Email', email],
@@ -54,8 +54,8 @@ export async function POST(request: Request) {
     ['Project details', message],
   ] as const;
 
-  const html = `<h2>New project enquiry</h2><table cellpadding="8" cellspacing="0" style="border-collapse:collapse">${details.map(([label, value]) => `<tr><th align="left" valign="top">${escapeHtml(label)}</th><td>${escapeHtml(value).replace(/\\n/g, '<br>')}</td></tr>`).join('')}</table>`;
-  const text = details.map(([label, value]) => `${label}:\\n${value}`).join('\\n\\n');
+  const html = `<h2>New project enquiry</h2><table cellpadding="8" cellspacing="0" style="border-collapse:collapse">${details.map(([label, value]) => `<tr><th align="left" valign="top">${escapeHtml(label)}</th><td>${escapeHtml(value).replace(/\n/g, '<br>')}</td></tr>`).join('')}</table>`;
+  const text = details.map(([label, value]) => `${label}:\n${value}`).join('\n\n');
 
   try {
     const response = await fetch('https://api.resend.com/emails', {
