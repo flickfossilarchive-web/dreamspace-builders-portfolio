@@ -44,6 +44,23 @@ export function ContactForm() {
           createdAt: new Date(),
           read: false,
         });
+
+        const emailResponse = await fetch('/api/enquiry', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(values),
+        });
+
+        if (!emailResponse.ok) {
+          toast({
+            variant: 'destructive',
+            title: 'Enquiry received',
+            description: 'Your enquiry was saved, but its email notification could not be sent. Please call us if your request is urgent.',
+          });
+          form.reset();
+          return;
+        }
+
         toast({ title: 'Message sent', description: 'Thank you. We will get back to you shortly.' });
         form.reset();
       } catch (error) {
