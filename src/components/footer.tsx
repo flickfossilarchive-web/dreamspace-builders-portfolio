@@ -14,7 +14,7 @@ export function Footer() {
                 <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-primary">Builders</p>
               </div>
             </div>
-            <p className="mt-6 max-w-md text-sm leading-7 text-white/55">Construction and design services for residential, commercial and industrial projects in Davangere, Bengaluru, Tumkur, Hiriyur and Bellary.</p>
+            <p className="mt-6 max-w-md text-sm leading-7 text-white/55">Construction and design services for residential, commercial and industrial projects in Davangere, Bengaluru, Tumkur, Hiriyur and Bellary, Karnataka.</p>
             <Link href="/contact" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-white">Start a project <ArrowRight className="h-4 w-4" /></Link>
           </div>
 
