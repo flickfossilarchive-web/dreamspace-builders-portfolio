@@ -13,18 +13,18 @@ const siteUrl = 'https://www.dreamspacebuilders12.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: { default: 'Dreamspace Builders | Construction & Design in Davanagere', template: '%s | Dreamspace Builders' },
-  description: 'Dreamspace Builders provides residential, commercial and industrial construction, contracting, estimation, supervision, drafting, interior design and turnkey project services in Davanagere, Karnataka.',
-  keywords: ['Dreamspace Builders','construction company Davanagere','building construction Davanagere','residential construction Davanagere','commercial construction Davanagere','interior design Davanagere','turnkey construction Davanagere','construction contractor Karnataka'],
+  title: { default: 'Dreamspace Builders | Construction & Design in Karnataka', template: '%s | Dreamspace Builders' },
+  description: 'Dreamspace Builders provides residential, commercial and industrial construction, contracting, estimation, supervision, drafting, interior design and turnkey project services in Davangere, Bengaluru, Tumkur, Hiriyur and Bellary, Karnataka.',
+  keywords: ['Dreamspace Builders','construction company Davangere','construction company Bengaluru','construction company Tumkur','construction company Hiriyur','construction company Bellary','residential construction Karnataka','commercial construction Karnataka','interior design Karnataka','turnkey construction Karnataka'],
   alternates: { canonical: '/' },
-  openGraph: { type: 'website', url: siteUrl, siteName: 'Dreamspace Builders', title: 'Dreamspace Builders | Construction & Design in Davanagere', description: 'Construction, contracting, estimation, supervision, drafting, interior design and turnkey project services in Davanagere, Karnataka.', locale: 'en_IN' },
+  openGraph: { type: 'website', url: siteUrl, siteName: 'Dreamspace Builders', title: 'Dreamspace Builders | Construction & Design in Karnataka', description: 'Construction, contracting, estimation, supervision, drafting, interior design and turnkey project services in Davangere, Bengaluru, Tumkur, Hiriyur and Bellary, Karnataka.', locale: 'en_IN' },
   robots: { index: true, follow: true },
 };
 
 const businessSchema = {
   '@context': 'https://schema.org', '@type': ['LocalBusiness', 'GeneralContractor'], name: 'Dreamspace Builders', url: siteUrl, telephone: '+91 9008592532', email: 'Dreamspacebuilders12@gmail.com',
   address: { '@type': 'PostalAddress', streetAddress: '#70/7, 15th Cross Road, Nijalingappa Layout', addressLocality: 'Davanagere', postalCode: '577004', addressRegion: 'Karnataka', addressCountry: 'IN' },
-  areaServed: 'Davanagere, Karnataka, India', description: 'Construction and design services for residential, commercial and industrial projects.',
+  areaServed: ['Davangere, Karnataka, India', 'Bengaluru, Karnataka, India', 'Tumkur, Karnataka, India', 'Hiriyur, Karnataka, India', 'Bellary, Karnataka, India'], description: 'Construction and design services for residential, commercial and industrial projects across Davangere, Bengaluru, Tumkur, Hiriyur and Bellary, Karnataka.',
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -44,3 +44,4 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     </html>
   );
 }
+
